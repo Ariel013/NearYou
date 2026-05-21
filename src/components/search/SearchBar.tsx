@@ -1,6 +1,7 @@
 "use client";
 
-import { Search } from "lucide-react";
+import { Search, X } from "lucide-react";
+import { useRouter, usePathname } from "next/navigation";
 import { useSearchStore } from "@/store/useSearchStore";
 
 interface SearchBarProps {
@@ -9,9 +10,21 @@ interface SearchBarProps {
 
 export function SearchBar({ placeholder = "Rechercher un service…" }: SearchBarProps) {
   const { query, setQuery } = useSearchStore();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    // Sur la page d'accueil → naviguer vers /providers (query déjà dans le store)
+    if (pathname === "/") {
+      router.push("/providers");
+    }
+  }
 
   return (
-    <div
+    <form
+      onSubmit={handleSubmit}
+      role="search"
       className="relative flex items-center"
       style={{
         backgroundColor: "var(--color-surface)",
@@ -22,7 +35,7 @@ export function SearchBar({ placeholder = "Rechercher un service…" }: SearchBa
     >
       <Search
         size={18}
-        className="absolute left-4"
+        className="absolute left-4 pointer-events-none"
         style={{ color: "var(--color-text-muted)" }}
       />
       <input
@@ -31,12 +44,19 @@ export function SearchBar({ placeholder = "Rechercher un service…" }: SearchBa
         onChange={(e) => setQuery(e.target.value)}
         placeholder={placeholder}
         aria-label="Recherche de prestataires"
-        className="w-full bg-transparent py-3 pl-11 pr-4 outline-none"
-        style={{
-          fontSize: "var(--text-base)",
-          color: "var(--color-text)",
-        }}
+        className="w-full bg-transparent py-3 pl-11 pr-10 outline-none"
+        style={{ fontSize: "var(--text-base)", color: "var(--color-text)" }}
       />
-    </div>
+      {query && (
+        <button
+          type="button"
+          onClick={() => setQuery("")}
+          className="absolute right-4 flex items-center justify-center rounded-full transition-opacity active:opacity-60"
+          aria-label="Effacer la recherche"
+        >
+          <X size={16} style={{ color: "var(--color-text-muted)" }} />
+        </button>
+      )}
+    </form>
   );
 }
