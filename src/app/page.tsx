@@ -1,65 +1,138 @@
-import Image from "next/image";
+import Link from "next/link";
+import { MapPin, Plus } from "lucide-react";
+import { SearchBar } from "@/components/search/SearchBar";
+import { CategoryGrid } from "@/components/search/CategoryGrid";
+import { BottomNav } from "@/components/shared/BottomNav";
+import { GeolocateButton } from "./GeolocateButton";
 
-export default function Home() {
+export default function HomePage() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <main className="min-h-screen pb-20" style={{ backgroundColor: "var(--color-bg)" }}>
+      {/* Header */}
+      <header
+        className="sticky top-0 z-40 px-5 py-4"
+        style={{ backgroundColor: "var(--color-surface)", borderBottom: "1px solid var(--color-border)" }}
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <MapPin size={22} style={{ color: "var(--color-primary)" }} />
+            <span
+              className="font-bold"
+              style={{ fontFamily: "var(--font-display)", fontSize: "var(--text-lg)", color: "var(--color-text)" }}
+            >
+              GéoService
+            </span>
+          </div>
+          <Link
+            href="/providers/new"
+            className="flex items-center gap-1 rounded-full px-3 py-1.5 font-medium transition-colors"
+            style={{
+              backgroundColor: "var(--color-primary)",
+              color: "white",
+              fontSize: "var(--text-sm)",
+            }}
+            aria-label="Ajouter un prestataire"
+          >
+            <Plus size={16} />
+            Ajouter
+          </Link>
+        </div>
+      </header>
+
+      <div className="px-5 py-6 space-y-7">
+        {/* Hero */}
+        <section>
+          <h1
+            className="font-bold leading-tight"
+            style={{ fontFamily: "var(--font-display)", fontSize: "var(--text-2xl)", color: "var(--color-text)" }}
+          >
+            Le bon artisan,<br />
+            <span style={{ color: "var(--color-primary)" }}>à deux pas de chez vous</span>
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p
+            className="mt-2"
+            style={{ color: "var(--color-text-muted)", fontSize: "var(--text-base)" }}
+          >
+            Trouvez un prestataire de confiance près de vous
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+        </section>
+
+        {/* Search */}
+        <SearchBar />
+
+        {/* Geolocate */}
+        <GeolocateButton />
+
+        {/* Categories */}
+        <section>
+          <div className="mb-3 flex items-center justify-between">
+            <h2
+              className="font-semibold"
+              style={{ fontFamily: "var(--font-display)", fontSize: "var(--text-lg)", color: "var(--color-text)" }}
+            >
+              Catégories
+            </h2>
+            <Link
+              href="/providers"
+              style={{ color: "var(--color-primary)", fontSize: "var(--text-sm)" }}
+            >
+              Voir tout
+            </Link>
+          </div>
+          <CategoryGrid limit={8} />
+        </section>
+
+        {/* Explore CTA */}
+        <section>
+          <Link
+            href="/providers"
+            className="flex items-center justify-between rounded-2xl p-5 transition-shadow hover:shadow-lg"
+            style={{
+              background: `linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%)`,
+              color: "white",
+            }}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            <div>
+              <p className="font-semibold" style={{ fontFamily: "var(--font-display)", fontSize: "var(--text-lg)" }}>
+                Explorer les environs
+              </p>
+              <p style={{ fontSize: "var(--text-sm)", opacity: 0.85 }}>
+                Voir tous les prestataires sur la carte
+              </p>
+            </div>
+            <MapPin size={32} style={{ opacity: 0.8 }} />
+          </Link>
+        </section>
+
+        {/* Claim CTA */}
+        <section
+          className="rounded-2xl p-5"
+          style={{
+            backgroundColor: "var(--color-accent-light)",
+            border: "1px solid var(--color-accent)",
+          }}
+        >
+          <p className="font-semibold" style={{ color: "var(--color-text)", fontSize: "var(--text-base)" }}>
+            Vous êtes prestataire ?
+          </p>
+          <p className="mt-1" style={{ color: "var(--color-text-muted)", fontSize: "var(--text-sm)" }}>
+            Revendiquez votre fiche ou créez-en une nouvelle pour être visible par vos clients.
+          </p>
+          <Link
+            href="/claim"
+            className="mt-3 inline-block rounded-full px-4 py-2 font-medium transition-opacity active:opacity-80"
+            style={{
+              backgroundColor: "var(--color-accent)",
+              color: "white",
+              fontSize: "var(--text-sm)",
+            }}
           >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+            Gérer ma fiche
+          </Link>
+        </section>
+      </div>
+
+      <BottomNav />
+    </main>
   );
 }

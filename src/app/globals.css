@@ -1,26 +1,152 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-body);
+  --font-mono: var(--font-mono);
+  --font-heading: var(--font-display);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ─── GéoService Design Tokens ─── */
+:root {
+  /* Brand */
+  --color-primary:       #1B6CA8;
+  --color-primary-light: #E8F4FD;
+  --color-primary-dark:  #0D4E7A;
+  --color-accent:        #F5A623;
+  --color-accent-light:  #FEF3D7;
+
+  /* Neutrals */
+  --color-bg:            #F8F9FB;
+  --color-surface:       #FFFFFF;
+  --color-border:        #E2E8F0;
+  --color-text:          #1A202C;
+  --color-text-muted:    #64748B;
+  --color-text-light:    #94A3B8;
+
+  /* Semantic */
+  --color-success:       #22C55E;
+  --color-success-light: #DCFCE7;
+  --color-warning:       #F59E0B;
+  --color-warning-light: #FEF3C7;
+  --color-error:         #EF4444;
+  --color-error-light:   #FEE2E2;
+
+  /* Spacing */
+  --space-1: 0.25rem;  --space-2: 0.5rem;   --space-3: 0.75rem;
+  --space-4: 1rem;     --space-6: 1.5rem;   --space-8: 2rem;
+  --space-12: 3rem;    --space-16: 4rem;    --space-24: 6rem;
+
+  /* Radii */
+  --radius-sm:   6px;
+  --radius-md:   12px;
+  --radius-lg:   20px;
+  --radius-full: 9999px;
+  --radius:      0.75rem;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.10);
+  --shadow-lg: 0 16px 40px rgba(0,0,0,0.14);
+
+  /* Transitions */
+  --ease-out:       cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-fast:  150ms;
+  --duration-base:  250ms;
+
+  /* Typography scale */
+  --text-xs:   clamp(0.7rem,  0.65rem + 0.25vw, 0.8rem);
+  --text-sm:   clamp(0.85rem, 0.8rem  + 0.25vw, 0.95rem);
+  --text-base: clamp(1rem,    0.95rem + 0.25vw, 1.1rem);
+  --text-lg:   clamp(1.15rem, 1.1rem  + 0.5vw,  1.3rem);
+  --text-xl:   clamp(1.35rem, 1.2rem  + 0.75vw, 1.75rem);
+  --text-2xl:  clamp(1.75rem, 1.5rem  + 1.25vw, 2.5rem);
+  --text-3xl:  clamp(2.25rem, 2rem    + 2vw,    3.5rem);
+
+  /* shadcn compat */
+  --background: #F8F9FB;
+  --foreground:  #1A202C;
+  --card:        #FFFFFF;
+  --card-foreground: #1A202C;
+  --popover:     #FFFFFF;
+  --popover-foreground: #1A202C;
+  --primary:     #1B6CA8;
+  --primary-foreground: #FFFFFF;
+  --secondary:   #E8F4FD;
+  --secondary-foreground: #1B6CA8;
+  --muted:       #F1F5F9;
+  --muted-foreground: #64748B;
+  --accent:      #FEF3D7;
+  --accent-foreground: #F5A623;
+  --destructive: #EF4444;
+  --border:      #E2E8F0;
+  --input:       #E2E8F0;
+  --ring:        #1B6CA8;
+  --sidebar:     #FFFFFF;
+  --sidebar-foreground: #1A202C;
+  --sidebar-primary: #1B6CA8;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #E8F4FD;
+  --sidebar-accent-foreground: #1B6CA8;
+  --sidebar-border: #E2E8F0;
+  --sidebar-ring: #1B6CA8;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    box-sizing: border-box;
+  }
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-body, system-ui, sans-serif);
+    font-size: var(--text-base);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display, system-ui, sans-serif);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-}
+/* Leaflet CSS — importé depuis le package npm (pas de CDN) */
+@import "leaflet/dist/leaflet.css";
