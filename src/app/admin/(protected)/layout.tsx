@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Shield, Flag, Star, Users } from "lucide-react";
 import { verifyAdminSession } from "@/lib/admin-auth";
 import { redirect } from "next/navigation";
+import { LogoutButton } from "./LogoutButton";
 
 export const metadata: Metadata = { title: "Administration — GéoService" };
 
@@ -30,11 +31,12 @@ export default async function AdminLayout({ children }: { children: ReactNode })
       >
         <Shield size={20} style={{ color: "var(--color-primary)" }} />
         <span
-          className="font-bold"
+          className="flex-1 font-bold"
           style={{ fontFamily: "var(--font-display)", fontSize: "var(--text-base)", color: "var(--color-primary)" }}
         >
           Admin — GéoService
         </span>
+        <LogoutButton />
       </header>
 
       <div className="flex">
