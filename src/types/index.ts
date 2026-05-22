@@ -25,6 +25,7 @@ export interface ProviderFull extends ProviderBase {
   categories: Category[];
   photos: ProviderPhoto[];
   reviews: Review[];
+  disabled_at: string | null;
 }
 
 export interface SearchFilters {

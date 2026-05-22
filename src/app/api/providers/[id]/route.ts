@@ -44,6 +44,7 @@ export async function GET(
       claimed_by_phone: provider.claimed_by_phone,
       avg_rating:       provider.avg_rating,
       review_count:     provider.review_count,
+      disabled_at:      provider.disabled_at ?? null,
       created_at:       provider.created_at,
       updated_at:       provider.updated_at,
       lat,

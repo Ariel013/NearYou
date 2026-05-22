@@ -32,6 +32,7 @@ export interface Provider {
   claimed_by_phone: string | null;
   avg_rating: number;
   review_count: number;
+  disabled_at: string | null;
   created_at: string;
   updated_at: string;
 }

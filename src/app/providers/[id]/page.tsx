@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { Phone, MessageCircle, Flag } from "lucide-react";
+import { Phone, MessageCircle } from "lucide-react";
 import { BottomNav } from "@/components/shared/BottomNav";
 import { StarRating } from "@/components/shared/StarRating";
 import { BadgeVerified } from "@/components/shared/BadgeVerified";
@@ -11,6 +11,7 @@ import { BackButton } from "./BackButton";
 import { ContactLogger } from "./ContactLogger";
 import { ProviderDetailMap } from "@/components/map/ProviderDetailMap";
 import { NavigationButton } from "./NavigationButton";
+import { ProviderActions } from "./ProviderActions";
 
 async function getProvider(id: string): Promise<ProviderFull | null> {
   const baseUrl =
@@ -196,14 +197,16 @@ export default async function ProviderPage({
           )}
         </section>
 
+        {/* Actions : avis + signalement */}
+        <ProviderActions providerId={provider.id} />
+
         {/* Claim link */}
         <div className="flex items-center justify-center">
           <a
             href={`/claim?phone=${encodeURIComponent(provider.contact_phone)}`}
-            className="flex items-center gap-1"
-            style={{ color: "var(--color-text-muted)", fontSize: "var(--text-sm)" }}
+            className="text-sm underline"
+            style={{ color: "var(--color-text-muted)" }}
           >
-            <Flag size={14} />
             C&apos;est ma fiche
           </a>
         </div>
