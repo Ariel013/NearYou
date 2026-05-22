@@ -138,7 +138,7 @@ function ProvidersPageContent() {
 
       {/* Content */}
       {viewMode === "map" ? (
-        <div className="relative flex-1" style={{ minHeight: "50vh" }}>
+        <div className="relative" style={{ height: "42vh" }}>
           <MapViewDynamic
             center={center}
             providers={providers}

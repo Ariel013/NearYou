@@ -286,8 +286,21 @@ export function NavigationView({ target, onClose }: NavigationViewProps) {
 
   // ─── UI ──────────────────────────────────────────────────────────────────
   return (
-    // z-[999] > BottomNav z-50 → la nav s'affiche toujours au premier plan
-    <div className="fixed inset-0 z-[999] flex flex-col" style={{ backgroundColor: "#f0f0f0" }}>
+    <div
+      className="fixed inset-x-0 bottom-0 z-[999] flex flex-col"
+      style={{
+        height: "80vh",
+        borderRadius: "20px 20px 0 0",
+        overflow: "hidden",
+        boxShadow: "0 -8px 40px rgba(0,0,0,0.22)",
+        backgroundColor: "#f0f0f0",
+      }}
+    >
+
+      {/* Handle */}
+      <div className="flex justify-center pt-2 pb-1 flex-shrink-0" style={{ backgroundColor: "var(--color-primary)" }}>
+        <div className="h-1 w-10 rounded-full" style={{ backgroundColor: "rgba(255,255,255,0.4)" }} />
+      </div>
 
       {/* Barre du haut */}
       <div
@@ -295,7 +308,7 @@ export function NavigationView({ target, onClose }: NavigationViewProps) {
         style={{
           backgroundColor: "var(--color-primary)",
           boxShadow: "var(--shadow-md)",
-          paddingTop: "max(env(safe-area-inset-top), 12px)",
+          paddingTop: "4px",
           paddingBottom: "12px",
         }}
       >
