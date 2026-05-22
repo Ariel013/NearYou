@@ -147,6 +147,7 @@ export function ProviderSheet({ provider, open, onClose, onNavigate }: ProviderS
           <div className="mt-4 flex items-center justify-between">
             <Link
               href={`/providers/${provider.id}`}
+              onClick={onClose}
               className="rounded-full border px-3 py-1.5 text-sm font-medium transition-colors"
               style={{ borderColor: "var(--color-border)", color: "var(--color-text)" }}
             >

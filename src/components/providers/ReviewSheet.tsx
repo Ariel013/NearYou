@@ -11,7 +11,7 @@ type Step = "phone" | "otp" | "form" | "done";
 
 interface ReviewSheetProps {
   providerId: string;
-  onClose: () => void;
+  onClose: (submitted?: boolean) => void;
 }
 
 export function ReviewSheet({ providerId, onClose }: ReviewSheetProps) {
@@ -86,7 +86,7 @@ export function ReviewSheet({ providerId, onClose }: ReviewSheetProps) {
       {/* Backdrop */}
       <div
         className="fixed inset-0 z-40 bg-black/40"
-        onClick={onClose}
+        onClick={() => onClose()}
         aria-hidden="true"
       />
 
@@ -225,7 +225,7 @@ export function ReviewSheet({ providerId, onClose }: ReviewSheetProps) {
             <Button
               className="w-full rounded-full py-3"
               style={{ backgroundColor: "var(--color-primary)", color: "white" }}
-              onClick={onClose}
+              onClick={() => onClose(true)}
             >
               Fermer
             </Button>

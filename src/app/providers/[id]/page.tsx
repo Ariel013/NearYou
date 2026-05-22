@@ -165,9 +165,12 @@ export default async function ProviderPage({
 
         {/* Reviews */}
         <section>
-          <h2 className="mb-3 font-semibold" style={{ fontSize: "var(--text-base)" }}>
-            Avis clients ({provider.review_count})
-          </h2>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-semibold" style={{ fontSize: "var(--text-base)" }}>
+              Avis clients ({provider.review_count})
+            </h2>
+            <ProviderActions providerId={provider.id} />
+          </div>
           {provider.reviews?.length ? (
             <ul className="space-y-3">
               {provider.reviews.slice(0, 5).map((r: Review) => (
@@ -196,9 +199,6 @@ export default async function ProviderPage({
             </p>
           )}
         </section>
-
-        {/* Actions : avis + signalement */}
-        <ProviderActions providerId={provider.id} />
 
         {/* Claim link */}
         <div className="flex items-center justify-center">
