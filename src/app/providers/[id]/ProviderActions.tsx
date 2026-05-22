@@ -22,32 +22,32 @@ export function ProviderActions({ providerId }: ProviderActionsProps) {
 
   return (
     <>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 pt-1">
         <button
           onClick={() => setShowReview(true)}
-          className="flex items-center gap-1 rounded-full px-3 py-1.5 font-medium transition-colors"
+          className="flex flex-1 items-center justify-center gap-2 rounded-full py-2.5 font-medium transition-colors"
           style={{
             backgroundColor: "var(--color-accent-light)",
             color: "var(--color-accent)",
-            fontSize: "var(--text-xs)",
+            fontSize: "var(--text-sm)",
           }}
           aria-label="Laisser un avis"
         >
-          <Star size={13} />
-          Avis
+          <Star size={15} />
+          Laisser un avis
         </button>
 
         <button
           onClick={() => setShowReport(true)}
-          className="flex items-center gap-1 rounded-full px-3 py-1.5 font-medium transition-colors"
+          className="flex items-center gap-1.5 rounded-full px-4 py-2.5 font-medium transition-colors"
           style={{
             backgroundColor: "var(--color-error-light)",
             color: "var(--color-error)",
-            fontSize: "var(--text-xs)",
+            fontSize: "var(--text-sm)",
           }}
           aria-label="Signaler cette fiche"
         >
-          <Flag size={13} />
+          <Flag size={15} />
           Signaler
         </button>
       </div>

@@ -120,6 +120,9 @@ export default async function ProviderPage({
               📍 {provider.address_label}
             </p>
           )}
+
+          {/* Boutons avis + signalement — toujours visibles sans scroller */}
+          <ProviderActions providerId={provider.id} />
         </section>
 
         {/* Bio */}
@@ -165,12 +168,9 @@ export default async function ProviderPage({
 
         {/* Reviews */}
         <section>
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="font-semibold" style={{ fontSize: "var(--text-base)" }}>
-              Avis clients ({provider.review_count})
-            </h2>
-            <ProviderActions providerId={provider.id} />
-          </div>
+          <h2 className="mb-3 font-semibold" style={{ fontSize: "var(--text-base)" }}>
+            Avis clients ({provider.review_count})
+          </h2>
           {provider.reviews?.length ? (
             <ul className="space-y-3">
               {provider.reviews.slice(0, 5).map((r: Review) => (
