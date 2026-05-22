@@ -1,11 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { Phone, MessageCircle, Navigation, Flag } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Phone, MessageCircle, Navigation, Flag, Star } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { StarRating } from "@/components/shared/StarRating";
 import { BadgeVerified } from "@/components/shared/BadgeVerified";
 import { buildWaLink } from "@/lib/geo";
+import { ReviewSheet } from "@/components/providers/ReviewSheet";
 import type { ProviderWithDistance } from "@/types";
 
 interface NavTarget { name: string; lat: number; lng: number }
@@ -18,6 +21,9 @@ interface ProviderSheetProps {
 }
 
 export function ProviderSheet({ provider, open, onClose, onNavigate }: ProviderSheetProps) {
+  const router = useRouter();
+  const [showReview, setShowReview] = useState(false);
+
   if (!provider) return null;
 
   const { lat, lng } = provider;
@@ -39,6 +45,16 @@ export function ProviderSheet({ provider, open, onClose, onNavigate }: ProviderS
   }
 
   return (
+    <>
+    {showReview && (
+      <ReviewSheet
+        providerId={provider.id}
+        onClose={(submitted) => {
+          setShowReview(false);
+          if (submitted) router.refresh();
+        }}
+      />
+    )}
     <Sheet open={open} onOpenChange={(o) => !o && onClose()}>
         {/* max-h réduit à ~50% pour laisser la carte visible au-dessus */}
         <SheetContent
@@ -143,6 +159,21 @@ export function ProviderSheet({ provider, open, onClose, onNavigate }: ProviderS
           </div>
 
 
+          {/* Bouton laisser un avis */}
+          <button
+            onClick={() => setShowReview(true)}
+            className="mt-3 flex w-full items-center justify-center gap-2 rounded-full py-2.5 font-medium transition-colors"
+            style={{
+              backgroundColor: "var(--color-accent-light)",
+              color: "var(--color-accent)",
+              fontSize: "var(--text-sm)",
+            }}
+            aria-label="Laisser un avis"
+          >
+            <Star size={15} />
+            Laisser un avis
+          </button>
+
           {/* Liens bas de sheet */}
           <div className="mt-4 flex items-center justify-between">
             <Link
@@ -164,5 +195,6 @@ export function ProviderSheet({ provider, open, onClose, onNavigate }: ProviderS
           </div>
         </SheetContent>
       </Sheet>
+    </>
   );
 }
