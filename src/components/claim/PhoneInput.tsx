@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { parsePhoneNumber, isValidPhoneNumber } from "libphonenumber-js";
+import { parsePhoneNumberWithError, isValidPhoneNumber } from "libphonenumber-js";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -13,8 +13,11 @@ interface PhoneInputProps {
 }
 
 export function PhoneInput({ value, onChange, error, disabled }: PhoneInputProps) {
-  // Initialise toujours avec "+" pour guider l'utilisateur
-  const [displayValue, setDisplayValue] = useState(value || "+");
+  const [displayValue, setDisplayValue] = useState(() => {
+    if (!value) return "+";
+    const trimmed = value.trim();
+    return trimmed.startsWith("+") ? trimmed : `+${trimmed.replace(/\D/g, "")}`;
+  });
 
   function handleChange(raw: string) {
     // Forcer le "+" comme premier caractère
@@ -28,8 +31,7 @@ export function PhoneInput({ value, onChange, error, disabled }: PhoneInputProps
 
     let formatted = sanitized;
     try {
-      const parsed = parsePhoneNumber(sanitized);
-      if (parsed) formatted = parsed.format("E.164");
+      formatted = parsePhoneNumberWithError(sanitized).format("E.164");
     } catch {
       // keep sanitized if parse fails
     }

@@ -187,7 +187,7 @@ export function ProviderSheet({ provider, open, onClose, onNavigate }: ProviderS
               Voir la fiche complète
             </Link>
             <Link
-              href={`/claim?phone=${provider.contact_phone}`}
+              href={`/claim?phone=${encodeURIComponent(provider.contact_phone)}`}
               className="flex items-center gap-1"
               style={{ color: "var(--color-text-muted)", fontSize: "var(--text-sm)" }}
             >
