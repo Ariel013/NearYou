@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CATEGORIES } from "@/components/search/CategoryGrid";
+import { CountryPhoneInput } from "@/components/claim/CountryPhoneInput";
 import { DEFAULT_LAT, DEFAULT_LNG, DEFAULT_RADIUS_KM } from "@/types";
 
 const LocationPickerDynamic = dynamic(
@@ -88,11 +89,11 @@ export function ProviderForm({ defaultValues, onSubmit, submitLabel = "Enregistr
       </div>
 
       {/* Phone */}
-      <div className="space-y-1.5">
-        <Label htmlFor="contact_phone">Téléphone *</Label>
-        <Input id="contact_phone" type="tel" {...register("contact_phone")} placeholder="+229 96 00 00 00" aria-invalid={!!errors.contact_phone} />
-        {errors.contact_phone && <p style={{ color: "var(--color-error)", fontSize: "var(--text-xs)" }}>{errors.contact_phone.message}</p>}
-      </div>
+      <CountryPhoneInput
+        id="contact_phone"
+        onChange={(e164) => setValue("contact_phone", e164, { shouldValidate: true })}
+        error={errors.contact_phone?.message}
+      />
 
       {/* Bio */}
       <div className="space-y-1.5">
