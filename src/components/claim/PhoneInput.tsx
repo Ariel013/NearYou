@@ -13,19 +13,25 @@ interface PhoneInputProps {
 }
 
 export function PhoneInput({ value, onChange, error, disabled }: PhoneInputProps) {
-  const [displayValue, setDisplayValue] = useState(value);
+  // Initialise toujours avec "+" pour guider l'utilisateur
+  const [displayValue, setDisplayValue] = useState(value || "+");
 
   function handleChange(raw: string) {
-    setDisplayValue(raw);
-    const normalized = raw.startsWith("+") ? raw : `+${raw.replace(/[^0-9]/g, "")}`;
-    const valid = isValidPhoneNumber(normalized) || (raw.length >= 10 && isValidPhoneNumber(raw, "CI"));
+    // Forcer le "+" comme premier caractère
+    let sanitized = raw;
+    if (!sanitized.startsWith("+")) {
+      sanitized = "+" + sanitized.replace(/\D/g, "");
+    }
+    setDisplayValue(sanitized);
 
-    let formatted = raw;
+    const valid = sanitized.length >= 8 && isValidPhoneNumber(sanitized);
+
+    let formatted = sanitized;
     try {
-      const parsed = parsePhoneNumber(normalized);
+      const parsed = parsePhoneNumber(sanitized);
       if (parsed) formatted = parsed.format("E.164");
     } catch {
-      // keep raw if parse fails
+      // keep sanitized if parse fails
     }
 
     onChange(formatted, valid);
@@ -37,15 +43,14 @@ export function PhoneInput({ value, onChange, error, disabled }: PhoneInputProps
       <Input
         id="phone-input"
         type="tel"
+        inputMode="tel"
         value={displayValue}
         onChange={(e) => handleChange(e.target.value)}
-        placeholder="+229 96 00 00 00"
+        placeholder="+225 05 02 00 00 00"
         disabled={disabled}
         aria-invalid={!!error}
         aria-describedby={error ? "phone-error" : undefined}
-        style={{
-          borderColor: error ? "var(--color-error)" : undefined,
-        }}
+        style={{ borderColor: error ? "var(--color-error)" : undefined }}
       />
       {error && (
         <p id="phone-error" style={{ color: "var(--color-error)", fontSize: "var(--text-xs)" }}>
@@ -53,7 +58,7 @@ export function PhoneInput({ value, onChange, error, disabled }: PhoneInputProps
         </p>
       )}
       <p style={{ color: "var(--color-text-light)", fontSize: "var(--text-xs)" }}>
-        Format international recommandé : +229 96 00 00 00
+        Exemples : +225 05 02 00 00 00 (CI) · +229 96 00 00 00 (BJ)
       </p>
     </div>
   );

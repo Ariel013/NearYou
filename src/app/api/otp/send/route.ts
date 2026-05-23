@@ -36,7 +36,20 @@ export async function POST(req: NextRequest) {
 
     if (insertError) throw insertError;
 
-    await sendOtpSms(phone, code);
+    try {
+      await sendOtpSms(phone, code);
+    } catch (smsErr) {
+      // L'OTP est en base — on log l'erreur SMS mais on ne plante pas la route
+      console.error("[otp/send] SMS failed:", smsErr);
+      return NextResponse.json<ApiResponse<never>>(
+        {
+          data: null,
+          error:
+            "Le SMS n'a pas pu être envoyé. Vérifiez le numéro (format international : +225…) ou réessayez dans quelques instants.",
+        },
+        { status: 503 }
+      );
+    }
 
     return NextResponse.json<ApiResponse<{ sent: boolean }>>({
       data: { sent: true },
@@ -45,7 +58,7 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     console.error("[otp/send]", err);
     return NextResponse.json<ApiResponse<never>>(
-      { data: null, error: "Erreur lors de l'envoi du code OTP" },
+      { data: null, error: "Erreur serveur, réessayez." },
       { status: 500 }
     );
   }
