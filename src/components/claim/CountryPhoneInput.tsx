@@ -1,50 +1,53 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { getCountries, getCountryCallingCode, parsePhoneNumberWithError, isValidPhoneNumber } from "libphonenumber-js";
+import { useMemo, useState, useRef, useEffect } from "react";
+import {
+  getCountries,
+  getCountryCallingCode,
+  parsePhoneNumberWithError,
+  isValidPhoneNumber,
+} from "libphonenumber-js";
+import { ChevronDown, Search } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 
-// Drapeau emoji depuis le code ISO 2 lettres (pas de dépendance)
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
 function toFlag(iso: string): string {
   return iso
     .toUpperCase()
     .replace(/./g, (c) => String.fromCodePoint(127397 + c.charCodeAt(0)));
 }
 
-// Nom du pays en français via l'API navigateur
-const displayNames = typeof Intl !== "undefined"
-  ? new Intl.DisplayNames(["fr"], { type: "region" })
-  : null;
+const displayNames =
+  typeof Intl !== "undefined"
+    ? new Intl.DisplayNames(["fr"], { type: "region" })
+    : null;
 
-function countryName(iso: string): string {
+function countryLabel(iso: string): string {
   try { return displayNames?.of(iso) ?? iso; }
   catch { return iso; }
 }
 
-// Pays d'Afrique de l'Ouest/Centrale en tête de liste
-const PRIORITY = ["BJ", "CI", "SN", "ML", "BF", "GN", "TG", "GH", "NG", "CM", "CD", "CG", "GA", "NE", "MR", "SL", "LR", "GM", "GW", "CV"];
+// ── Data ─────────────────────────────────────────────────────────────────────
+
+const PRIORITY = ["BJ","CI","SN","ML","BF","GN","TG","GH","NG","CM","CD","CG","GA","NE","MR"];
 
 interface CountryOption { iso: string; dial: string; name: string; flag: string }
 
-function buildCountryList(): CountryOption[] {
+function buildList(): CountryOption[] {
   const all = getCountries().map((iso) => ({
     iso: iso as string,
     dial: `+${getCountryCallingCode(iso)}`,
-    name: countryName(iso),
+    name: countryLabel(iso),
     flag: toFlag(iso),
   }));
-
-  const priority = PRIORITY
-    .map((iso) => all.find((c) => c.iso === iso))
-    .filter((c): c is CountryOption => c != null);
-
-  const rest = all
-    .filter((c) => !PRIORITY.includes(c.iso))
-    .sort((a, b) => a.name.localeCompare(b.name, "fr"));
-
-  return [...priority, rest[0] && { iso: "__sep__", dial: "", name: "──────────", flag: "" } as CountryOption, ...rest].filter(Boolean) as CountryOption[];
+  const priority = PRIORITY.map((p) => all.find((c) => c.iso === p)).filter(Boolean) as CountryOption[];
+  const rest = all.filter((c) => !PRIORITY.includes(c.iso)).sort((a, b) => a.name.localeCompare(b.name, "fr"));
+  return [...priority, ...rest];
 }
+
+// ── Component ─────────────────────────────────────────────────────────────────
 
 interface CountryPhoneInputProps {
   onChange: (e164: string, isValid: boolean) => void;
@@ -61,9 +64,34 @@ export function CountryPhoneInput({
   label = "Téléphone",
   id = "phone-country",
 }: CountryPhoneInputProps) {
-  const countries = useMemo(buildCountryList, []);
+  const countries = useMemo(buildList, []);
   const [selectedIso, setSelectedIso] = useState("BJ");
   const [localNumber, setLocalNumber] = useState("");
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Ferme le dropdown si clic extérieur
+  useEffect(() => {
+    function onClickOutside(e: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false);
+        setSearch("");
+      }
+    }
+    document.addEventListener("mousedown", onClickOutside);
+    return () => document.removeEventListener("mousedown", onClickOutside);
+  }, []);
+
+  const selected = countries.find((c) => c.iso === selectedIso) ?? countries[0];
+
+  const filtered = search.trim()
+    ? countries.filter(
+        (c) =>
+          c.name.toLowerCase().includes(search.toLowerCase()) ||
+          c.dial.includes(search)
+      )
+    : countries;
 
   function notify(iso: string, local: string) {
     const dial = `+${getCountryCallingCode(iso as Parameters<typeof getCountryCallingCode>[0])}`;
@@ -71,15 +99,15 @@ export function CountryPhoneInput({
     const full = `${dial}${digits}`;
     const valid = digits.length >= 4 && isValidPhoneNumber(full);
     let e164 = full;
-    try {
-      e164 = parsePhoneNumberWithError(full).format("E.164");
-    } catch { /* keep full */ }
+    try { e164 = parsePhoneNumberWithError(full).format("E.164"); }
+    catch { /* keep full */ }
     onChange(e164, valid);
   }
 
-  function handleCountryChange(iso: string) {
-    if (iso === "__sep__") return;
+  function selectCountry(iso: string) {
     setSelectedIso(iso);
+    setOpen(false);
+    setSearch("");
     notify(iso, localNumber);
   }
 
@@ -89,41 +117,105 @@ export function CountryPhoneInput({
     notify(selectedIso, cleaned);
   }
 
-  const selectedCountry = countries.find((c) => c.iso === selectedIso);
-
   return (
     <div className="space-y-1.5">
       {label && <Label htmlFor={id}>{label} *</Label>}
 
-      <div className="flex gap-2">
-        {/* Select pays */}
-        <select
-          value={selectedIso}
-          onChange={(e) => handleCountryChange(e.target.value)}
-          disabled={disabled}
-          aria-label="Indicatif pays"
-          className="shrink-0 rounded-lg px-2 py-2 outline-none transition-colors"
-          style={{
-            border: "1px solid var(--color-border)",
-            backgroundColor: "var(--color-surface)",
-            color: "var(--color-text)",
-            fontSize: "var(--text-sm)",
-            fontWeight: 500,
-            minWidth: "7rem",
-          }}
-        >
-          {countries.map((c) =>
-            c.iso === "__sep__" ? (
-              <option key="__sep__" value="__sep__" disabled>──────────</option>
-            ) : (
-              <option key={c.iso} value={c.iso}>
-                {c.flag} {c.dial} {c.name}
-              </option>
-            )
-          )}
-        </select>
+      <div className="flex gap-2 items-stretch">
+        {/* ── Sélecteur pays (dropdown custom) ── */}
+        <div ref={containerRef} className="relative shrink-0">
+          <button
+            type="button"
+            onClick={() => { if (!disabled) setOpen((v) => !v); }}
+            disabled={disabled}
+            aria-haspopup="listbox"
+            aria-expanded={open}
+            aria-label="Choisir le pays"
+            className="flex h-full items-center gap-1.5 rounded-lg px-3 py-2 transition-colors"
+            style={{
+              border: `1px solid ${open ? "var(--color-primary)" : "var(--color-border)"}`,
+              backgroundColor: "var(--color-surface)",
+              color: "var(--color-text)",
+              fontSize: "var(--text-sm)",
+              fontWeight: 500,
+              minWidth: "5.5rem",
+              whiteSpace: "nowrap",
+            }}
+          >
+            <span>{selected.flag}</span>
+            <span>{selected.dial}</span>
+            <ChevronDown
+              size={14}
+              style={{
+                color: "var(--color-text-muted)",
+                transform: open ? "rotate(180deg)" : "none",
+                transition: "transform 150ms",
+              }}
+            />
+          </button>
 
-        {/* Numéro local */}
+          {/* Dropdown */}
+          {open && (
+            <div
+              role="listbox"
+              aria-label="Liste des pays"
+              className="absolute left-0 top-full mt-1 z-50 rounded-2xl overflow-hidden"
+              style={{
+                width: "16rem",
+                backgroundColor: "var(--color-surface)",
+                boxShadow: "var(--shadow-lg)",
+                border: "1px solid var(--color-border)",
+              }}
+            >
+              {/* Champ recherche */}
+              <div className="p-2 border-b" style={{ borderColor: "var(--color-border)" }}>
+                <div className="flex items-center gap-2 rounded-xl px-3 py-1.5" style={{ backgroundColor: "var(--color-bg)" }}>
+                  <Search size={13} style={{ color: "var(--color-text-muted)", flexShrink: 0 }} />
+                  <input
+                    autoFocus
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder="Rechercher un pays…"
+                    className="flex-1 bg-transparent outline-none"
+                    style={{ fontSize: "var(--text-xs)", color: "var(--color-text)" }}
+                    aria-label="Rechercher un pays"
+                  />
+                </div>
+              </div>
+
+              {/* Liste */}
+              <ul className="overflow-y-auto" style={{ maxHeight: "14rem" }}>
+                {filtered.length === 0 && (
+                  <li className="px-4 py-3 text-center" style={{ color: "var(--color-text-muted)", fontSize: "var(--text-xs)" }}>
+                    Aucun résultat
+                  </li>
+                )}
+                {filtered.map((c) => (
+                  <li key={c.iso}>
+                    <button
+                      type="button"
+                      role="option"
+                      aria-selected={c.iso === selectedIso}
+                      onClick={() => selectCountry(c.iso)}
+                      className="flex w-full items-center gap-2.5 px-3 py-2.5 transition-colors text-left"
+                      style={{
+                        backgroundColor: c.iso === selectedIso ? "var(--color-primary-light)" : "transparent",
+                        fontSize: "var(--text-sm)",
+                        color: "var(--color-text)",
+                      }}
+                    >
+                      <span style={{ fontSize: "1.1em" }}>{c.flag}</span>
+                      <span style={{ color: "var(--color-text-muted)", fontWeight: 500, flexShrink: 0 }}>{c.dial}</span>
+                      <span className="truncate">{c.name}</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+
+        {/* ── Numéro local ── */}
         <Input
           id={id}
           type="tel"
@@ -134,15 +226,15 @@ export function CountryPhoneInput({
           disabled={disabled}
           aria-invalid={!!error}
           aria-describedby={error ? `${id}-error` : undefined}
-          className="flex-1"
+          className="flex-1 min-w-0"
           style={{ borderColor: error ? "var(--color-error)" : undefined }}
         />
       </div>
 
-      {/* Aperçu numéro complet */}
-      {localNumber.replace(/\D/g, "").length > 0 && selectedCountry && (
+      {/* Aperçu E.164 */}
+      {localNumber.replace(/\D/g, "").length > 0 && (
         <p style={{ color: "var(--color-text-light)", fontSize: "var(--text-xs)" }}>
-          {selectedCountry.flag} Numéro complet : {selectedCountry.dial}{localNumber.replace(/\D/g, "")}
+          {selected.flag} Numéro complet : {selected.dial}{localNumber.replace(/\D/g, "")}
         </p>
       )}
 
