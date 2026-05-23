@@ -9,6 +9,7 @@ import { StarRating } from "@/components/shared/StarRating";
 import { BadgeVerified } from "@/components/shared/BadgeVerified";
 import { buildWaLink } from "@/lib/geo";
 import { ReviewSheet } from "@/components/providers/ReviewSheet";
+import { requestCompassPermission } from "@/lib/compass";
 import type { ProviderWithDistance } from "@/types";
 
 interface NavTarget { name: string; lat: number; lng: number }
@@ -39,7 +40,8 @@ export function ProviderSheet({ provider, open, onClose, onNavigate }: ProviderS
     });
   }
 
-  function startNavigation() {
+  async function startNavigation() {
+    await requestCompassPermission();
     logContact("itinerary");
     onNavigate?.({ name: provider!.name, lat, lng });
   }

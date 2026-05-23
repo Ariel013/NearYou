@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Navigation } from "lucide-react";
 import { NavigationViewDynamic } from "@/components/map/NavigationViewDynamic";
+import { requestCompassPermission } from "@/lib/compass";
 
 interface NavigationButtonProps {
   name: string;
@@ -13,6 +14,11 @@ interface NavigationButtonProps {
 export function NavigationButton({ name, lat, lng }: NavigationButtonProps) {
   const [navOpen, setNavOpen] = useState(false);
 
+  async function handleClick() {
+    await requestCompassPermission();
+    setNavOpen(true);
+  }
+
   return (
     <>
       {navOpen && (
@@ -22,7 +28,7 @@ export function NavigationButton({ name, lat, lng }: NavigationButtonProps) {
         />
       )}
       <button
-        onClick={() => setNavOpen(true)}
+        onClick={handleClick}
         className="flex items-center justify-center rounded-full px-4 py-3 transition-opacity active:opacity-70"
         style={{ backgroundColor: "var(--color-accent-light)", color: "var(--color-accent)" }}
         aria-label="Itinéraire"

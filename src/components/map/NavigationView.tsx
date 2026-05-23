@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import { X, Navigation, MapPin, Loader, Compass } from "lucide-react";
+import { X, Navigation, MapPin, Loader } from "lucide-react";
 
 interface NavigationTarget {
   name: string;
@@ -75,7 +75,6 @@ export function NavigationView({ target, onClose }: NavigationViewProps) {
   const [gpsError, setGpsError] = useState<string | null>(null);
   const [routeLoading, setRouteLoading] = useState(false);
   const [arrived, setArrived] = useState(false);
-  const [needsCompassPerm, setNeedsCompassPerm] = useState(false);
 
   // ─── Carte Leaflet ────────────────────────────────────────────────────────
   useEffect(() => {
@@ -159,12 +158,7 @@ export function NavigationView({ target, onClose }: NavigationViewProps) {
   }, []);
 
   useEffect(() => {
-    // iOS 13+ : permission requise via geste utilisateur
-    if (typeof (DeviceOrientationEvent as { requestPermission?: unknown }).requestPermission === "function") {
-      setNeedsCompassPerm(true);
-      return;
-    }
-    // Android / autres : pas de permission nécessaire
+    // La permission boussole a déjà été demandée dans le click handler (NavigationButton / ProviderSheet)
     window.addEventListener("deviceorientationabsolute", handleOrientation as EventListener, true);
     window.addEventListener("deviceorientation", handleOrientation as EventListener, true);
     return () => {
@@ -172,18 +166,6 @@ export function NavigationView({ target, onClose }: NavigationViewProps) {
       window.removeEventListener("deviceorientation", handleOrientation as EventListener, true);
     };
   }, [handleOrientation]);
-
-  async function requestCompassPermission() {
-    try {
-      const perm = await (DeviceOrientationEvent as unknown as { requestPermission: () => Promise<string> }).requestPermission();
-      if (perm === "granted") {
-        setNeedsCompassPerm(false);
-        window.addEventListener("deviceorientation", handleOrientation as EventListener, true);
-      }
-    } catch {
-      setNeedsCompassPerm(false);
-    }
-  }
 
   // ─── Calcul itinéraire OSRM ───────────────────────────────────────────────
   const fetchRoute = useCallback(async (from: { lat: number; lng: number }) => {
@@ -334,17 +316,6 @@ export function NavigationView({ target, onClose }: NavigationViewProps) {
         </div>
 
         <div className="flex items-center gap-2 flex-shrink-0">
-          {/* Bouton boussole iOS */}
-          {needsCompassPerm && (
-            <button
-              onClick={requestCompassPermission}
-              className="rounded-full p-2 transition-opacity active:opacity-70"
-              style={{ backgroundColor: "rgba(255,255,255,0.2)" }}
-              aria-label="Activer la boussole"
-            >
-              <Compass size={18} color="white" />
-            </button>
-          )}
           {routeLoading
             ? <Loader size={20} color="white" className="animate-spin" />
             : <Navigation size={20} color="white" />
