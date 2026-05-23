@@ -1,42 +1,52 @@
 "use client";
 
-import { useState } from "react";
-import { parsePhoneNumber, isValidPhoneNumber } from "libphonenumber-js";
+import { useMemo, useState } from "react";
+import { getCountries, getCountryCallingCode, parsePhoneNumberWithError, isValidPhoneNumber } from "libphonenumber-js";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 
-interface Country {
-  flag: string;
-  name: string;
-  dial: string;
+// Drapeau emoji depuis le code ISO 2 lettres (pas de dépendance)
+function toFlag(iso: string): string {
+  return iso
+    .toUpperCase()
+    .replace(/./g, (c) => String.fromCodePoint(127397 + c.charCodeAt(0)));
 }
 
-// Afrique de l'Ouest en premier, puis reste du monde
-const COUNTRIES: Country[] = [
-  { flag: "🇧🇯", name: "Bénin",           dial: "+229" },
-  { flag: "🇨🇮", name: "Côte d'Ivoire",   dial: "+225" },
-  { flag: "🇸🇳", name: "Sénégal",          dial: "+221" },
-  { flag: "🇲🇱", name: "Mali",             dial: "+223" },
-  { flag: "🇧🇫", name: "Burkina Faso",     dial: "+226" },
-  { flag: "🇬🇳", name: "Guinée",           dial: "+224" },
-  { flag: "🇹🇬", name: "Togo",             dial: "+228" },
-  { flag: "🇬🇭", name: "Ghana",            dial: "+233" },
-  { flag: "🇳🇬", name: "Nigeria",          dial: "+234" },
-  { flag: "🇨🇲", name: "Cameroun",         dial: "+237" },
-  { flag: "🇨🇩", name: "RD Congo",         dial: "+243" },
-  { flag: "🇨🇬", name: "Congo",            dial: "+242" },
-  { flag: "🇬🇦", name: "Gabon",            dial: "+241" },
-  { flag: "🇲🇦", name: "Maroc",            dial: "+212" },
-  { flag: "🇹🇳", name: "Tunisie",          dial: "+216" },
-  { flag: "🇩🇿", name: "Algérie",          dial: "+213" },
-  { flag: "🇫🇷", name: "France",           dial: "+33"  },
-  { flag: "🇧🇪", name: "Belgique",         dial: "+32"  },
-  { flag: "🇨🇭", name: "Suisse",           dial: "+41"  },
-  { flag: "🇺🇸", name: "États-Unis",       dial: "+1"   },
-];
+// Nom du pays en français via l'API navigateur
+const displayNames = typeof Intl !== "undefined"
+  ? new Intl.DisplayNames(["fr"], { type: "region" })
+  : null;
+
+function countryName(iso: string): string {
+  try { return displayNames?.of(iso) ?? iso; }
+  catch { return iso; }
+}
+
+// Pays d'Afrique de l'Ouest/Centrale en tête de liste
+const PRIORITY = ["BJ", "CI", "SN", "ML", "BF", "GN", "TG", "GH", "NG", "CM", "CD", "CG", "GA", "NE", "MR", "SL", "LR", "GM", "GW", "CV"];
+
+interface CountryOption { iso: string; dial: string; name: string; flag: string }
+
+function buildCountryList(): CountryOption[] {
+  const all = getCountries().map((iso) => ({
+    iso: iso as string,
+    dial: `+${getCountryCallingCode(iso)}`,
+    name: countryName(iso),
+    flag: toFlag(iso),
+  }));
+
+  const priority = PRIORITY
+    .map((iso) => all.find((c) => c.iso === iso))
+    .filter((c): c is CountryOption => c != null);
+
+  const rest = all
+    .filter((c) => !PRIORITY.includes(c.iso))
+    .sort((a, b) => a.name.localeCompare(b.name, "fr"));
+
+  return [...priority, rest[0] && { iso: "__sep__", dial: "", name: "──────────", flag: "" } as CountryOption, ...rest].filter(Boolean) as CountryOption[];
+}
 
 interface CountryPhoneInputProps {
-  value?: string;
   onChange: (e164: string, isValid: boolean) => void;
   error?: string;
   disabled?: boolean;
@@ -45,39 +55,41 @@ interface CountryPhoneInputProps {
 }
 
 export function CountryPhoneInput({
-  value = "",
   onChange,
   error,
   disabled,
   label = "Téléphone",
   id = "phone-country",
 }: CountryPhoneInputProps) {
-  const [selectedDial, setSelectedDial] = useState(COUNTRIES[0].dial); // Bénin par défaut
+  const countries = useMemo(buildCountryList, []);
+  const [selectedIso, setSelectedIso] = useState("BJ");
   const [localNumber, setLocalNumber] = useState("");
 
-  function buildAndNotify(dial: string, local: string) {
+  function notify(iso: string, local: string) {
+    const dial = `+${getCountryCallingCode(iso as Parameters<typeof getCountryCallingCode>[0])}`;
     const digits = local.replace(/\D/g, "");
     const full = `${dial}${digits}`;
     const valid = digits.length >= 4 && isValidPhoneNumber(full);
     let e164 = full;
     try {
-      const parsed = parsePhoneNumber(full);
-      if (parsed) e164 = parsed.format("E.164");
+      e164 = parsePhoneNumberWithError(full).format("E.164");
     } catch { /* keep full */ }
     onChange(e164, valid);
   }
 
-  function handleCountryChange(dial: string) {
-    setSelectedDial(dial);
-    buildAndNotify(dial, localNumber);
+  function handleCountryChange(iso: string) {
+    if (iso === "__sep__") return;
+    setSelectedIso(iso);
+    notify(iso, localNumber);
   }
 
   function handleLocalChange(raw: string) {
-    // Garder uniquement les chiffres, espaces, tirets
     const cleaned = raw.replace(/[^\d\s\-]/g, "");
     setLocalNumber(cleaned);
-    buildAndNotify(selectedDial, cleaned);
+    notify(selectedIso, cleaned);
   }
+
+  const selectedCountry = countries.find((c) => c.iso === selectedIso);
 
   return (
     <div className="space-y-1.5">
@@ -86,24 +98,29 @@ export function CountryPhoneInput({
       <div className="flex gap-2">
         {/* Select pays */}
         <select
-          value={selectedDial}
+          value={selectedIso}
           onChange={(e) => handleCountryChange(e.target.value)}
           disabled={disabled}
           aria-label="Indicatif pays"
-          className="shrink-0 rounded-lg px-2 py-2 font-medium outline-none transition-colors"
+          className="shrink-0 rounded-lg px-2 py-2 outline-none transition-colors"
           style={{
             border: "1px solid var(--color-border)",
             backgroundColor: "var(--color-surface)",
             color: "var(--color-text)",
             fontSize: "var(--text-sm)",
-            minWidth: "6rem",
+            fontWeight: 500,
+            minWidth: "7rem",
           }}
         >
-          {COUNTRIES.map((c) => (
-            <option key={c.dial + c.name} value={c.dial}>
-              {c.flag} {c.dial}
-            </option>
-          ))}
+          {countries.map((c) =>
+            c.iso === "__sep__" ? (
+              <option key="__sep__" value="__sep__" disabled>──────────</option>
+            ) : (
+              <option key={c.iso} value={c.iso}>
+                {c.flag} {c.dial} {c.name}
+              </option>
+            )
+          )}
         </select>
 
         {/* Numéro local */}
@@ -122,10 +139,10 @@ export function CountryPhoneInput({
         />
       </div>
 
-      {/* Aperçu E.164 */}
-      {localNumber && (
+      {/* Aperçu numéro complet */}
+      {localNumber.replace(/\D/g, "").length > 0 && selectedCountry && (
         <p style={{ color: "var(--color-text-light)", fontSize: "var(--text-xs)" }}>
-          Numéro complet : {selectedDial}{localNumber.replace(/\D/g, "")}
+          {selectedCountry.flag} Numéro complet : {selectedCountry.dial}{localNumber.replace(/\D/g, "")}
         </p>
       )}
 
