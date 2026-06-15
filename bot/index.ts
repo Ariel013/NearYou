@@ -33,6 +33,7 @@ if (!BOT_SECRET) {
 const logger = pino({ level: "silent" });
 let sock: WASocket | null = null;
 let lastQr: string | null = null;
+let lastQrAt: number = 0;
 
 // ─── Serveur HTTP ────────────────────────────────────────────────────────────
 
@@ -52,9 +53,11 @@ app.get("/qr-ascii", async (req, res) => {
     return res.type("text/plain").send("✅ Bot déjà connecté — pas de QR à scanner.\n");
   }
 
-  // Attendre jusqu'à 45 s que Baileys génère un QR (intervalle 300 ms)
+  // Attendre un QR frais (moins de 12 s) — Baileys en génère un nouveau toutes les ~20 s
   const deadline = Date.now() + 45_000;
-  while (!lastQr && Date.now() < deadline) {
+  while (Date.now() < deadline) {
+    const age = Date.now() - lastQrAt;
+    if (lastQr && age < 12_000) break;   // QR frais dispo
     await new Promise((r) => setTimeout(r, 300));
   }
 
@@ -67,7 +70,7 @@ app.get("/qr-ascii", async (req, res) => {
     res.type("text/plain").send(
       "\n📱 Scannez avec WhatsApp → Appareils connectés → Connecter un appareil\n\n" +
       ascii +
-      "\n⏱ Scannez maintenant (valable ~20 s). Relancez la commande si expiré.\n"
+      "\n⏱ QR frais — scannez dans les 12 secondes. Relancez la commande pour un nouveau QR.\n"
     );
   } catch {
     res.status(500).send("Erreur génération QR\n");
@@ -203,6 +206,7 @@ async function connectToWhatsApp(): Promise<void> {
   sock.ev.on("connection.update", ({ connection, lastDisconnect, qr }) => {
     if (qr) {
       lastQr = qr;
+      lastQrAt = Date.now();
       console.log("\n📱 Scannez ce QR code avec WhatsApp (Appareils connectés → Connecter un appareil) :\n");
       qrcode.generate(qr, { small: true });
       console.log(`\n🌐 Ou ouvrez dans votre navigateur : https://<votre-domaine-railway>/qr\n`);
