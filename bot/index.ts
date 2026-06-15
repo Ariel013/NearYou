@@ -128,14 +128,8 @@ app.post("/reset", (req, res) => {
     return res.status(401).json({ error: "Non autorisé" });
   }
 
-  // Ferme le socket sans attendre logout (peut lancer)
-  if (sock) {
-    try { (sock as any).ws?.close(); } catch {}
-    sock = null;
-  }
-  lastQr = null;
-
-  // Supprime les fichiers de session (erreur non-bloquante)
+  // 1. Supprimer auth_info EN PREMIER — avant de fermer le socket
+  //    (sinon l'auto-reconnect de connection.update se déclenche avec les anciens credentials)
   try {
     const authDir = path.resolve("./auth_info");
     if (fs.existsSync(authDir)) {
@@ -144,10 +138,18 @@ app.post("/reset", (req, res) => {
   } catch (e) {
     console.warn("[/reset] Impossible de supprimer auth_info :", e);
   }
+  lastQr = null;
 
-  console.log("🗑️  Session supprimée — reconnexion dans 3 secondes…");
-  setTimeout(connectToWhatsApp, 3000);
+  // 2. Fermer le socket — l'auto-reconnect dans connection.update démarre une session vierge
+  if (sock) {
+    try { (sock as any).ws?.close(); } catch {}
+    sock = null;
+  } else {
+    // Pas de socket actif, lancer manuellement
+    setTimeout(connectToWhatsApp, 1000);
+  }
 
+  console.log("🗑️  Session supprimée — Baileys va générer un nouveau QR…");
   return res.json({ ok: true, message: "Reset effectué. Appelez /qr-ascii dans 5 secondes." });
 });
 
