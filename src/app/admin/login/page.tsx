@@ -68,7 +68,7 @@ function AdminLoginForm() {
               Administration
             </h1>
             <p style={{ color: "var(--color-text-muted)", fontSize: "var(--text-sm)" }}>
-              GéoService
+              NearYou
             </p>
           </div>
         </div>

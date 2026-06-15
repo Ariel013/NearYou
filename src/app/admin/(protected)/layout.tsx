@@ -6,7 +6,7 @@ import { verifyAdminSession } from "@/lib/admin-auth";
 import { redirect } from "next/navigation";
 import { LogoutButton } from "./LogoutButton";
 
-export const metadata: Metadata = { title: "Administration — GéoService" };
+export const metadata: Metadata = { title: "Administration — NearYou" };
 
 const NAV_LINKS = [
   { href: "/admin/reports",   label: "Signalements", Icon: Flag },
@@ -34,7 +34,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
           className="flex-1 font-bold"
           style={{ fontFamily: "var(--font-display)", fontSize: "var(--text-base)", color: "var(--color-primary)" }}
         >
-          Admin — GéoService
+          Admin — NearYou
         </span>
         <LogoutButton />
       </header>

@@ -14,7 +14,7 @@ export async function GET(
 ) {
   const { token } = await params;
 
-  if (!token || !/^GS-[A-Z0-9]{8}$/.test(token)) {
+  if (!token || !/^NY-[A-Z0-9]{8}$/.test(token)) {
     return NextResponse.json<ApiResponse<never>>(
       { data: null, error: "Token invalide" },
       { status: 400 }

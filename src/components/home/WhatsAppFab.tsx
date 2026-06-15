@@ -5,7 +5,7 @@ interface WhatsAppFabProps {
   message?: string;
 }
 
-export function WhatsAppFab({ phone, message = "Bonjour, j'ai besoin d'aide avec GéoService." }: WhatsAppFabProps) {
+export function WhatsAppFab({ phone, message = "Bonjour, j'ai besoin d'aide avec NearYou." }: WhatsAppFabProps) {
   const href = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
 
   return (

@@ -32,7 +32,7 @@ export default function HomePage() {
                 color: "var(--color-text)",
               }}
             >
-              GéoService
+              NearYou
             </span>
           </div>
           <Link
@@ -135,7 +135,7 @@ export default function HomePage() {
             className="font-bold"
             style={{ fontFamily: "var(--font-display)", color: "var(--color-text)" }}
           >
-            GéoService
+            NearYou
           </span>
         </div>
         <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-light)" }}>

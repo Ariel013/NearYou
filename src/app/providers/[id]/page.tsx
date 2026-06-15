@@ -37,7 +37,7 @@ export async function generateMetadata({
 
   const category = provider.categories?.[0]?.name ?? "Prestataire";
   return {
-    title: `${provider.name} — ${category} | GéoService`,
+    title: `${provider.name} — ${category} | NearYou`,
     description: provider.bio ?? `Contactez ${provider.name}, ${category} disponible près de chez vous.`,
   };
 }

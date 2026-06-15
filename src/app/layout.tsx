@@ -18,12 +18,12 @@ const epilogue = Epilogue({
 });
 
 export const metadata: Metadata = {
-  title: "GéoService — Le bon artisan, à deux pas de chez vous",
+  title: "NearYou — Le bon artisan, à deux pas de chez vous",
   description:
     "Trouvez un menuisier, plombier, électricien ou tout autre artisan à proximité. Service communautaire de mise en relation, sans inscription.",
   keywords: ["artisan", "proximité", "prestataire", "Côte d'Ivoire", "Abidjan", "Afrique"],
   openGraph: {
-    title: "GéoService",
+    title: "NearYou",
     description: "Le bon artisan, à deux pas de chez vous",
     type: "website",
   },

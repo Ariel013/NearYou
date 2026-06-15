@@ -26,7 +26,7 @@ export async function sendOtpSms(phone: string, code: string): Promise<void> {
     body: new URLSearchParams({
       username: USERNAME!,
       to: phone,
-      message: `Votre code GéoService : ${code}. Valable 10 minutes.`,
+      message: `Votre code NearYou : ${code}. Valable 10 minutes.`,
     }),
   });
 

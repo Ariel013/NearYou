@@ -71,7 +71,7 @@ export function HeroSection() {
           }}
         >
           Des artisans locaux de confiance en Côte d'Ivoire. Plombiers, électriciens,
-          menuisiers, peintres — contacte le bon pro en quelques secondes.
+          menuisiers, peintres ? contacte le bon pro en quelques secondes.
         </p>
       </div>
 

@@ -90,7 +90,7 @@ export function DoubleCTA() {
                 lineHeight: 1.5,
               }}
             >
-              Aide ta communauté en ajoutant sa fiche. Gratuit, sans compte requis.
+              Aide ta communauté en ajoutant ses informations. Gratuit, sans compte requis.
             </p>
           </div>
         </div>

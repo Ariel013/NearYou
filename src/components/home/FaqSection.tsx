@@ -28,7 +28,7 @@ const FAQ_ITEMS = [
   {
     question: "Le service est-il gratuit ?",
     answer:
-      "Totalement gratuit pour les utilisateurs et les artisans. GéoService est un service communautaire sans frais.",
+      "Totalement gratuit pour les utilisateurs et les artisans. NearYou est un service communautaire sans frais.",
   },
   {
     question: "Comment contacter un artisan ?",

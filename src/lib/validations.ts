@@ -51,7 +51,7 @@ export const waClaimInitSchema = z.object({
 });
 
 export const waClaimWebhookSchema = z.object({
-  token: z.string().regex(/^GS-[A-Z0-9]{8}$/, "Token invalide"),
+  token: z.string().regex(/^NY-[A-Z0-9]{8}$/, "Token invalide"),
   from_phone: z.string().min(8).max(20),
   bot_secret: z.string().min(1),
 });

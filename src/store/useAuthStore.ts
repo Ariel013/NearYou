@@ -20,6 +20,6 @@ export const useAuthStore = create<AuthStore>()(
       logout: () =>
         set({ phone: null, providerId: null, isAuthenticated: false }),
     }),
-    { name: "geoservice-auth" }
+    { name: "nearyou-auth" }
   )
 );

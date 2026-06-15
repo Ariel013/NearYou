@@ -38,7 +38,7 @@
   --radius-xl: calc(var(--radius) * 1.4);
 }
 
-/* ─── GéoService Design Tokens ─── */
+/* ─── NearYou Design Tokens ─── */
 :root {
   /* Brand */
   --color-primary:       #1B6CA8;

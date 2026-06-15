@@ -1,5 +1,5 @@
 /**
- * Bot WhatsApp GéoService — revendication de fiche via WhatsApp
+ * Bot WhatsApp NearYou — revendication de fiche via WhatsApp
  *
  * Démarrage : npx ts-node bot/index.ts
  * Première utilisation : scannez le QR code affiché dans le terminal avec WhatsApp
@@ -18,7 +18,7 @@ import { Boom } from "@hapi/boom";
 import qrcode from "qrcode-terminal";
 import pino from "pino";
 
-const TOKEN_PATTERN = /GS-[A-Z0-9]{8}/;
+const TOKEN_PATTERN = /NY-[A-Z0-9]{8}/;
 
 const BOT_SECRET = process.env.BOT_SECRET;
 const APP_URL = process.env.APP_URL;
@@ -106,11 +106,11 @@ async function connectToWhatsApp(): Promise<void> {
 
         let reply: string;
         if (result.error) {
-          reply = `❌ ${result.error}\n\nSi le problème persiste, générez un nouveau code sur GéoService.`;
+          reply = `❌ ${result.error}\n\nSi le problème persiste, générez un nouveau code sur NearYou.`;
         } else if (result.found) {
-          reply = "✅ Votre fiche GéoService a été revendiquée avec succès !\n\nVous pouvez maintenant accéder à votre tableau de bord et modifier vos informations.";
+          reply = "✅ Votre fiche NearYou a été revendiquée avec succès !\n\nVous pouvez maintenant accéder à votre tableau de bord et modifier vos informations.";
         } else {
-          reply = "✅ Code vérifié !\n\n⚠️ Aucune fiche ne correspond à ce numéro. Rendez-vous sur GéoService pour créer votre fiche.";
+          reply = "✅ Code vérifié !\n\n⚠️ Aucune fiche ne correspond à ce numéro. Rendez-vous sur NearYou pour créer votre fiche.";
         }
 
         await sock.sendMessage(rawJid, { text: reply });

@@ -9,7 +9,7 @@ const MAX_ATTEMPTS_PER_PHONE = 3;
 const RATE_WINDOW_MINUTES = 30;
 
 function generateToken(): string {
-  let token = "GS-";
+  let token = "NY-";
   for (let i = 0; i < 8; i++) {
     token += CHARS[Math.floor(Math.random() * CHARS.length)];
   }
@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
     if (insertError) throw insertError;
 
     const botNumber = process.env.NEXT_PUBLIC_WA_BOT_NUMBER ?? "";
-    const message = encodeURIComponent(`Code GéoService : ${token}`);
+    const message = encodeURIComponent(`Code NearYou : ${token}`);
     const waUrl = `https://wa.me/${botNumber}?text=${message}`;
 
     return NextResponse.json<ApiResponse<WaClaimInitResult>>({
