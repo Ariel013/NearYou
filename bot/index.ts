@@ -33,6 +33,7 @@ if (!BOT_SECRET) {
 const logger = pino({ level: "silent" });
 let sock: WASocket | null = null;
 let lastQr: string | null = null;
+let isConnected = false;
 let isResetting = false;
 
 // ─── Serveur HTTP ────────────────────────────────────────────────────────────
@@ -41,7 +42,7 @@ const app = express();
 app.use(express.json());
 
 app.get("/health", (_req, res) => {
-  res.json({ ok: true, connected: sock !== null });
+  res.json({ ok: true, connected: isConnected });
 });
 
 // QR code en ASCII pour terminal (curl) — long-poll : attend le QR si pas encore disponible
@@ -49,7 +50,7 @@ app.get("/qr-ascii", async (req, res) => {
   if (req.query.secret !== BOT_SECRET) {
     return res.status(401).send("Non autorisé\n");
   }
-  if (sock !== null) {
+  if (isConnected) {
     return res.type("text/plain").send("✅ Bot déjà connecté — pas de QR à scanner.\n");
   }
 
@@ -80,7 +81,7 @@ app.get("/qr-ascii", async (req, res) => {
 
 // Page HTML qui affiche le QR code de connexion WhatsApp
 app.get("/qr", (_req, res) => {
-  if (sock !== null) {
+  if (isConnected) {
     res.send(`<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><title>NearYou Bot — QR</title></head>
 <body style="font-family:sans-serif;text-align:center;padding:40px">
 <h2>✅ Bot déjà connecté !</h2>
@@ -146,6 +147,7 @@ app.post("/reset", (req, res) => {
   if (sock) {
     try { (sock as any).ws?.close(); } catch {}
     sock = null;
+    isConnected = false;
   }
 
   // 3. Relancer proprement après que le socket soit fermé
@@ -169,7 +171,7 @@ app.post("/api/send", async (req, res) => {
     return res.status(400).json({ error: "to_phone et code sont requis" });
   }
 
-  if (!sock) {
+  if (!isConnected) {
     return res.status(503).json({ error: "Bot WhatsApp non connecté, réessayez dans quelques secondes" });
   }
 
@@ -181,7 +183,7 @@ app.post("/api/send", async (req, res) => {
       `Entrez ce code sur l'application pour valider votre fiche.\n` +
       `⏱ Valable 15 minutes — ne le partagez pas.`;
 
-    await sock.sendMessage(jid, { text });
+    await sock!.sendMessage(jid, { text });
     console.log(`📤 Code envoyé à ${to_phone}`);
     return res.json({ sent: true });
   } catch (err) {
@@ -222,6 +224,7 @@ async function connectToWhatsApp(): Promise<void> {
 
     if (connection === "close") {
       sock = null;
+      isConnected = false;
       if (isResetting) {
         // Reset en cours : connectToWhatsApp est déjà planifié depuis /reset
         return;
@@ -237,6 +240,7 @@ async function connectToWhatsApp(): Promise<void> {
     }
 
     if (connection === "open") {
+      isConnected = true;
       lastQr = null;
       console.log("✅ Bot WhatsApp connecté et prêt à envoyer !");
     }
