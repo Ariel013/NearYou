@@ -12,6 +12,7 @@ interface MapViewProps {
   userPosition?: { lat: number; lng: number };
   showUserMarker?: boolean;
   className?: string;
+  interactive?: boolean;
 }
 
 export function MapView({
@@ -22,6 +23,7 @@ export function MapView({
   userPosition,
   showUserMarker = true,
   className,
+  interactive = true,
 }: MapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<import("leaflet").Map | null>(null);
@@ -123,6 +125,27 @@ export function MapView({
       });
     })();
   }, [providers, onMarkerClick, mapReady, selectedProviderId]);
+
+  // ─── Activer / désactiver les interactions (quand un sheet est ouvert) ────
+  useEffect(() => {
+    if (!mapRef.current || !mapReady) return;
+    const map = mapRef.current;
+    if (interactive) {
+      map.dragging.enable();
+      map.scrollWheelZoom.enable();
+      map.touchZoom.enable();
+      map.doubleClickZoom.enable();
+      map.boxZoom.enable();
+      map.keyboard.enable();
+    } else {
+      map.dragging.disable();
+      map.scrollWheelZoom.disable();
+      map.touchZoom.disable();
+      map.doubleClickZoom.disable();
+      map.boxZoom.disable();
+      map.keyboard.disable();
+    }
+  }, [interactive, mapReady]);
 
   // ─── Re-centrage + zoom sur le prestataire sélectionné ───────────────────
   useEffect(() => {

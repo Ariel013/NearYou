@@ -145,6 +145,7 @@ function ProvidersPageContent() {
             selectedProviderId={selectedProvider?.id}
             onMarkerClick={setSelectedProvider}
             className="absolute inset-0 w-full h-full"
+            interactive={!selectedProvider}
           />
         </div>
       ) : (
