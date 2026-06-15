@@ -43,7 +43,7 @@ app.get("/health", (_req, res) => {
   res.json({ ok: true, connected: sock !== null });
 });
 
-// QR code en ASCII pour terminal (curl)
+// QR code en ASCII pour terminal (curl) — long-poll : attend le QR si pas encore disponible
 app.get("/qr-ascii", async (req, res) => {
   if (req.query.secret !== BOT_SECRET) {
     return res.status(401).send("Non autorisé\n");
@@ -51,17 +51,25 @@ app.get("/qr-ascii", async (req, res) => {
   if (sock !== null) {
     return res.type("text/plain").send("✅ Bot déjà connecté — pas de QR à scanner.\n");
   }
-  if (!lastQr) {
-    return res.type("text/plain").send("⏳ En attente du QR code (Baileys démarre)… réessayez dans 5 secondes.\n");
+
+  // Attendre jusqu'à 45 s que Baileys génère un QR (intervalle 300 ms)
+  const deadline = Date.now() + 45_000;
+  while (!lastQr && Date.now() < deadline) {
+    await new Promise((r) => setTimeout(r, 300));
   }
+
+  if (!lastQr) {
+    return res.type("text/plain").send("⏳ Timeout : aucun QR reçu après 45 s. Vérifiez que le bot est bien démarré.\n");
+  }
+
   try {
     const ascii = await QRCode.toString(lastQr, { type: "terminal", small: true });
     res.type("text/plain").send(
       "\n📱 Scannez avec WhatsApp → Appareils connectés → Connecter un appareil\n\n" +
       ascii +
-      "\n⏱ Ce QR expire dans ~20 s — rechargez si expiré.\n"
+      "\n⏱ Scannez maintenant (valable ~20 s). Relancez la commande si expiré.\n"
     );
-  } catch (err) {
+  } catch {
     res.status(500).send("Erreur génération QR\n");
   }
 });
@@ -78,11 +86,11 @@ app.get("/qr", (_req, res) => {
   }
   if (!lastQr) {
     res.send(`<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">
-<meta http-equiv="refresh" content="3">
+<meta http-equiv="refresh" content="2">
 <title>NearYou Bot — QR</title></head>
 <body style="font-family:sans-serif;text-align:center;padding:40px">
 <h2>⏳ En attente du QR code…</h2>
-<p>Rechargement automatique dans 3 secondes.</p>
+<p>Rechargement automatique toutes les 2 secondes.</p>
 </body></html>`);
     return;
   }
@@ -91,7 +99,7 @@ app.get("/qr", (_req, res) => {
 <html lang="fr">
 <head>
   <meta charset="utf-8">
-  <meta http-equiv="refresh" content="30">
+  <meta http-equiv="refresh" content="12">
   <title>NearYou Bot — Scanner le QR</title>
 </head>
 <body style="font-family:sans-serif;text-align:center;padding:40px;background:#f8f9fb">
