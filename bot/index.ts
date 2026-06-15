@@ -8,6 +8,8 @@
 
 import "dotenv/config";
 import express from "express";
+import fs from "fs";
+import path from "path";
 import makeWASocket, {
   DisconnectReason,
   useMultiFileAuthState,
@@ -83,6 +85,34 @@ app.get("/qr", (_req, res) => {
   </script>
 </body>
 </html>`);
+});
+
+// Réinitialise la session WhatsApp (permet de changer de numéro)
+app.post("/reset", async (req, res) => {
+  if (req.body.bot_secret !== BOT_SECRET) {
+    return res.status(401).json({ error: "Non autorisé" });
+  }
+  try {
+    // Déconnecter le socket actuel
+    if (sock) {
+      sock.ev.removeAllListeners();
+      await sock.logout().catch(() => {});
+      sock = null;
+    }
+    // Supprimer les fichiers de session
+    const authDir = path.resolve("./auth_info");
+    if (fs.existsSync(authDir)) {
+      fs.rmSync(authDir, { recursive: true, force: true });
+    }
+    lastQr = null;
+    console.log("🗑️  Session WhatsApp supprimée — reconnexion dans 2 secondes…");
+    // Relancer la connexion → générera un nouveau QR
+    setTimeout(connectToWhatsApp, 2000);
+    return res.json({ ok: true, message: "Session supprimée. Ouvrez /qr pour scanner le nouveau QR code." });
+  } catch (err) {
+    console.error("[/reset]", err);
+    return res.status(500).json({ error: "Erreur lors de la réinitialisation" });
+  }
 });
 
 app.post("/api/send", async (req, res) => {
