@@ -29,6 +29,7 @@ if (!BOT_SECRET) {
 
 const logger = pino({ level: "silent" });
 let sock: WASocket | null = null;
+let lastQr: string | null = null;
 
 // ─── Serveur HTTP ────────────────────────────────────────────────────────────
 
@@ -37,6 +38,51 @@ app.use(express.json());
 
 app.get("/health", (_req, res) => {
   res.json({ ok: true, connected: sock !== null });
+});
+
+// Page HTML qui affiche le QR code de connexion WhatsApp
+app.get("/qr", (_req, res) => {
+  if (sock !== null) {
+    res.send(`<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><title>NearYou Bot — QR</title></head>
+<body style="font-family:sans-serif;text-align:center;padding:40px">
+<h2>✅ Bot déjà connecté !</h2>
+<p>WhatsApp est connecté. Rechargez si vous venez de scanner.</p>
+</body></html>`);
+    return;
+  }
+  if (!lastQr) {
+    res.send(`<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">
+<meta http-equiv="refresh" content="3">
+<title>NearYou Bot — QR</title></head>
+<body style="font-family:sans-serif;text-align:center;padding:40px">
+<h2>⏳ En attente du QR code…</h2>
+<p>Rechargement automatique dans 3 secondes.</p>
+</body></html>`);
+    return;
+  }
+  const qrEncoded = encodeURIComponent(lastQr);
+  res.send(`<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="refresh" content="30">
+  <title>NearYou Bot — Scanner le QR</title>
+</head>
+<body style="font-family:sans-serif;text-align:center;padding:40px;background:#f8f9fb">
+  <h2 style="color:#1B6CA8">📱 Scanner avec WhatsApp</h2>
+  <p style="color:#64748b;margin-bottom:24px">
+    WhatsApp → ⋮ ou Réglages → <strong>Appareils connectés</strong> → <strong>Connecter un appareil</strong>
+  </p>
+  <canvas id="qr" style="border-radius:16px;box-shadow:0 4px 16px rgba(0,0,0,.1)"></canvas>
+  <p style="color:#94a3b8;font-size:12px;margin-top:16px">
+    Ce QR expire dans ~20 s · La page se recharge automatiquement toutes les 30 s
+  </p>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+  <script>
+    QRCode.toCanvas(document.getElementById('qr'), decodeURIComponent('${qrEncoded}'), { width: 280, margin: 2 });
+  </script>
+</body>
+</html>`);
 });
 
 app.post("/api/send", async (req, res) => {
@@ -95,8 +141,10 @@ async function connectToWhatsApp(): Promise<void> {
 
   sock.ev.on("connection.update", ({ connection, lastDisconnect, qr }) => {
     if (qr) {
+      lastQr = qr;
       console.log("\n📱 Scannez ce QR code avec WhatsApp (Appareils connectés → Connecter un appareil) :\n");
       qrcode.generate(qr, { small: true });
+      console.log(`\n🌐 Ou ouvrez dans votre navigateur : https://<votre-domaine-railway>/qr\n`);
     }
 
     if (connection === "close") {
@@ -112,6 +160,7 @@ async function connectToWhatsApp(): Promise<void> {
     }
 
     if (connection === "open") {
+      lastQr = null;
       console.log("✅ Bot WhatsApp connecté et prêt à envoyer !");
     }
   });
