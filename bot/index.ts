@@ -19,6 +19,7 @@ import makeWASocket, {
 } from "@whiskeysockets/baileys";
 import { Boom } from "@hapi/boom";
 import qrcode from "qrcode-terminal";
+import QRCode from "qrcode";
 import pino from "pino";
 
 const BOT_SECRET = process.env.BOT_SECRET;
@@ -40,6 +41,29 @@ app.use(express.json());
 
 app.get("/health", (_req, res) => {
   res.json({ ok: true, connected: sock !== null });
+});
+
+// QR code en ASCII pour terminal (curl)
+app.get("/qr-ascii", async (req, res) => {
+  if (req.query.secret !== BOT_SECRET) {
+    return res.status(401).send("Non autorisé\n");
+  }
+  if (sock !== null) {
+    return res.type("text/plain").send("✅ Bot déjà connecté — pas de QR à scanner.\n");
+  }
+  if (!lastQr) {
+    return res.type("text/plain").send("⏳ En attente du QR code (Baileys démarre)… réessayez dans 5 secondes.\n");
+  }
+  try {
+    const ascii = await QRCode.toString(lastQr, { type: "terminal", small: true });
+    res.type("text/plain").send(
+      "\n📱 Scannez avec WhatsApp → Appareils connectés → Connecter un appareil\n\n" +
+      ascii +
+      "\n⏱ Ce QR expire dans ~20 s — rechargez si expiré.\n"
+    );
+  } catch (err) {
+    res.status(500).send("Erreur génération QR\n");
+  }
 });
 
 // Page HTML qui affiche le QR code de connexion WhatsApp
@@ -95,7 +119,6 @@ app.post("/reset", async (req, res) => {
   try {
     // Déconnecter le socket actuel
     if (sock) {
-      sock.ev.removeAllListeners();
       await sock.logout().catch(() => {});
       sock = null;
     }
