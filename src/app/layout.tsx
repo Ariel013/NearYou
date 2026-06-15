@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   title: "GéoService — Le bon artisan, à deux pas de chez vous",
   description:
     "Trouvez un menuisier, plombier, électricien ou tout autre artisan à proximité. Service communautaire de mise en relation, sans inscription.",
-  keywords: ["artisan", "proximité", "prestataire", "Bénin", "Côte d'Ivoire", "Afrique"],
+  keywords: ["artisan", "proximité", "prestataire", "Côte d'Ivoire", "Abidjan", "Afrique"],
   openGraph: {
     title: "GéoService",
     description: "Le bon artisan, à deux pas de chez vous",

@@ -93,3 +93,17 @@ export interface ProviderWithCategories extends Provider {
   categories: Category[];
   photos: ProviderPhoto[];
 }
+
+export type WhatsAppClaimStatus = 'pending' | 'verified' | 'expired' | 'used';
+
+export interface WhatsAppClaim {
+  id: string;
+  token: string;
+  phone: string;
+  provider_id: string | null;
+  whatsapp_from: string | null;
+  status: WhatsAppClaimStatus;
+  expires_at: string;
+  verified_at: string | null;
+  created_at: string;
+}

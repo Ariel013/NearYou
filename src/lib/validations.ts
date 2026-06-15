@@ -45,7 +45,20 @@ export const contactEventSchema = z.object({
   contact_type: z.enum(["call", "whatsapp", "itinerary"]),
 });
 
+export const waClaimInitSchema = z.object({
+  phone: z.string().min(8).max(20),
+  provider_id: z.string().uuid().optional(),
+});
+
+export const waClaimWebhookSchema = z.object({
+  token: z.string().regex(/^GS-[A-Z0-9]{8}$/, "Token invalide"),
+  from_phone: z.string().min(8).max(20),
+  bot_secret: z.string().min(1),
+});
+
 export type OtpSendInput = z.infer<typeof otpSendSchema>;
 export type OtpVerifyInput = z.infer<typeof otpVerifySchema>;
 export type ProviderInput = z.infer<typeof providerSchema>;
 export type ReviewInput = z.infer<typeof reviewSchema>;
+export type WaClaimInitInput = z.infer<typeof waClaimInitSchema>;
+export type WaClaimWebhookInput = z.infer<typeof waClaimWebhookSchema>;
