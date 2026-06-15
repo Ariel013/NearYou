@@ -50,6 +50,11 @@ export const waClaimInitSchema = z.object({
   provider_id: z.string().uuid().optional(),
 });
 
+export const waClaimVerifySchema = z.object({
+  phone: z.string().min(8).max(20),
+  code: z.string().min(10).max(11), // format NY-XXXXXXXX
+});
+
 export const waClaimWebhookSchema = z.object({
   token: z.string().regex(/^NY-[A-Z0-9]{8}$/, "Token invalide"),
   from_phone: z.string().min(8).max(20),

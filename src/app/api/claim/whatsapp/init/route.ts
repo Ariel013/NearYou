@@ -3,7 +3,7 @@ import { createServiceClient } from "@/lib/supabase/server";
 import { waClaimInitSchema } from "@/lib/validations";
 import type { ApiResponse } from "@/types";
 
-const CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // sans 0/O et 1/I pour éviter confusion
+const CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 const EXPIRY_MINUTES = 15;
 const MAX_ATTEMPTS_PER_PHONE = 3;
 const RATE_WINDOW_MINUTES = 30;
@@ -17,8 +17,8 @@ function generateToken(): string {
 }
 
 export interface WaClaimInitResult {
-  token: string;
-  wa_url: string;
+  sent: boolean;
+  phone: string;
   expires_at: string;
 }
 
@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
   try {
     const supabase = await createServiceClient();
 
-    // Rate limit : max MAX_ATTEMPTS_PER_PHONE demandes par numéro sur RATE_WINDOW_MINUTES minutes
+    // Rate limit : 3 tentatives max par numéro sur 30 minutes
     const windowStart = new Date(Date.now() - RATE_WINDOW_MINUTES * 60 * 1000).toISOString();
     const { count } = await supabase
       .from("whatsapp_claims")
@@ -66,12 +66,35 @@ export async function POST(req: NextRequest) {
 
     if (insertError) throw insertError;
 
-    const botNumber = process.env.NEXT_PUBLIC_WA_BOT_NUMBER ?? "";
-    const message = encodeURIComponent(`Code NearYou : ${token}`);
-    const waUrl = `https://wa.me/${botNumber}?text=${message}`;
+    // Appeler le bot pour envoyer le code sur WhatsApp de l'utilisateur
+    const botUrl = process.env.BOT_URL;
+
+    if (!botUrl) {
+      // Dev sans bot : log en clair dans les fonctions Vercel
+      console.log(`[WhatsApp][DEV] Code pour ${phone} : ${token}`);
+    } else {
+      const botRes = await fetch(`${botUrl}/api/send`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          to_phone: phone,
+          code: token,
+          bot_secret: process.env.BOT_SECRET,
+        }),
+      });
+
+      if (!botRes.ok) {
+        const botErr = await botRes.json().catch(() => ({}));
+        console.error("[claim/whatsapp/init] Bot error:", botErr);
+        return NextResponse.json<ApiResponse<never>>(
+          { data: null, error: "Impossible d'envoyer le message WhatsApp. Vérifiez que votre numéro est sur WhatsApp et réessayez." },
+          { status: 503 }
+        );
+      }
+    }
 
     return NextResponse.json<ApiResponse<WaClaimInitResult>>({
-      data: { token, wa_url: waUrl, expires_at: expiresAt },
+      data: { sent: true, phone, expires_at: expiresAt },
       error: null,
     });
   } catch (err) {

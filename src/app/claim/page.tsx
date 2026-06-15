@@ -6,34 +6,35 @@ import { toast } from "sonner";
 import { BottomNav } from "@/components/shared/BottomNav";
 import { PhoneInput } from "@/components/claim/PhoneInput";
 import { ClaimResult } from "@/components/claim/ClaimResult";
-import { WhatsAppWaiting } from "@/components/claim/WhatsAppWaiting";
+import { WhatsAppCodeEntry } from "@/components/claim/WhatsAppCodeEntry";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/store/useAuthStore";
-import type { ApiResponse } from "@/types";
+import type { ApiResponse, ClaimResult as ClaimResultType } from "@/types";
 import type { Provider } from "@/lib/supabase/types";
 import type { WaClaimInitResult } from "@/app/api/claim/whatsapp/init/route";
 
-type Step = "phone" | "waiting" | "result";
+type Step = "phone" | "code" | "result";
 
 function ClaimPageContent() {
   const searchParams = useSearchParams();
   const initialPhone = searchParams.get("phone") ?? "";
 
+  // Si le téléphone vient de l'URL (depuis une fiche), on le verrouille :
+  // c'est le numéro de la fiche à revendiquer, on fait confiance à notre DB.
+  const phoneLocked = !!initialPhone;
+
   const [step, setStep] = useState<Step>("phone");
   const [phone, setPhone] = useState(initialPhone);
-  const [phoneValid, setPhoneValid] = useState(false);
+  const [phoneValid, setPhoneValid] = useState(phoneLocked);
   const [phoneError, setPhoneError] = useState<string | undefined>();
   const [isLoading, setIsLoading] = useState(false);
 
-  const [waToken, setWaToken] = useState("");
-  const [waUrl, setWaUrl] = useState("");
   const [waExpiresAt, setWaExpiresAt] = useState("");
-
   const [result, setResult] = useState<{ found: boolean; provider?: Provider } | null>(null);
 
   const { login } = useAuthStore();
 
-  async function initWhatsAppClaim() {
+  async function initClaim() {
     if (!phoneValid) {
       setPhoneError("Numéro de téléphone invalide");
       return;
@@ -54,26 +55,40 @@ function ClaimPageContent() {
       return;
     }
 
-    setWaToken(json.data!.token);
-    setWaUrl(json.data!.wa_url);
     setWaExpiresAt(json.data!.expires_at);
-    setStep("waiting");
+    setStep("code");
+    toast.success("Code envoyé sur votre WhatsApp !");
   }
 
-  function handleVerified(provider?: Provider) {
-    if (provider) {
-      login(phone, provider.id);
+  async function verifyCode(code: string) {
+    setIsLoading(true);
+
+    const res = await fetch("/api/claim/whatsapp/verify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phone, code }),
+    });
+    const json: ApiResponse<ClaimResultType> = await res.json();
+    setIsLoading(false);
+
+    if (json.error) {
+      toast.error(json.error);
+      return;
     }
-    setResult({ found: !!provider, provider });
+
+    const data = json.data!;
+    if (data.found && data.provider) {
+      login(phone, data.provider.id);
+    }
+    setResult({ found: data.found, provider: data.provider });
     setStep("result");
   }
 
-  function handleExpired() {
-    setStep("phone");
-    toast.error("Code expiré. Recommencez pour en obtenir un nouveau.");
+  function handleResend() {
+    initClaim();
   }
 
-  const stepIndex = ["phone", "waiting", "result"].indexOf(step);
+  const stepIndex = ["phone", "code", "result"].indexOf(step);
 
   return (
     <main className="min-h-screen pb-24" style={{ backgroundColor: "var(--color-bg)" }}>
@@ -86,11 +101,11 @@ function ClaimPageContent() {
           style={{ fontFamily: "var(--font-display)", fontSize: "var(--text-lg)", color: "var(--color-text)" }}
         >
           {step === "phone" && "Revendiquer ma fiche"}
-          {step === "waiting" && "Vérification WhatsApp"}
+          {step === "code" && "Code WhatsApp"}
           {step === "result" && "Résultat"}
         </h1>
         <div className="mt-2 flex gap-1.5">
-          {(["phone", "waiting", "result"] as Step[]).map((s, i) => (
+          {(["phone", "code", "result"] as Step[]).map((s, i) => (
             <div
               key={s}
               className="h-1 flex-1 rounded-full transition-colors"
@@ -104,28 +119,45 @@ function ClaimPageContent() {
         {step === "phone" && (
           <div className="space-y-6">
             <p style={{ color: "var(--color-text-muted)", fontSize: "var(--text-sm)" }}>
-              Entrez le numéro de téléphone associé à votre fiche. Vous recevrez un code de vérification via WhatsApp.
+              {phoneLocked
+                ? "Vous allez revendiquer cette fiche. Un code vous sera envoyé sur WhatsApp."
+                : "Entrez le numéro de téléphone associé à votre fiche. Un code vous sera envoyé sur WhatsApp."}
             </p>
-            <PhoneInput
-              value={phone}
-              onChange={(v, valid) => { setPhone(v); setPhoneValid(valid); setPhoneError(undefined); }}
-              error={phoneError}
-              disabled={isLoading}
-            />
-            <Button className="w-full" onClick={initWhatsAppClaim} disabled={isLoading}>
-              {isLoading ? "Génération du code…" : "Continuer"}
+
+            {phoneLocked ? (
+              <div
+                className="rounded-2xl px-4 py-3"
+                style={{ backgroundColor: "var(--color-primary-light)", border: "1px solid var(--color-border)" }}
+              >
+                <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)" }}>
+                  Numéro de la fiche
+                </p>
+                <p className="font-semibold" style={{ fontSize: "var(--text-base)", color: "var(--color-text)" }}>
+                  {phone}
+                </p>
+              </div>
+            ) : (
+              <PhoneInput
+                value={phone}
+                onChange={(v, valid) => { setPhone(v); setPhoneValid(valid); setPhoneError(undefined); }}
+                error={phoneError}
+                disabled={isLoading}
+              />
+            )}
+
+            <Button className="w-full" onClick={initClaim} disabled={isLoading}>
+              {isLoading ? "Envoi du code…" : "Recevoir mon code WhatsApp"}
             </Button>
           </div>
         )}
 
-        {step === "waiting" && (
-          <WhatsAppWaiting
-            token={waToken}
-            waUrl={waUrl}
-            expiresAt={waExpiresAt}
+        {step === "code" && (
+          <WhatsAppCodeEntry
             phone={phone}
-            onVerified={handleVerified}
-            onExpired={handleExpired}
+            expiresAt={waExpiresAt}
+            isLoading={isLoading}
+            onVerify={verifyCode}
+            onResend={handleResend}
           />
         )}
 

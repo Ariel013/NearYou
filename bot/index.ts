@@ -1,12 +1,13 @@
 /**
- * Bot WhatsApp NearYou — revendication de fiche via WhatsApp
+ * Bot WhatsApp NearYou — envoie les codes de vérification aux utilisateurs
  *
- * Démarrage : npx ts-node bot/index.ts
+ * Démarrage : npx ts-node index.ts
  * Première utilisation : scannez le QR code affiché dans le terminal avec WhatsApp
  * Session sauvegardée dans ./auth_info/ (gitignored)
  */
 
 import "dotenv/config";
+import express from "express";
 import makeWASocket, {
   DisconnectReason,
   useMultiFileAuthState,
@@ -18,39 +19,76 @@ import { Boom } from "@hapi/boom";
 import qrcode from "qrcode-terminal";
 import pino from "pino";
 
-const TOKEN_PATTERN = /NY-[A-Z0-9]{8}/;
-
 const BOT_SECRET = process.env.BOT_SECRET;
-const APP_URL = process.env.APP_URL;
+const PORT = process.env.PORT ?? 3001;
 
-if (!BOT_SECRET || !APP_URL) {
-  console.error("❌ BOT_SECRET et APP_URL sont requis dans .env");
+if (!BOT_SECRET) {
+  console.error("❌ BOT_SECRET est requis dans .env");
   process.exit(1);
 }
 
 const logger = pino({ level: "silent" });
+let sock: WASocket | null = null;
 
-async function sendWebhook(token: string, fromPhone: string): Promise<{ found: boolean; created: boolean; error?: string }> {
-  const res = await fetch(`${APP_URL}/api/claim/whatsapp/webhook`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ token, from_phone: fromPhone, bot_secret: BOT_SECRET }),
-  });
-  return res.json().then((j) => j.data ?? { found: false, created: false, error: j.error });
-}
+// ─── Serveur HTTP ────────────────────────────────────────────────────────────
+
+const app = express();
+app.use(express.json());
+
+app.get("/health", (_req, res) => {
+  res.json({ ok: true, connected: sock !== null });
+});
+
+app.post("/api/send", async (req, res) => {
+  if (req.body.bot_secret !== BOT_SECRET) {
+    return res.status(401).json({ error: "Non autorisé" });
+  }
+
+  const { to_phone, code } = req.body as { to_phone?: string; code?: string };
+
+  if (!to_phone || !code) {
+    return res.status(400).json({ error: "to_phone et code sont requis" });
+  }
+
+  if (!sock) {
+    return res.status(503).json({ error: "Bot WhatsApp non connecté, réessayez dans quelques secondes" });
+  }
+
+  try {
+    // Normaliser le numéro : retirer le + et ajouter @s.whatsapp.net
+    const jid = `${to_phone.replace(/^\+/, "")}@s.whatsapp.net`;
+    const text =
+      `🔐 Votre code NearYou : *${code}*\n\n` +
+      `Entrez ce code sur l'application pour valider votre fiche.\n` +
+      `⏱ Valable 15 minutes — ne le partagez pas.`;
+
+    await sock.sendMessage(jid, { text });
+    console.log(`📤 Code envoyé à ${to_phone}`);
+    return res.json({ sent: true });
+  } catch (err) {
+    console.error("[/api/send]", err);
+    return res.status(500).json({ error: "Échec d'envoi WhatsApp" });
+  }
+});
+
+app.listen(PORT, () => {
+  console.log(`🌐 Serveur HTTP bot sur le port ${PORT}`);
+});
+
+// ─── Connexion WhatsApp ───────────────────────────────────────────────────────
 
 async function connectToWhatsApp(): Promise<void> {
   const { state, saveCreds } = await useMultiFileAuthState("./auth_info");
   const { version } = await fetchLatestBaileysVersion();
 
-  const sock: WASocket = makeWASocket({
+  sock = makeWASocket({
     version,
     logger,
     auth: {
       creds: state.creds,
       keys: makeCacheableSignalKeyStore(state.keys, logger),
     },
-    printQRInTerminal: false, // on gère manuellement pour plus de clarté
+    printQRInTerminal: false,
   });
 
   sock.ev.on("creds.update", saveCreds);
@@ -62,6 +100,7 @@ async function connectToWhatsApp(): Promise<void> {
     }
 
     if (connection === "close") {
+      sock = null;
       const code = (lastDisconnect?.error as Boom)?.output?.statusCode;
       const shouldReconnect = code !== DisconnectReason.loggedOut;
       console.log(`🔌 Connexion fermée (code ${code}). Reconnexion : ${shouldReconnect}`);
@@ -73,53 +112,7 @@ async function connectToWhatsApp(): Promise<void> {
     }
 
     if (connection === "open") {
-      console.log("✅ Bot WhatsApp connecté et en écoute !");
-    }
-  });
-
-  sock.ev.on("messages.upsert", async ({ messages, type }) => {
-    if (type !== "notify") return;
-
-    for (const msg of messages) {
-      // Ignorer les messages envoyés par le bot lui-même
-      if (msg.key.fromMe) continue;
-      // Ignorer les messages de groupe
-      if (msg.key.remoteJid?.endsWith("@g.us")) continue;
-
-      const text =
-        msg.message?.conversation ??
-        msg.message?.extendedTextMessage?.text ??
-        "";
-
-      const match = text.match(TOKEN_PATTERN);
-      if (!match) continue;
-
-      const token = match[0];
-      // Baileys fournit le JID sous la forme "2250XXXXXXXX@s.whatsapp.net"
-      const rawJid = msg.key.remoteJid!;
-      const fromPhone = "+" + rawJid.replace("@s.whatsapp.net", "");
-
-      console.log(`📩 Code reçu : ${token} de ${fromPhone}`);
-
-      try {
-        const result = await sendWebhook(token, fromPhone);
-
-        let reply: string;
-        if (result.error) {
-          reply = `❌ ${result.error}\n\nSi le problème persiste, générez un nouveau code sur NearYou.`;
-        } else if (result.found) {
-          reply = "✅ Votre fiche NearYou a été revendiquée avec succès !\n\nVous pouvez maintenant accéder à votre tableau de bord et modifier vos informations.";
-        } else {
-          reply = "✅ Code vérifié !\n\n⚠️ Aucune fiche ne correspond à ce numéro. Rendez-vous sur NearYou pour créer votre fiche.";
-        }
-
-        await sock.sendMessage(rawJid, { text: reply });
-      } catch (err) {
-        console.error("[webhook]", err);
-        await sock.sendMessage(rawJid, {
-          text: "❌ Une erreur est survenue. Réessayez dans quelques instants.",
-        });
-      }
+      console.log("✅ Bot WhatsApp connecté et prêt à envoyer !");
     }
   });
 }
