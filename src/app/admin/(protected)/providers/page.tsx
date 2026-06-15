@@ -6,6 +6,9 @@ interface ProviderRow {
   id: string;
   name: string;
   contact_phone: string;
+  bio: string | null;
+  address_label: string | null;
+  available: boolean;
   avg_rating: number;
   review_count: number;
   claimed_at: string | null;
@@ -19,7 +22,7 @@ export default async function AdminProvidersPage() {
 
   const { data: providers, error } = await supabase
     .from("providers")
-    .select("id, name, contact_phone, avg_rating, review_count, claimed_at, verified_at, disabled_at, created_at")
+    .select("id, name, contact_phone, bio, address_label, available, avg_rating, review_count, claimed_at, verified_at, disabled_at, created_at")
     .order("disabled_at", { ascending: false, nullsFirst: false })
     .order("created_at", { ascending: false })
     .returns<ProviderRow[]>();
@@ -124,6 +127,13 @@ function ProviderRow({ provider: p }: { provider: ProviderRow }) {
       <ProviderAdminActions
         providerId={p.id}
         isDisabled={isDisabled}
+        initialData={{
+          name: p.name,
+          contact_phone: p.contact_phone,
+          bio: p.bio,
+          address_label: p.address_label,
+          available: p.available,
+        }}
       />
     </div>
   );

@@ -83,9 +83,9 @@ export function ReviewSheet({ providerId, onClose }: ReviewSheetProps) {
 
   return (
     <>
-      {/* Backdrop */}
+      {/* Backdrop — z-[110] pour passer au-dessus du Sheet Radix (z-50) */}
       <div
-        className="fixed inset-0 z-40 bg-black/40"
+        className="fixed inset-0 z-[110] bg-black/40"
         onClick={() => onClose()}
         aria-hidden="true"
       />
@@ -95,7 +95,7 @@ export function ReviewSheet({ providerId, onClose }: ReviewSheetProps) {
         role="dialog"
         aria-modal="true"
         aria-label="Laisser un avis"
-        className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl px-5 pt-5 pb-8 space-y-5"
+        className="fixed bottom-0 left-0 right-0 z-[120] rounded-t-3xl px-5 pt-5 pb-8 space-y-5"
         style={{ backgroundColor: "var(--color-surface)", boxShadow: "var(--shadow-lg)" }}
       >
         {/* Handle */}
