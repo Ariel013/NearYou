@@ -33,6 +33,7 @@ if (!BOT_SECRET) {
 const logger = pino({ level: "silent" });
 let sock: WASocket | null = null;
 let lastQr: string | null = null;
+let isResetting = false;
 
 // ─── Serveur HTTP ────────────────────────────────────────────────────────────
 
@@ -128,8 +129,10 @@ app.post("/reset", (req, res) => {
     return res.status(401).json({ error: "Non autorisé" });
   }
 
-  // 1. Supprimer auth_info EN PREMIER — avant de fermer le socket
-  //    (sinon l'auto-reconnect de connection.update se déclenche avec les anciens credentials)
+  isResetting = true;
+  lastQr = null;
+
+  // 1. Supprimer auth_info avant de fermer le socket
   try {
     const authDir = path.resolve("./auth_info");
     if (fs.existsSync(authDir)) {
@@ -138,19 +141,21 @@ app.post("/reset", (req, res) => {
   } catch (e) {
     console.warn("[/reset] Impossible de supprimer auth_info :", e);
   }
-  lastQr = null;
 
-  // 2. Fermer le socket — l'auto-reconnect dans connection.update démarre une session vierge
+  // 2. Fermer le socket (connection.update ignorera la reconnexion auto grâce à isResetting)
   if (sock) {
     try { (sock as any).ws?.close(); } catch {}
     sock = null;
-  } else {
-    // Pas de socket actif, lancer manuellement
-    setTimeout(connectToWhatsApp, 1000);
   }
 
-  console.log("🗑️  Session supprimée — Baileys va générer un nouveau QR…");
-  return res.json({ ok: true, message: "Reset effectué. Appelez /qr-ascii dans 5 secondes." });
+  // 3. Relancer proprement après que le socket soit fermé
+  setTimeout(() => {
+    isResetting = false;
+    connectToWhatsApp();
+  }, 4000);
+
+  console.log("🗑️  Session supprimée — nouveau QR dans ~4 secondes…");
+  return res.json({ ok: true, message: "Reset effectué. Appelez /qr-ascii dans 8 secondes." });
 });
 
 app.post("/api/send", async (req, res) => {
@@ -217,6 +222,10 @@ async function connectToWhatsApp(): Promise<void> {
 
     if (connection === "close") {
       sock = null;
+      if (isResetting) {
+        // Reset en cours : connectToWhatsApp est déjà planifié depuis /reset
+        return;
+      }
       const code = (lastDisconnect?.error as Boom)?.output?.statusCode;
       const shouldReconnect = code !== DisconnectReason.loggedOut;
       console.log(`🔌 Connexion fermée (code ${code}). Reconnexion : ${shouldReconnect}`);
