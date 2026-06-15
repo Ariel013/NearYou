@@ -123,30 +123,32 @@ app.get("/qr", (_req, res) => {
 });
 
 // Réinitialise la session WhatsApp (permet de changer de numéro)
-app.post("/reset", async (req, res) => {
+app.post("/reset", (req, res) => {
   if (req.body.bot_secret !== BOT_SECRET) {
     return res.status(401).json({ error: "Non autorisé" });
   }
+
+  // Ferme le socket sans attendre logout (peut lancer)
+  if (sock) {
+    try { (sock as any).ws?.close(); } catch {}
+    sock = null;
+  }
+  lastQr = null;
+
+  // Supprime les fichiers de session (erreur non-bloquante)
   try {
-    // Déconnecter le socket actuel
-    if (sock) {
-      await sock.logout().catch(() => {});
-      sock = null;
-    }
-    // Supprimer les fichiers de session
     const authDir = path.resolve("./auth_info");
     if (fs.existsSync(authDir)) {
       fs.rmSync(authDir, { recursive: true, force: true });
     }
-    lastQr = null;
-    console.log("🗑️  Session WhatsApp supprimée — reconnexion dans 2 secondes…");
-    // Relancer la connexion → générera un nouveau QR
-    setTimeout(connectToWhatsApp, 2000);
-    return res.json({ ok: true, message: "Session supprimée. Ouvrez /qr pour scanner le nouveau QR code." });
-  } catch (err) {
-    console.error("[/reset]", err);
-    return res.status(500).json({ error: "Erreur lors de la réinitialisation" });
+  } catch (e) {
+    console.warn("[/reset] Impossible de supprimer auth_info :", e);
   }
+
+  console.log("🗑️  Session supprimée — reconnexion dans 3 secondes…");
+  setTimeout(connectToWhatsApp, 3000);
+
+  return res.json({ ok: true, message: "Reset effectué. Appelez /qr-ascii dans 5 secondes." });
 });
 
 app.post("/api/send", async (req, res) => {
