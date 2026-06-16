@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Phone, MessageCircle, Navigation, Flag, Star, MapPin } from "lucide-react";
@@ -13,6 +13,25 @@ import { requestCompassPermission } from "@/lib/compass";
 import type { ProviderWithDistance } from "@/types";
 
 interface NavTarget { name: string; lat: number; lng: number }
+
+function ContactButton({ href, target, rel, onClick, bg, shadow, color, icon, label, ariaLabel }: {
+  href?: string; target?: string; rel?: string; onClick?: () => void;
+  bg: string; shadow: string; color: string;
+  icon: ReactNode; label: string; ariaLabel: string;
+}) {
+  const cls = "flex flex-col items-center gap-2 rounded-2xl py-4 transition-all active:scale-95";
+  const style = { backgroundColor: bg, boxShadow: shadow };
+  const content = (
+    <>
+      {icon}
+      <span style={{ fontSize: "var(--text-xs)", color, fontWeight: 600 }}>{label}</span>
+    </>
+  );
+  if (href) {
+    return <a href={href} target={target} rel={rel} onClick={onClick} className={cls} style={style} aria-label={ariaLabel}>{content}</a>;
+  }
+  return <button onClick={onClick} className={cls} style={style} aria-label={ariaLabel}>{content}</button>;
+}
 
 interface ProviderSheetProps {
   provider: ProviderWithDistance | null;
@@ -30,14 +49,15 @@ export function ProviderSheet({ provider, open, onClose, onNavigate }: ProviderS
   const { lat, lng } = provider;
   const hasLocation =
     Number.isFinite(lat) && Number.isFinite(lng) && !(lat === 0 && lng === 0);
+  const initials = provider.name.slice(0, 2).toUpperCase();
 
-  async function logContact(type: "call" | "whatsapp" | "itinerary") {
+  function logContact(type: "call" | "whatsapp" | "itinerary") {
     if (!provider) return;
-    await fetch(`/api/providers/${provider.id}/contacts`, {
+    fetch(`/api/providers/${provider.id}/contacts`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ contact_type: type }),
-    });
+    }).catch(() => {});
   }
 
   async function startNavigation() {
@@ -97,7 +117,7 @@ export function ProviderSheet({ provider, open, onClose, onNavigate }: ProviderS
                       fontSize: "var(--text-lg)",
                     }}
                   >
-                    {provider.name.slice(0, 2).toUpperCase()}
+                    {initials}
                   </div>
                 )}
                 {/* Indicateur disponibilité */}
@@ -161,55 +181,40 @@ export function ProviderSheet({ provider, open, onClose, onNavigate }: ProviderS
 
             {/* Boutons de contact */}
             <div className="grid grid-cols-3 gap-3">
-              <a
+              <ContactButton
                 href={`tel:${provider.contact_phone}`}
                 onClick={() => logContact("call")}
-                className="flex flex-col items-center gap-2 rounded-2xl py-4 transition-all active:scale-95"
-                style={{
-                  backgroundColor: "var(--color-primary-light)",
-                  boxShadow: "0 2px 12px rgba(27,108,168,0.12)",
-                }}
-                aria-label="Appeler"
-              >
-                <Phone size={22} style={{ color: "var(--color-primary)" }} />
-                <span style={{ fontSize: "var(--text-xs)", color: "var(--color-primary)", fontWeight: 600 }}>
-                  Appeler
-                </span>
-              </a>
+                bg="var(--color-primary-light)"
+                shadow="0 2px 12px rgba(27,108,168,0.12)"
+                color="var(--color-primary)"
+                icon={<Phone size={22} style={{ color: "var(--color-primary)" }} />}
+                label="Appeler"
+                ariaLabel="Appeler"
+              />
 
-              <a
+              <ContactButton
                 href={buildWaLink(provider.contact_phone)}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => logContact("whatsapp")}
-                className="flex flex-col items-center gap-2 rounded-2xl py-4 transition-all active:scale-95"
-                style={{
-                  backgroundColor: "#E7F5EE",
-                  boxShadow: "0 2px 12px rgba(34,197,94,0.12)",
-                }}
-                aria-label="WhatsApp"
-              >
-                <MessageCircle size={22} style={{ color: "#22C55E" }} />
-                <span style={{ fontSize: "var(--text-xs)", color: "#22C55E", fontWeight: 600 }}>
-                  WhatsApp
-                </span>
-              </a>
+                bg="#E7F5EE"
+                shadow="0 2px 12px rgba(34,197,94,0.12)"
+                color="#22C55E"
+                icon={<MessageCircle size={22} style={{ color: "#22C55E" }} />}
+                label="WhatsApp"
+                ariaLabel="WhatsApp"
+              />
 
               {hasLocation ? (
-                <button
+                <ContactButton
                   onClick={startNavigation}
-                  className="flex flex-col items-center gap-2 rounded-2xl py-4 transition-all active:scale-95"
-                  style={{
-                    backgroundColor: "var(--color-accent-light)",
-                    boxShadow: "0 2px 12px rgba(245,166,35,0.12)",
-                  }}
-                  aria-label="Itinéraire"
-                >
-                  <Navigation size={22} style={{ color: "var(--color-accent)" }} />
-                  <span style={{ fontSize: "var(--text-xs)", color: "var(--color-accent)", fontWeight: 600 }}>
-                    Itinéraire
-                  </span>
-                </button>
+                  bg="var(--color-accent-light)"
+                  shadow="0 2px 12px rgba(245,166,35,0.12)"
+                  color="var(--color-accent)"
+                  icon={<Navigation size={22} style={{ color: "var(--color-accent)" }} />}
+                  label="Itinéraire"
+                  ariaLabel="Itinéraire"
+                />
               ) : <div />}
             </div>
 

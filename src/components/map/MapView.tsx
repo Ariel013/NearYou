@@ -130,21 +130,9 @@ export function MapView({
   useEffect(() => {
     if (!mapRef.current || !mapReady) return;
     const map = mapRef.current;
-    if (interactive) {
-      map.dragging.enable();
-      map.scrollWheelZoom.enable();
-      map.touchZoom.enable();
-      map.doubleClickZoom.enable();
-      map.boxZoom.enable();
-      map.keyboard.enable();
-    } else {
-      map.dragging.disable();
-      map.scrollWheelZoom.disable();
-      map.touchZoom.disable();
-      map.doubleClickZoom.disable();
-      map.boxZoom.disable();
-      map.keyboard.disable();
-    }
+    const method: "enable" | "disable" = interactive ? "enable" : "disable";
+    [map.dragging, map.scrollWheelZoom, map.touchZoom, map.doubleClickZoom, map.boxZoom, map.keyboard]
+      .forEach((h) => h[method]());
   }, [interactive, mapReady]);
 
   // ─── Re-centrage + zoom sur le prestataire sélectionné ───────────────────

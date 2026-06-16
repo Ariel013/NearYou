@@ -36,6 +36,16 @@ let lastQr: string | null = null;
 let isConnected = false;
 let isResetting = false;
 
+function requireSecret(req: express.Request, res: express.Response, next: express.NextFunction) {
+  const secret = (req.query.secret ?? req.body.bot_secret) as string | undefined;
+  if (secret !== BOT_SECRET) return res.status(401).json({ error: "Non autorisé" });
+  next();
+}
+
+function htmlShell(body: string, headExtra = ""): string {
+  return `<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">${headExtra}<title>NearYou Bot — QR</title></head><body style="font-family:sans-serif;text-align:center;padding:40px">${body}</body></html>`;
+}
+
 // ─── Serveur HTTP ────────────────────────────────────────────────────────────
 
 const app = express();
@@ -46,10 +56,7 @@ app.get("/health", (_req, res) => {
 });
 
 // QR code en ASCII pour terminal (curl) — long-poll : attend le QR si pas encore disponible
-app.get("/qr-ascii", async (req, res) => {
-  if (req.query.secret !== BOT_SECRET) {
-    return res.status(401).send("Non autorisé\n");
-  }
+app.get("/qr-ascii", requireSecret, async (_req, res) => {
   if (isConnected) {
     return res.type("text/plain").send("✅ Bot déjà connecté — pas de QR à scanner.\n");
   }
@@ -58,8 +65,7 @@ app.get("/qr-ascii", async (req, res) => {
   const previousQr = lastQr;
   const deadline = Date.now() + 60_000;
   while (Date.now() < deadline) {
-    if (lastQr && lastQr !== previousQr) break; // nouveau QR arrivé
-    if (lastQr && !previousQr) break;           // premier QR disponible
+    if (lastQr && lastQr !== previousQr) break;
     await new Promise((r) => setTimeout(r, 200));
   }
 
@@ -82,21 +88,14 @@ app.get("/qr-ascii", async (req, res) => {
 // Page HTML qui affiche le QR code de connexion WhatsApp
 app.get("/qr", (_req, res) => {
   if (isConnected) {
-    res.send(`<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><title>NearYou Bot — QR</title></head>
-<body style="font-family:sans-serif;text-align:center;padding:40px">
-<h2>✅ Bot déjà connecté !</h2>
-<p>WhatsApp est connecté. Rechargez si vous venez de scanner.</p>
-</body></html>`);
+    res.send(htmlShell("<h2>✅ Bot déjà connecté !</h2><p>WhatsApp est connecté. Rechargez si vous venez de scanner.</p>"));
     return;
   }
   if (!lastQr) {
-    res.send(`<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">
-<meta http-equiv="refresh" content="2">
-<title>NearYou Bot — QR</title></head>
-<body style="font-family:sans-serif;text-align:center;padding:40px">
-<h2>⏳ En attente du QR code…</h2>
-<p>Rechargement automatique toutes les 2 secondes.</p>
-</body></html>`);
+    res.send(htmlShell(
+      "<h2>⏳ En attente du QR code…</h2><p>Rechargement automatique toutes les 2 secondes.</p>",
+      '<meta http-equiv="refresh" content="2">',
+    ));
     return;
   }
   const qrEncoded = encodeURIComponent(lastQr);
@@ -125,11 +124,7 @@ app.get("/qr", (_req, res) => {
 });
 
 // Réinitialise la session WhatsApp (permet de changer de numéro)
-app.post("/reset", (req, res) => {
-  if (req.body.bot_secret !== BOT_SECRET) {
-    return res.status(401).json({ error: "Non autorisé" });
-  }
-
+app.post("/reset", requireSecret, (_req, res) => {
   isResetting = true;
   lastQr = null;
 
@@ -145,7 +140,7 @@ app.post("/reset", (req, res) => {
 
   // 2. Fermer le socket (connection.update ignorera la reconnexion auto grâce à isResetting)
   if (sock) {
-    try { (sock as any).ws?.close(); } catch {}
+    try { sock.end(undefined); } catch {}
     sock = null;
     isConnected = false;
   }
@@ -160,11 +155,7 @@ app.post("/reset", (req, res) => {
   return res.json({ ok: true, message: "Reset effectué. Appelez /qr-ascii dans 8 secondes." });
 });
 
-app.post("/api/send", async (req, res) => {
-  if (req.body.bot_secret !== BOT_SECRET) {
-    return res.status(401).json({ error: "Non autorisé" });
-  }
-
+app.post("/api/send", requireSecret, async (req, res) => {
   const { to_phone, code } = req.body as { to_phone?: string; code?: string };
 
   if (!to_phone || !code) {
