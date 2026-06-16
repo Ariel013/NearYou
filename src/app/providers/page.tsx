@@ -73,7 +73,7 @@ function ProvidersPageContent() {
             className="flex rounded-full p-1 gap-1"
             style={{ backgroundColor: "var(--color-border)" }}
           >
-            {(["map", "list"] as const).map((mode) => (
+            {(["list", "map"] as const).map((mode) => (
               <button
                 key={mode}
                 onClick={() => setViewMode(mode)}
