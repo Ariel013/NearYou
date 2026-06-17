@@ -4,7 +4,8 @@ import { Phone, MessageCircle } from "lucide-react";
 import { BottomNav } from "@/components/shared/BottomNav";
 import { StarRating } from "@/components/shared/StarRating";
 import { BadgeVerified } from "@/components/shared/BadgeVerified";
-import { buildWaLink } from "@/lib/geo";
+import { buildWaLink, parseWkbPoint } from "@/lib/geo";
+import { createServiceClient } from "@/lib/supabase/server";
 import type { ProviderFull } from "@/types";
 import type { Review } from "@/lib/supabase/types";
 import { BackButton } from "./BackButton";
@@ -14,16 +15,48 @@ import { NavigationButton } from "./NavigationButton";
 import { ProviderActions } from "./ProviderActions";
 
 async function getProvider(id: string): Promise<ProviderFull | null> {
-  const baseUrl =
-    process.env.NEXT_PUBLIC_APP_URL ||
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+  try {
+    const supabase = await createServiceClient();
 
-  const res = await fetch(`${baseUrl}/api/providers/${id}`, {
-    next: { revalidate: 60 },
-  });
-  if (!res.ok) return null;
-  const json = await res.json();
-  return json.data;
+    const { data: provider, error } = await supabase
+      .from("providers")
+      .select("*, provider_categories(category_id, categories(*)), provider_photos(*), reviews(*)")
+      .eq("id", id)
+      .single();
+
+    if (error || !provider) return null;
+
+    const coords = parseWkbPoint(provider.location);
+    const lat = coords?.lat ?? 0;
+    const lng = coords?.lng ?? 0;
+
+    return {
+      id:               provider.id,
+      name:             provider.name,
+      contact_phone:    provider.contact_phone,
+      bio:              provider.bio,
+      address_label:    provider.address_label,
+      zone_radius_km:   provider.zone_radius_km,
+      available:        provider.available,
+      verified_at:      provider.verified_at,
+      claimed_at:       provider.claimed_at,
+      claimed_by_phone: provider.claimed_by_phone,
+      avg_rating:       provider.avg_rating,
+      review_count:     provider.review_count,
+      disabled_at:      provider.disabled_at ?? null,
+      created_at:       provider.created_at,
+      updated_at:       provider.updated_at,
+      lat,
+      lng,
+      categories: provider.provider_categories.map(
+        (pc: { categories: unknown }) => pc.categories,
+      ),
+      photos:  provider.provider_photos,
+      reviews: provider.reviews,
+    };
+  } catch {
+    return null;
+  }
 }
 
 export async function generateMetadata({
