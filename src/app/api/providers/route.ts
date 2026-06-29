@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/server";
 import { z } from "zod";
 import { parseWkbPoint } from "@/lib/geo";
+import { normalizePhoneE164 } from "@/lib/phone";
 import type { ApiResponse, ProviderWithDistance } from "@/types";
 
 // ─── GET — Recherche géospatiale ───────────────────────────────────────────
@@ -103,6 +104,18 @@ export async function POST(req: NextRequest) {
 
   const { lat, lng, category_slugs, ...fields } = parsed.data;
 
+  let contact_phone: string;
+  try {
+    contact_phone = normalizePhoneE164(fields.contact_phone);
+  } catch (err) {
+    return NextResponse.json<ApiResponse<never>>(
+      { data: null, error: (err as Error).message },
+      { status: 400 }
+    );
+  }
+
+  console.log(`[providers POST] contact_phone raw="${fields.contact_phone}" normalized="${contact_phone}"`);
+
   try {
     const supabase = await createServiceClient();
 
@@ -110,7 +123,7 @@ export async function POST(req: NextRequest) {
     const { data: existing } = await supabase
       .from("providers")
       .select("id")
-      .eq("contact_phone", fields.contact_phone)
+      .eq("contact_phone", contact_phone)
       .single();
 
     if (existing) {
@@ -141,6 +154,7 @@ export async function POST(req: NextRequest) {
       .from("providers")
       .insert({
         ...fields,
+        contact_phone,
         location: `POINT(${lng} ${lat})`,
       })
       .select()

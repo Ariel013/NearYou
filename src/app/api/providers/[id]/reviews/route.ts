@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/server";
+import { normalizePhoneE164 } from "@/lib/phone";
 import { reviewSchema } from "@/lib/validations";
 import type { ApiResponse } from "@/types";
 import type { Review } from "@/lib/supabase/types";
@@ -45,7 +46,19 @@ export async function POST(
     );
   }
 
-  const { rating, comment, reviewer_phone } = parsed.data;
+  const { rating, comment, reviewer_phone: rawReviewerPhone } = parsed.data;
+
+  let reviewer_phone: string;
+  try {
+    reviewer_phone = normalizePhoneE164(rawReviewerPhone);
+  } catch (err) {
+    return NextResponse.json<ApiResponse<never>>(
+      { data: null, error: (err as Error).message },
+      { status: 400 }
+    );
+  }
+
+  console.log(`[reviews POST] reviewer_phone raw="${rawReviewerPhone}" normalized="${reviewer_phone}"`);
 
   try {
     const supabase = await createServiceClient();

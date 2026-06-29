@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/server";
+import { normalizePhoneE164, isCILegacyNumber } from "@/lib/phone";
 import { waClaimInitSchema } from "@/lib/validations";
 import type { ApiResponse } from "@/types";
 
@@ -33,7 +34,27 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { phone, provider_id } = parsed.data;
+  const { phone: rawPhone, provider_id } = parsed.data;
+
+  let phone: string;
+  try {
+    phone = normalizePhoneE164(rawPhone);
+  } catch (err) {
+    return NextResponse.json<ApiResponse<never>>(
+      { data: null, error: (err as Error).message },
+      { status: 400 }
+    );
+  }
+
+  // Avertissement diagnostic : ancien format CI à 8 chiffres
+  if (isCILegacyNumber(phone)) {
+    console.warn(
+      `[claim/whatsapp/init] Ancien format CI détecté : "${phone}". ` +
+      `Ce numéro peut ne pas recevoir les messages si l'utilisateur est sur le nouveau format 10 chiffres.`
+    );
+  }
+
+  console.log(`[claim/whatsapp/init] raw="${rawPhone}" normalized="${phone}"`);
 
   try {
     const supabase = await createServiceClient();
@@ -66,11 +87,9 @@ export async function POST(req: NextRequest) {
 
     if (insertError) throw insertError;
 
-    // Appeler le bot pour envoyer le code sur WhatsApp de l'utilisateur
     const botUrl = process.env.BOT_URL;
 
     if (!botUrl) {
-      // Dev sans bot : log en clair dans les fonctions Vercel
       console.log(`[WhatsApp][DEV] Code pour ${phone} : ${token}`);
     } else {
       const botRes = await fetch(`${botUrl}/api/send`, {

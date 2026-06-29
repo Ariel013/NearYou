@@ -93,15 +93,22 @@ export function CountryPhoneInput({
       )
     : countries;
 
+  const [legacyCIWarning, setLegacyCIWarning] = useState(false);
+
   function notify(iso: string, local: string) {
     const dial = `+${getCountryCallingCode(iso as Parameters<typeof getCountryCallingCode>[0])}`;
     const digits = local.replace(/\D/g, "");
     const full = `${dial}${digits}`;
+
+    // Détecte un ancien numéro CI à 8 chiffres locaux (pré-réforme 2015)
+    const isOldCI = iso === "CI" && digits.length === 8;
+    setLegacyCIWarning(isOldCI);
+
     const valid = digits.length >= 4 && isValidPhoneNumber(full);
     let e164 = full;
     try { e164 = parsePhoneNumberWithError(full).format("E.164"); }
     catch { /* keep full */ }
-    onChange(e164, valid);
+    onChange(e164, valid && !isOldCI);
   }
 
   function selectCountry(iso: string) {
@@ -235,6 +242,22 @@ export function CountryPhoneInput({
       {localNumber.replace(/\D/g, "").length > 0 && (
         <p style={{ color: "var(--color-text-light)", fontSize: "var(--text-xs)" }}>
           {selected.flag} Numéro complet : {selected.dial}{localNumber.replace(/\D/g, "")}
+        </p>
+      )}
+
+      {/* Avertissement anciens numéros CI à 8 chiffres (pré-réforme 2015) */}
+      {legacyCIWarning && (
+        <p
+          role="alert"
+          style={{
+            color: "var(--color-warning)",
+            fontSize: "var(--text-xs)",
+            backgroundColor: "var(--color-warning-light)",
+            borderRadius: "var(--radius-sm)",
+            padding: "0.4rem 0.6rem",
+          }}
+        >
+          Numéro CI à 8 chiffres détecté. Depuis 2015, les numéros ivoiriens ont 10 chiffres (ex&nbsp;: <strong>07 56 89 04 77</strong>). Si votre numéro commence par 07 ou 05, ajoutez ces 2 chiffres au début.
         </p>
       )}
 

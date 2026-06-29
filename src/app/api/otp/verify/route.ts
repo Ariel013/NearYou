@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/server";
+import { normalizePhoneE164 } from "@/lib/phone";
 import { otpVerifySchema } from "@/lib/validations";
 import type { ApiResponse, ClaimResult } from "@/types";
 
@@ -14,7 +15,19 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { phone, code, purpose } = parsed.data;
+  const { phone: rawPhone, code, purpose } = parsed.data;
+
+  let phone: string;
+  try {
+    phone = normalizePhoneE164(rawPhone);
+  } catch (err) {
+    return NextResponse.json<ApiResponse<never>>(
+      { data: null, error: (err as Error).message },
+      { status: 400 }
+    );
+  }
+
+  console.log(`[otp/verify] raw="${rawPhone}" normalized="${phone}" purpose="${purpose}"`);
 
   try {
     const supabase = await createServiceClient();
@@ -66,6 +79,8 @@ export async function POST(req: NextRequest) {
           updated_at: new Date().toISOString(),
         })
         .eq("id", provider.id);
+
+      console.log(`[otp/verify] provider claimed: id="${provider.id}" phone="${phone}"`);
 
       return NextResponse.json<ApiResponse<ClaimResult>>({
         data: { found: true, provider },

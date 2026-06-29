@@ -1,20 +1,27 @@
 import { z } from "zod";
 
+// Format E.164 : + suivi de 7 à 15 chiffres (ITU-T standard)
+// Inclut les anciens numéros CI à 8 chiffres locaux (+22556890477 = 12 chars)
+const E164_REGEX = /^\+[1-9]\d{6,14}$/;
+const phoneField = z
+  .string()
+  .regex(E164_REGEX, "Format international requis (ex : +225 07 56 89 04 77)");
+
 export const otpSendSchema = z.object({
-  phone: z.string().min(8).max(20),
+  phone: phoneField,
   provider_id: z.string().uuid().optional(),
   purpose: z.enum(["claim", "review", "login"]),
 });
 
 export const otpVerifySchema = z.object({
-  phone: z.string().min(8).max(20),
+  phone: phoneField,
   code: z.string().length(6).regex(/^\d{6}$/),
   purpose: z.enum(["claim", "review", "login"]),
 });
 
 export const providerSchema = z.object({
   name: z.string().min(2, "Le nom doit contenir au moins 2 caractères").max(100),
-  contact_phone: z.string().min(8, "Numéro invalide").max(20),
+  contact_phone: phoneField,
   bio: z.string().max(500).optional(),
   address_label: z.string().max(200).optional(),
   lat: z.number().min(-90).max(90),
@@ -27,7 +34,7 @@ export const providerSchema = z.object({
 export const reviewSchema = z.object({
   rating: z.number().int().min(1).max(5),
   comment: z.string().max(1000).optional(),
-  reviewer_phone: z.string().min(8).max(20),
+  reviewer_phone: phoneField,
 });
 
 export const reportSchema = z.object({
@@ -46,18 +53,18 @@ export const contactEventSchema = z.object({
 });
 
 export const waClaimInitSchema = z.object({
-  phone: z.string().min(8).max(20),
+  phone: phoneField,
   provider_id: z.string().uuid().optional(),
 });
 
 export const waClaimVerifySchema = z.object({
-  phone: z.string().min(8).max(20),
+  phone: phoneField,
   code: z.string().min(10).max(11), // format NY-XXXXXXXX
 });
 
 export const waClaimWebhookSchema = z.object({
   token: z.string().regex(/^NY-[A-Z0-9]{8}$/, "Token invalide"),
-  from_phone: z.string().min(8).max(20),
+  from_phone: phoneField,
   bot_secret: z.string().min(1),
 });
 

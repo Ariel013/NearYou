@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/server";
 import { sendOtpSms } from "@/lib/africa-talking";
+import { normalizePhoneE164 } from "@/lib/phone";
 import { otpSendSchema } from "@/lib/validations";
 import type { ApiResponse } from "@/types";
 
@@ -19,7 +20,20 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { phone, provider_id, purpose } = parsed.data;
+  const { phone: rawPhone, provider_id, purpose } = parsed.data;
+
+  let phone: string;
+  try {
+    phone = normalizePhoneE164(rawPhone);
+  } catch (err) {
+    return NextResponse.json<ApiResponse<never>>(
+      { data: null, error: (err as Error).message },
+      { status: 400 }
+    );
+  }
+
+  console.log(`[otp/send] raw="${rawPhone}" normalized="${phone}" purpose="${purpose}"`);
+
   const code = generateOtp();
   const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
 
@@ -39,7 +53,6 @@ export async function POST(req: NextRequest) {
     try {
       await sendOtpSms(phone, code);
     } catch (smsErr) {
-      // L'OTP est en base — on log l'erreur SMS mais on ne plante pas la route
       console.error("[otp/send] SMS failed:", smsErr);
       return NextResponse.json<ApiResponse<never>>(
         {
