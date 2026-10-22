@@ -9,8 +9,7 @@ import { ClaimResult } from "@/components/claim/ClaimResult";
 import { WhatsAppCodeEntry } from "@/components/claim/WhatsAppCodeEntry";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/store/useAuthStore";
-import type { ApiResponse, ClaimResult as ClaimResultType } from "@/types";
-import type { Provider } from "@/lib/supabase/types";
+import type { ApiResponse, ClaimResult as ClaimResultType, PublicProvider } from "@/types";
 import type { WaClaimInitResult } from "@/app/api/claim/whatsapp/init/route";
 
 type Step = "phone" | "code" | "result";
@@ -30,7 +29,7 @@ function ClaimPageContent() {
   const [isLoading, setIsLoading] = useState(false);
 
   const [waExpiresAt, setWaExpiresAt] = useState("");
-  const [result, setResult] = useState<{ found: boolean; provider?: Provider } | null>(null);
+  const [result, setResult] = useState<{ found: boolean; provider?: PublicProvider } | null>(null);
 
   const { login } = useAuthStore();
 

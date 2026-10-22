@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/server";
 import type { ApiResponse } from "@/types";
-import type { Provider, WhatsAppClaimStatus } from "@/lib/supabase/types";
+import type { WhatsAppClaimStatus } from "@/lib/supabase/types";
+import type { PublicProvider } from "@/types";
+import { toPublicProvider } from "@/lib/public-data";
 
 export interface WaClaimStatusResult {
   status: WhatsAppClaimStatus;
-  provider?: Provider;
+  provider?: PublicProvider;
 }
 
 export async function GET(
@@ -65,7 +67,7 @@ export async function GET(
       .single();
 
     return NextResponse.json<ApiResponse<WaClaimStatusResult>>({
-      data: { status: "verified", provider: provider ?? undefined },
+      data: { status: "verified", provider: provider ? (toPublicProvider(provider) as PublicProvider) : undefined },
       error: null,
     });
   } catch (err) {

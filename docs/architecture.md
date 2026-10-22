@@ -118,17 +118,27 @@ revendiquée → tableau de bord.
 
 ## 6. Authentification — état réel au 2026-10-22
 
-- **Prestataire** : après revendication, la « session » est un état Zustand
-  persistant **côté navigateur** (téléphone + id de fiche). Les modifications
-  de fiche (`PATCH /api/providers/[id]`) sont autorisées par un en-tête
-  `x-provider-phone` comparé à `claimed_by_phone`.
-- ⚠️ **Constat de l'amorce (lecture du code, non reproduit)** :
-  `GET /api/providers/[id]` renvoie publiquement `claimed_by_phone` et les avis
-  complets (dont `reviewer_phone`). L'en-tête attendu par le PATCH est donc
-  lisible par n'importe qui : toute fiche revendiquée serait modifiable par un
-  tiers, et les numéros des auteurs d'avis sont exposés. Priorité du backlog.
-- La messagerie (ADR 0001) **exige** une vraie session serveur : elle ne peut
-  pas reposer sur ce mécanisme.
+- **Prestataire** : la vérification du code WhatsApp
+  (`/api/claim/whatsapp/verify`) émet un cookie `provider_session` (JWT HS256,
+  httpOnly, 30 jours, clé `PROVIDER_SESSION_SECRET`) portant le numéro et la
+  fiche. Le même chemin reconnecte un propriétaire dont la fiche est déjà
+  revendiquée par ce numéro. `src/lib/provider-session.ts`.
+- **Modification de fiche** : `PATCH /api/providers/[id]` n'accepte que cette
+  session, pour cette fiche, et revérifie en base que `claimed_by_phone` est
+  toujours le numéro de la session (retirer la revendication coupe l'accès).
+  L'état Zustand du navigateur ne sert plus qu'à l'affichage.
+- **Sorties publiques** : toute fiche ou tout avis renvoyé au navigateur passe
+  par `src/lib/public-data.ts`, qui retire `claimed_by_phone`, `location` et
+  `reviewer_phone`.
+- Corrigé le 2026-10-22 (tâche 1) : avant, le PATCH comparait un en-tête
+  fourni par le client à `claimed_by_phone`, que l'API publique renvoyait —
+  et une fiche non revendiquée était modifiable sans aucun en-tête.
+- **Reste ouvert, non atteignable aujourd'hui** : en base, les politiques RLS
+  dites « service » n'ont pas de rôle (`TO`) et s'appliquent donc à `anon` —
+  lecture des codes OTP, des numéros, insertion d'avis. La clé anon n'est pas
+  envoyée au navigateur (vérifié dans le bundle le 2026-10-22), mais une clé
+  « publishable » est faite pour être publique : à durcir avant tout usage de
+  Supabase côté client (backlog).
 
 ## 7. Hébergement et exploitation
 

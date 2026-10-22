@@ -9,13 +9,13 @@ import { BottomNav } from "@/components/shared/BottomNav";
 import { StarRating } from "@/components/shared/StarRating";
 import { ProviderForm } from "@/components/forms/ProviderForm";
 import { useAuthStore } from "@/store/useAuthStore";
-import type { ProviderFull, ApiResponse } from "@/types";
+import type { ProviderFull, ApiResponse, PublicReview } from "@/types";
 import type { ProviderFormValues } from "@/components/forms/ProviderForm";
-import type { Review, Contact } from "@/lib/supabase/types";
+import type { Contact } from "@/lib/supabase/types";
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { isAuthenticated, phone, providerId, logout } = useAuthStore();
+  const { isAuthenticated, providerId, logout } = useAuthStore();
   const [provider, setProvider] = useState<ProviderFull | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [stats] = useState<{ contacts: Contact[] }>({ contacts: [] });
@@ -37,18 +37,29 @@ export default function DashboardPage() {
     setIsLoading(false);
   }
 
+  async function signOut() {
+    await fetch("/api/claim/session", { method: "DELETE" }).catch(() => null);
+    logout();
+  }
+
+  // Session serveur absente ou expirée : l'état local ne fait plus foi
+  function endSession(message: string | null) {
+    logout();
+    toast.error(message ?? "Session expirée");
+    router.replace("/claim");
+  }
+
   async function toggleAvailability(val: boolean) {
-    if (!provider || !phone) return;
+    if (!provider) return;
     const res = await fetch(`/api/providers/${provider.id}`, {
       method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        "x-provider-phone": phone,
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ available: val }),
     });
     const json: ApiResponse<unknown> = await res.json();
-    if (json.error) {
+    if (res.status === 401) {
+      endSession(json.error);
+    } else if (json.error) {
       toast.error(json.error);
     } else {
       setProvider((p) => p ? { ...p, available: val } : p);
@@ -57,13 +68,10 @@ export default function DashboardPage() {
   }
 
   async function handleUpdateProfile(data: ProviderFormValues) {
-    if (!provider || !phone) return;
+    if (!provider) return;
     const res = await fetch(`/api/providers/${provider.id}`, {
       method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        "x-provider-phone": phone,
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         name: data.name,
         bio: data.bio,
@@ -72,7 +80,9 @@ export default function DashboardPage() {
       }),
     });
     const json: ApiResponse<unknown> = await res.json();
-    if (json.error) {
+    if (res.status === 401) {
+      endSession(json.error);
+    } else if (json.error) {
       toast.error(json.error);
     } else {
       toast.success("Fiche mise à jour");
@@ -106,7 +116,7 @@ export default function DashboardPage() {
             Mon tableau de bord
           </h1>
           <button
-            onClick={() => { logout(); router.push("/"); }}
+            onClick={async () => { await signOut(); router.push("/"); }}
             style={{ color: "var(--color-text-muted)", fontSize: "var(--text-sm)" }}
           >
             Déconnexion
@@ -198,7 +208,7 @@ export default function DashboardPage() {
               <section>
                 <h2 className="mb-3 font-semibold" style={{ fontSize: "var(--text-base)" }}>Mes avis</h2>
                 <ul className="space-y-3">
-                  {provider.reviews.map((r: Review) => (
+                  {provider.reviews.map((r: PublicReview) => (
                     <li
                       key={r.id}
                       className="rounded-2xl p-4"

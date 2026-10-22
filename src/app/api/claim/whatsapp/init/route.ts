@@ -1,3 +1,4 @@
+import { randomInt } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/server";
 import { normalizePhoneE164, isCILegacyNumber } from "@/lib/phone";
@@ -12,7 +13,8 @@ const RATE_WINDOW_MINUTES = 30;
 function generateToken(): string {
   let token = "NY-";
   for (let i = 0; i < 8; i++) {
-    token += CHARS[Math.floor(Math.random() * CHARS.length)];
+    // Générateur cryptographique : le code ouvre une session prestataire
+    token += CHARS[randomInt(CHARS.length)];
   }
   return token;
 }

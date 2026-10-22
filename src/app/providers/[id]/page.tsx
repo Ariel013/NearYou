@@ -6,8 +6,8 @@ import { StarRating } from "@/components/shared/StarRating";
 import { BadgeVerified } from "@/components/shared/BadgeVerified";
 import { buildWaLink, parseWkbPoint } from "@/lib/geo";
 import { createServiceClient } from "@/lib/supabase/server";
-import type { ProviderFull } from "@/types";
-import type { Review } from "@/lib/supabase/types";
+import type { ProviderFull, PublicReview } from "@/types";
+import { toPublicReview } from "@/lib/public-data";
 import { BackButton } from "./BackButton";
 import { ContactLogger } from "./ContactLogger";
 import { ProviderDetailMap } from "@/components/map/ProviderDetailMap";
@@ -40,7 +40,6 @@ async function getProvider(id: string): Promise<ProviderFull | null> {
       available:        provider.available,
       verified_at:      provider.verified_at,
       claimed_at:       provider.claimed_at,
-      claimed_by_phone: provider.claimed_by_phone,
       avg_rating:       provider.avg_rating,
       review_count:     provider.review_count,
       disabled_at:      provider.disabled_at ?? null,
@@ -52,7 +51,7 @@ async function getProvider(id: string): Promise<ProviderFull | null> {
         (pc: { categories: unknown }) => pc.categories,
       ),
       photos:  provider.provider_photos,
-      reviews: provider.reviews,
+      reviews: provider.reviews.map(toPublicReview),
     };
   } catch {
     return null;
@@ -206,7 +205,7 @@ export default async function ProviderPage({
           </h2>
           {provider.reviews?.length ? (
             <ul className="space-y-3">
-              {provider.reviews.slice(0, 5).map((r: Review) => (
+              {provider.reviews.slice(0, 5).map((r: PublicReview) => (
                 <li
                   key={r.id}
                   className="rounded-2xl p-4"

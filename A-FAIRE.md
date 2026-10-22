@@ -26,6 +26,7 @@ les deux premières, les secrets GitHub (workflow de secours).
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | clé `sb_publishable_…` | en place |
 | `SUPABASE_SERVICE_ROLE_KEY` | clé `sb_secret_…` — serveur uniquement | en place |
 | `CRON_SECRET` | aléatoire ≥ 32 caractères | en place dans Vercel (2026-10-22) |
+| `PROVIDER_SESSION_SECRET` | aléatoire ≥ 32 caractères, distinct de `ADMIN_JWT_SECRET` | **à créer dans Vercel et `.env.local` avant de déployer la tâche 1** (2026-10-22) — sans elle, aucune connexion prestataire |
 | `BOT_URL`, `BOT_SECRET` | URL Railway du bot ; secret partagé avec `bot/.env` | requises |
 | `ADMIN_SECRET`, `ADMIN_JWT_SECRET` | aléatoires | requises |
 | `AFRICA_TALKING_API_KEY`, `AFRICA_TALKING_USERNAME` | Africa's Talking | **absentes de `.env.example`** ; sans elles, le code OTP des avis n'est pas envoyé (tâche 2) |
