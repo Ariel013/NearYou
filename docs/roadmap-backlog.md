@@ -14,7 +14,7 @@ maintien en vie Supabase (ADR 0002).
 
 ---
 
-## Tâche 1 — Fermer la modification de fiche par un tiers — à faire
+## Tâche 1 — Fermer la modification de fiche par un tiers — ✅ faite le 2026-10-22 (en attente de déploiement)
 
 **Contexte** : constat de l'amorce (lecture du code, non reproduit) — la
 route publique d'une fiche renvoie `claimed_by_phone` et les avis complets,
@@ -61,7 +61,36 @@ revendiqué sa fiche ; le prestataire lit et répond depuis sa boîte.
 
 **Hors périmètre** : pièces jointes, appels, paiement.
 
+## Tâche 1 bis — Durcir les politiques RLS — à faire (avant tout Supabase côté client)
+
+**Contexte** : constat de la tâche 1 (`docs/architecture.md` §6). Les
+politiques « service » s'appliquent à tous les rôles ; avec la clé anon, on lit
+`otp_claims`, `reports`, les numéros, et on insère des avis. Non atteignable
+tant que la clé anon reste côté serveur.
+
+**Objectif** : la clé anon ne lit que les colonnes publiques et n'écrit rien.
+
+**Critères d'acceptation** : migration 006 additive (suppression des
+politiques sans rôle, droits par colonne sur `providers` et `reviews`,
+`EXECUTE` des RPC retiré à `anon`) ; testée sur une base jetable avant la
+prod ; le maintien en vie (lecture de `categories` en anon) fonctionne encore.
+
 ## Plus tard (non ordonné)
+
+- OTP SMS (`/api/otp/send`, `/api/otp/verify`) : code à 6 chiffres tiré par
+  `Math.random`, aucune limite de tentatives — un code se force en 10⁶ essais
+  pendant ses 10 minutes, ce qui marque une fiche revendiquée ou poste un avis
+  au nom d'un numéro (sans ouvrir de session). À traiter avec la tâche 2 :
+  générateur cryptographique et plafond de tentatives par numéro.
+- `/api/claim/whatsapp/init` : sans `BOT_URL`, le code part dans les logs et
+  la route répond « envoyé » — échouer en production.
+- `POST /api/providers/[id]/reports` renvoie `reporter_ip` à l'auteur du
+  signalement : retirer le champ.
+- Sessions prestataire non révocables avant 30 jours (hors retrait de la
+  revendication par l'admin).
+- Unifier les chemins de revendication : le webhook du bot revendique avec le
+  numéro WhatsApp de l'expéditeur sans ouvrir de session, et l'ancienne route
+  `otp/verify` (SMS) revendique encore une fiche. Garder un seul chemin.
 
 - Corriger les 6 erreurs ESLint existantes (2026-10-22 : hooks appelés
   conditionnellement, `setState` dans un effet, apostrophes non échappées),

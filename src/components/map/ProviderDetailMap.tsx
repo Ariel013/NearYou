@@ -32,7 +32,6 @@ export function ProviderDetailMap({ lat, lng, name, userPosition }: ProviderDeta
     available: true,
     verified_at: null,
     claimed_at: null,
-    claimed_by_phone: null,
     avg_rating: 0,
     review_count: 0,
     disabled_at: null,

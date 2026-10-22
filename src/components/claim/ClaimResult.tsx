@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import { CheckCircle, AlertCircle } from "lucide-react";
-import type { Provider } from "@/lib/supabase/types";
+import type { PublicProvider } from "@/types";
 
 interface ClaimResultProps {
   found: boolean;
-  provider?: Provider;
+  provider?: PublicProvider;
   phone: string;
 }
 

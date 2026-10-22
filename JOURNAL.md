@@ -26,9 +26,10 @@ Carte des documents : `CLAUDE.md` (règles, carte), `A-FAIRE.md` (hors code),
   (`ed5cfa4`) ; sa première exécution réussie n'a **pas** été constatée.
 - **Branches** : `staging` et `dev` créées localement depuis `main` le
   2026-10-22, **pas encore poussées**.
-- **Prochaine action** : tâche 1 du backlog — fermer la modification de fiche
-  par un tiers et l'exposition des numéros (constat de lecture, à reproduire
-  d'abord par un test). Critère de fin dans `docs/roadmap-backlog.md`.
+- **Prochaine action** : créer `PROVIDER_SESSION_SECRET` dans Vercel, puis
+  déployer la tâche 1 (branche `fix/session-prestataire`) et faire une
+  revendication réelle de bout en bout (le cas « propriétaire modifie sa fiche
+  → 200 » n'a pas pu être testé : aucune fiche revendiquée en base).
 
 ## 📓 Journal des sessions
 
@@ -55,6 +56,27 @@ Carte des documents : `CLAUDE.md` (règles, carte), `A-FAIRE.md` (hors code),
 - Ouvert : hors périmètre à confirmer (paiement en ligne, appli native) ;
   OTP des avis peut-être inopérant en prod (tâche 2).
 
+### 2026-10-22 — Tâche 1 : session prestataire et sorties publiques
+
+- Reproduit avant correctif (serveur local sur la base de prod) : la liste
+  publique renvoyait la clé `claimed_by_phone` ; un `PATCH` **sans aucun
+  en-tête** sur une fiche non revendiquée était accepté (200 — corps vide,
+  seul `updated_at` a changé) : `null !== null` est faux.
+- Correctif : cookie de session signé émis à la vérification du code WhatsApp
+  (et reconnexion du propriétaire), seule autorité du `PATCH` ; filtre des
+  sorties publiques ; code de revendication tiré au générateur
+  cryptographique.
+- Après : sans session, en-tête seul, cookie mal signé → 401 ; session valide
+  sur une fiche non revendiquée ou sur une autre fiche → 403 ; liste, fiche
+  et page sans numéro privé.
+- Relecture sécurité indépendante : trois points introduits corrigés (secret
+  faible ou indicatif refusé → 401 vérifié ; vérification en `text/plain`
+  refusée → 415 vérifié ; consommation du code atomique, non testée faute de
+  code réel). Trois points préexistants mis au backlog (OTP SMS forçable,
+  code écrit dans les logs sans `BOT_URL`, `reporter_ip` renvoyé).
+- Découvert : politiques RLS sans rôle (tâche 1 bis), chemins de revendication
+  multiples.
+
 ## 🎓 Leçons apprises
 
 *Une entrée dès qu'une erreur est commise et corrigée. Format : symptôme →
@@ -65,6 +87,13 @@ La base Supabase était en pause malgré un ping GitHub planifié.
 Cause : GitHub coupe les workflows planifiés après 60 jours sans commit.
 Règle : le cron vit chez l'hébergeur de l'app (Vercel) et se vérifie par sa
 dernière exécution. → brain : `un-maintien-en-vie-ne-depend-pas-de-l-activite-qu-il-remplace`
+
+### Une comparaison d'autorisation avec une valeur absente laisse passer (2026-10-22)
+Une fiche non revendiquée était modifiable par n'importe qui sans en-tête.
+Cause : le contrôle était `claimed_by_phone !== enTête`, et `null !== null`
+est faux.
+Règle : une autorisation commence par exiger la présence de la preuve, puis
+la compare ; et ne repose jamais sur une valeur que le client fournit.
 
 ### Arrêter le serveur de dev par son PID (2026-10-22)
 `pkill -f "next dev" ; …` a renvoyé le code 144 : le shell s'est tué lui-même.
