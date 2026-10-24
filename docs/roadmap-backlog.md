@@ -57,8 +57,8 @@ surface), captures à 390 / 768 / 1440 px avant chaque rapport.
 | 2 | Carte MapLibre + OpenFreeMap, style aux couleurs de la charte, bâtiments 3D, repli — ADR 0004 | fait, non commité |
 | 3 | Explorer : panneau glissant sur téléphone, liste + carte côte à côte sur desktop, état vide | fait, non commité |
 | 4 | Fiche : barre de contact lisible, « Pas encore d'avis », mini-carte, colonne de contact desktop | fait (2026-10-24) |
-| 5 | Accueil : recherche d'abord, catégories entières, « près de vous », texte Bénin + Côte d'Ivoire | fait, non commité |
-| 6 | Tableau de bord : contacts de la semaine par type, complétude, avis, aperçu de la fiche | à faire |
+| 5 | Accueil : recherche d'abord, catégories entières, « près de vous », texte Bénin + Côte d'Ivoire | fait (2026-10-24) |
+| 6 | Tableau de bord : contacts de la semaine par type, complétude, avis, aperçu de la fiche | fait, non commité |
 
 ## Vérification de numéro — en pause (décision du 2026-10-24)
 
@@ -98,6 +98,8 @@ politiques sans rôle, droits par colonne sur `providers` et `reviews`,
 prod ; le maintien en vie (lecture de `categories` en anon) fonctionne encore.
 
 ## Plus tard (non ordonné)
+
+- Le comptage public des contacts (`POST /api/providers/[id]/contacts`) n'a ni limite de débit ni validation UUID : n'importe qui peut gonfler les chiffres du tableau de bord (intégrité, pas de fuite). Relevé par la revue du lot 6.
 
 - OTP SMS (`/api/otp/send`, `/api/otp/verify`) : code à 6 chiffres tiré par
   `Math.random`, aucune limite de tentatives — un code se force en 10⁶ essais

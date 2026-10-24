@@ -32,10 +32,10 @@ Carte des documents : `CLAUDE.md` (règles, carte), `A-FAIRE.md` (hors code),
   passerelle ou SMS). Bloque aussi la messagerie (tâche 3).
 - **En cours** : refonte du front, brief validé le 2026-10-24 (voir
   `PRODUCT.md` et le backlog, « Refonte du front »). Lot 1 commité et fusionné
-  dans `dev`, lots 2 à 4 aussi ; lot 5 (accueil) sur `feat/refonte-front`,
-  **non commité**.
-- **Prochaine action** : valider le lot 5, puis lot 6 — le tableau de bord
-  du prestataire.
+  dans `dev`, lots 2 à 5 aussi ; lot 6 (tableau de bord) sur
+  `feat/refonte-front`, **non commité**. Ensuite : pousser `dev` (sur
+  confirmation), recette sur la preview Vercel, puis `staging` et `main`.
+- **Prochaine action** : valider le lot 6.
 
 ## 📓 Journal des sessions
 
@@ -133,6 +133,20 @@ Carte des documents : `CLAUDE.md` (règles, carte), `A-FAIRE.md` (hors code),
   un numéro factice (22900000000). Vérifié à 390, 768 et 1440 px ; recherche
   depuis l'accueil → explorer avec la requête.
 
+- Lot 6 : tableau de bord refait. Disponibilité en premier, « qui vous a
+  contacté » sur 7 jours (barres par jour, détail au survol, table pour
+  lecteur d'écran, écart avec la semaine d'avant), « pour être choisi »
+  (présentation, quartier, demander un avis par partage du lien), aperçu dans
+  les résultats, avis. Sans session : un écran qui explique au lieu de
+  renvoyer vers une revendication en panne. **Les statistiques n'étaient
+  jamais chargées** (tableau vide en dur) : nouvelle route `GET
+  /api/providers/[id]/contacts` réservée au propriétaire, contrôle partagé
+  avec le PATCH (`src/lib/provider-owner.ts`). Mesuré : 401 sans cookie ou
+  cookie mal signé, 403 session non revendiquée ou d'une autre fiche, 400 id
+  invalide ; PATCH inchangé (401/403). Rendu vérifié avec des statistiques
+  simulées (interception réseau) à 390 et 1440 px. Non testé : un vrai
+  propriétaire (aucune fiche revendiquée).
+
 ## 🎓 Leçons apprises
 
 *Une entrée dès qu'une erreur est commise et corrigée. Format : symptôme →
@@ -190,3 +204,9 @@ suppression avait été indexée : un `stash`/`pop` fait entre-temps l'avait
 remise en suppression non indexée, et le `git add` nominatif ne la citait pas.
 Règle : relire `git status` juste avant le commit et inclure les suppressions
 (`D` en seconde colonne) dans la liste nominative.
+
+### Une table en `sr-only` déborde quand même (2026-10-24)
+La page du tableau de bord défilait horizontalement sur téléphone (425 px
+pour 390). Cause : une `<table>` ignore la largeur de 1 px de `sr-only`.
+Règle : masquer le conteneur de la table, pas la table ; et mesurer
+`scrollWidth` à chaque largeur, une capture ne le montre pas toujours.
