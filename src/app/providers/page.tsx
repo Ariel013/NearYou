@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useMemo } from "react";
 import { Map, List } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import { BottomNav } from "@/components/shared/BottomNav";
+import { AppNav } from "@/components/shared/AppNav";
 import { SearchBar } from "@/components/search/SearchBar";
 import { ProviderList } from "@/components/providers/ProviderList";
 import { ProviderSheet } from "@/components/providers/ProviderSheet";
@@ -105,7 +105,7 @@ function ProvidersPageContent() {
               className="rounded-full px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-all"
               style={{
                 backgroundColor: !activeCategory ? "var(--color-primary)" : "var(--color-surface)",
-                color: !activeCategory ? "white" : "var(--color-text-muted)",
+                color: !activeCategory ? "var(--color-on-primary)" : "var(--color-text-muted)",
                 border: `1px solid ${!activeCategory ? "var(--color-primary)" : "var(--color-border)"}`,
               }}
             >
@@ -125,7 +125,7 @@ function ProvidersPageContent() {
                 className="rounded-full px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-all"
                 style={{
                   backgroundColor: activeCategory === slug ? "var(--color-primary)" : "var(--color-surface)",
-                  color: activeCategory === slug ? "white" : "var(--color-text-muted)",
+                  color: activeCategory === slug ? "var(--color-on-primary)" : "var(--color-text-muted)",
                   border: `1px solid ${activeCategory === slug ? "var(--color-primary)" : "var(--color-border)"}`,
                 }}
               >
@@ -206,7 +206,7 @@ function ProvidersPageContent() {
         />
       )}
 
-      <BottomNav />
+      <AppNav />
     </main>
   );
 }

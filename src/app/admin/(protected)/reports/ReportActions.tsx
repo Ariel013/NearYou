@@ -54,7 +54,7 @@ export function ReportActions({ reportId, providerId, isProviderDisabled }: Repo
         onClick={resolveReport}
         disabled={isLoading}
         className="rounded-full text-xs"
-        style={{ backgroundColor: "var(--color-success)", color: "white" }}
+        style={{ backgroundColor: "var(--color-success)", color: "var(--color-on-primary)" }}
       >
         Marquer résolu
       </Button>

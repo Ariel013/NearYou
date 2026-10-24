@@ -9,7 +9,7 @@ export function DoubleCTA() {
         className="rounded-2xl p-5"
         style={{
           background: `linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%)`,
-          color: "white",
+          color: "var(--color-on-primary)",
         }}
       >
         <div className="flex items-start gap-3 mb-4">
@@ -35,7 +35,7 @@ export function DoubleCTA() {
           href="/claim"
           className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 font-semibold transition-opacity active:opacity-80"
           style={{
-            backgroundColor: "white",
+            backgroundColor: "var(--color-surface)",
             color: "var(--color-primary)",
             fontSize: "var(--text-sm)",
           }}
@@ -99,7 +99,7 @@ export function DoubleCTA() {
           className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 font-semibold transition-opacity active:opacity-80"
           style={{
             backgroundColor: "var(--color-accent)",
-            color: "white",
+            color: "var(--color-on-primary)",
             fontSize: "var(--text-sm)",
           }}
         >

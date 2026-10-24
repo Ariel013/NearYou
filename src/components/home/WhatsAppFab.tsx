@@ -14,8 +14,8 @@ export function WhatsAppFab({ phone, message = "Bonjour, j'ai besoin d'aide avec
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Contacter le support via WhatsApp"
-      className="fixed bottom-20 right-4 z-50 flex h-14 w-14 items-center justify-center rounded-full shadow-lg transition-transform active:scale-95"
-      style={{ backgroundColor: "#25D366" }}
+      className="fixed right-4 z-50 flex h-14 w-14 items-center justify-center rounded-full shadow-lg transition-transform active:scale-95"
+      style={{ backgroundColor: "#25D366", bottom: "calc(var(--app-inset-bottom) + 16px)" }}
     >
       {/* WhatsApp SVG icon */}
       <svg

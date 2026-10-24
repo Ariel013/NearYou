@@ -18,18 +18,23 @@ Carte des documents : `CLAUDE.md` (règles, carte), `A-FAIRE.md` (hors code),
 
 ## 📍 État actuel & prochaine action
 
-*(Mis à jour le 2026-10-22.)*
+*(Mis à jour le 2026-10-24.)*
 
-- **Production** : `main` sur Vercel, branchée sur le **nouveau projet
-  Supabase** — **vérifié** le 2026-10-22 par une fiche créée depuis le site en
-  ligne et relue dans la nouvelle base. Cron de maintien en vie poussé
-  (`ed5cfa4`) ; sa première exécution réussie n'a **pas** été constatée.
-- **Branches** : `staging` et `dev` créées localement depuis `main` le
-  2026-10-22, **pas encore poussées**.
-- **Prochaine action** : créer `PROVIDER_SESSION_SECRET` dans Vercel, puis
-  déployer la tâche 1 (branche `fix/session-prestataire`) et faire une
-  revendication réelle de bout en bout (le cas « propriétaire modifie sa fiche
-  → 200 » n'a pas pu être testé : aucune fiche revendiquée en base).
+- **Production** : `main` sur Vercel, branchée sur le nouveau projet
+  Supabase (vérifié le 2026-10-22). Première exécution du cron de maintien en
+  vie **non constatée**.
+- **Branches** : `dev` porte la tâche 1 et l'amorce ; ni `dev` ni `staging`
+  ne sont poussées.
+- **Revendication en panne** : les deux numéros du bot WhatsApp (Baileys) ont
+  été bannis. Aucune fiche ne peut être revendiquée, et le cas « propriétaire
+  modifie sa fiche → 200 » reste non testé. **Vérification de numéro mise en
+  pause** le 2026-10-24 : toute solution a un coût (numéro neuf, téléphone
+  passerelle ou SMS). Bloque aussi la messagerie (tâche 3).
+- **En cours** : refonte du front, brief validé le 2026-10-24 (voir
+  `PRODUCT.md` et le backlog, « Refonte du front »). Lot 1 (fondations) sur
+  `feat/refonte-front`, **non commité**.
+- **Prochaine action** : valider le lot 1, puis lot 2 — carte MapLibre 3D
+  (ADR à écrire avec le code).
 
 ## 📓 Journal des sessions
 
@@ -77,6 +82,22 @@ Carte des documents : `CLAUDE.md` (règles, carte), `A-FAIRE.md` (hors code),
 - Découvert : politiques RLS sans rôle (tâche 1 bis), chemins de revendication
   multiples.
 
+### 2026-10-24 — Outils de front, brief de refonte, lot 1
+
+- Bot WhatsApp banni (deux numéros). OpenWA écarté (même mécanisme non
+  officiel que Baileys). Vérification par SMS entrant ou Telegram étudiée,
+  puis **mise en pause** par décision : coût.
+- Outils de front évalués ; `ui-ux-pro-max` et `playwright-cli` installés,
+  méthode montée au brain (`00-methode/concevoir-le-front`).
+- `PRODUCT.md` écrit (register product ; chaleureux et local, net et
+  technique, premium ; charte gardée et modernisée). Brief en six lots validé.
+- Lot 1 : charte passée en OKLCH avec neutres sable ; coque responsive
+  (barre du bas sur téléphone, rail à gauche dès 1024 px) qui réserve sa
+  place par variables CSS ; barre de contact de la fiche recalée ; calques
+  Leaflet contenus. Mesuré à 390 et 1440 px : marge réservée = taille de la
+  navigation, pas de défilement horizontal, barre de contact au-dessus de la
+  carte. Build et typecheck verts.
+
 ## 🎓 Leçons apprises
 
 *Une entrée dès qu'une erreur est commise et corrigée. Format : symptôme →
@@ -99,3 +120,16 @@ la compare ; et ne repose jamais sur une valeur que le client fournit.
 `pkill -f "next dev" ; …` a renvoyé le code 144 : le shell s'est tué lui-même.
 Règle : `kill <PID>` dans une commande à part. → brain :
 `arreter-un-processus-par-son-pid-pas-par-un-motif`
+
+### Un CSS modifié qui ne change pas à l'écran : vider le cache Turbopack (2026-10-24)
+Les nouveaux jetons de `globals.css` n'arrivaient pas au navigateur, même
+après redémarrage du serveur de dev ; le fichier servi était l'ancien.
+Cause : cache persistant de Turbopack (`.next/dev`) resté sur l'ancienne
+version (WSL).
+Règle : avant de douter du code, vérifier le CSS **servi** ; s'il est périmé,
+arrêter le serveur (PID), supprimer `.next/dev`, relancer.
+
+### Le port 3000 peut appartenir à un autre projet (2026-10-24)
+`next dev` est passé sur 3001 en silence ; les premières mesures visaient
+l'app d'un autre dépôt sur 3000.
+Règle : lire le port dans la sortie du serveur, ou lancer avec `-p` explicite.

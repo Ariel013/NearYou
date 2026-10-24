@@ -110,7 +110,7 @@ function AdminLoginForm() {
           <Button
             type="submit"
             className="w-full rounded-full py-3 font-medium"
-            style={{ backgroundColor: "var(--color-primary)", color: "white" }}
+            style={{ backgroundColor: "var(--color-primary)", color: "var(--color-on-primary)" }}
             disabled={!password || isPending}
             aria-label="Se connecter à l'administration"
           >
