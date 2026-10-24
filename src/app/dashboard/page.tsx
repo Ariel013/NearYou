@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { BottomNav } from "@/components/shared/BottomNav";
+import { AppNav } from "@/components/shared/AppNav";
 import { StarRating } from "@/components/shared/StarRating";
 import { ProviderForm } from "@/components/forms/ProviderForm";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -234,7 +234,7 @@ export default function DashboardPage() {
         )}
       </div>
 
-      <BottomNav />
+      <AppNav />
     </main>
   );
 }

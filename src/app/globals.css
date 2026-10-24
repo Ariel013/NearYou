@@ -8,7 +8,7 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-body);
-  --font-mono: var(--font-mono);
+  --font-mono: var(--font-numeric);
   --font-heading: var(--font-display);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -38,89 +38,133 @@
   --radius-xl: calc(var(--radius) * 1.4);
 }
 
-/* ─── NearYou Design Tokens ─── */
+/* ─── NearYou Design Tokens ───
+   Charte d'origine (bleu profond, ambre, Syne + Epilogue) passée en OKLCH.
+   Neutres teintés sable : chaleureux et local plutôt que gris ardoise. */
 :root {
-  /* Brand */
-  --color-primary:       #1B6CA8;
-  --color-primary-light: #E8F4FD;
-  --color-primary-dark:  #0D4E7A;
-  --color-accent:        #F5A623;
-  --color-accent-light:  #FEF3D7;
+  /* Marque */
+  --color-primary:       oklch(0.505 0.124 246);
+  --color-primary-light: oklch(0.955 0.022 240);
+  --color-primary-dark:  oklch(0.400 0.098 246);
+  --color-accent:        oklch(0.785 0.155 72);   /* ambre : signal (contact, proximité) */
+  --color-accent-strong: oklch(0.560 0.130 62);   /* ambre lisible en texte sur fond clair */
+  --color-accent-light:  oklch(0.962 0.040 86);
 
-  /* Neutrals */
-  --color-bg:            #F8F9FB;
-  --color-surface:       #FFFFFF;
-  --color-border:        #E2E8F0;
-  --color-text:          #1A202C;
-  --color-text-muted:    #64748B;
-  --color-text-light:    #94A3B8;
+  /* Neutres sable */
+  --color-bg:            oklch(0.975 0.007 80);
+  --color-surface:       oklch(0.995 0.003 80);
+  --color-surface-sunk:  oklch(0.950 0.010 78);
+  --color-border:        oklch(0.900 0.013 76);
+  --color-text:          oklch(0.235 0.020 250);
+  --color-text-muted:    oklch(0.500 0.020 70);
+  --color-text-light:    oklch(0.640 0.016 70);
+  --color-on-primary:    oklch(0.990 0.004 240);
 
-  /* Semantic */
-  --color-success:       #22C55E;
-  --color-success-light: #DCFCE7;
-  --color-warning:       #F59E0B;
-  --color-warning-light: #FEF3C7;
-  --color-error:         #EF4444;
-  --color-error-light:   #FEE2E2;
+  /* Sémantique */
+  --color-success:       oklch(0.600 0.140 150);
+  --color-success-light: oklch(0.955 0.045 150);
+  --color-warning:       oklch(0.720 0.150 68);
+  --color-warning-light: oklch(0.960 0.045 85);
+  --color-error:         oklch(0.575 0.195 27);
+  --color-error-light:   oklch(0.955 0.030 25);
 
-  /* Spacing */
+  /* Coque de l'app : où la navigation prend sa place.
+     Mobile : barre du bas ; desktop (lg) : rail à gauche. */
+  --nav-height:       64px;
+  --rail-width:       88px;
+  --app-inset-left:   0px;
+  --app-inset-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom));
+
+  /* Espacements */
   --space-1: 0.25rem;  --space-2: 0.5rem;   --space-3: 0.75rem;
   --space-4: 1rem;     --space-6: 1.5rem;   --space-8: 2rem;
   --space-12: 3rem;    --space-16: 4rem;    --space-24: 6rem;
 
-  /* Radii */
+  /* Rayons */
   --radius-sm:   6px;
   --radius-md:   12px;
   --radius-lg:   20px;
   --radius-full: 9999px;
   --radius:      0.75rem;
 
-  /* Shadows */
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
-  --shadow-md: 0 4px 16px rgba(0,0,0,0.10);
-  --shadow-lg: 0 16px 40px rgba(0,0,0,0.14);
+  /* Ombres teintées (jamais de noir pur) */
+  --shadow-sm: 0 1px 2px oklch(0.30 0.03 60 / 0.06), 0 1px 3px oklch(0.30 0.03 60 / 0.06);
+  --shadow-md: 0 4px 16px oklch(0.30 0.03 60 / 0.09);
+  --shadow-lg: 0 16px 40px oklch(0.30 0.03 60 / 0.13);
 
-  /* Transitions */
+  /* Mouvement : sorties exponentielles, pas de rebond */
   --ease-out:       cubic-bezier(0.16, 1, 0.3, 1);
   --duration-fast:  150ms;
   --duration-base:  250ms;
 
-  /* Typography scale */
-  --text-xs:   clamp(0.7rem,  0.65rem + 0.25vw, 0.8rem);
-  --text-sm:   clamp(0.85rem, 0.8rem  + 0.25vw, 0.95rem);
-  --text-base: clamp(1rem,    0.95rem + 0.25vw, 1.1rem);
-  --text-lg:   clamp(1.15rem, 1.1rem  + 0.5vw,  1.3rem);
-  --text-xl:   clamp(1.35rem, 1.2rem  + 0.75vw, 1.75rem);
-  --text-2xl:  clamp(1.75rem, 1.5rem  + 1.25vw, 2.5rem);
-  --text-3xl:  clamp(2.25rem, 2rem    + 2vw,    3.5rem);
+  /* Échelle typographique */
+  --text-xs:   clamp(0.75rem, 0.72rem + 0.15vw, 0.8rem);
+  --text-sm:   clamp(0.875rem, 0.85rem + 0.15vw, 0.95rem);
+  --text-base: clamp(1rem,    0.97rem + 0.15vw, 1.075rem);
+  --text-lg:   clamp(1.15rem, 1.1rem  + 0.3vw,  1.3rem);
+  --text-xl:   clamp(1.4rem,  1.25rem + 0.6vw,  1.75rem);
+  --text-2xl:  clamp(1.75rem, 1.5rem  + 1.1vw,  2.5rem);
+  --text-3xl:  clamp(2.25rem, 1.9rem  + 1.8vw,  3.5rem);
 
   /* shadcn compat */
-  --background: #F8F9FB;
-  --foreground:  #1A202C;
-  --card:        #FFFFFF;
-  --card-foreground: #1A202C;
-  --popover:     #FFFFFF;
-  --popover-foreground: #1A202C;
-  --primary:     #1B6CA8;
-  --primary-foreground: #FFFFFF;
-  --secondary:   #E8F4FD;
-  --secondary-foreground: #1B6CA8;
-  --muted:       #F1F5F9;
-  --muted-foreground: #64748B;
-  --accent:      #FEF3D7;
-  --accent-foreground: #F5A623;
-  --destructive: #EF4444;
-  --border:      #E2E8F0;
-  --input:       #E2E8F0;
-  --ring:        #1B6CA8;
-  --sidebar:     #FFFFFF;
-  --sidebar-foreground: #1A202C;
-  --sidebar-primary: #1B6CA8;
-  --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #E8F4FD;
-  --sidebar-accent-foreground: #1B6CA8;
-  --sidebar-border: #E2E8F0;
-  --sidebar-ring: #1B6CA8;
+  --background: var(--color-bg);
+  --foreground: var(--color-text);
+  --card:        var(--color-surface);
+  --card-foreground: var(--color-text);
+  --popover:     var(--color-surface);
+  --popover-foreground: var(--color-text);
+  --primary:     var(--color-primary);
+  --primary-foreground: var(--color-on-primary);
+  --secondary:   var(--color-primary-light);
+  --secondary-foreground: var(--color-primary);
+  --muted:       var(--color-surface-sunk);
+  --muted-foreground: var(--color-text-muted);
+  --accent:      var(--color-accent-light);
+  --accent-foreground: var(--color-accent-strong);
+  --destructive: var(--color-error);
+  --border:      var(--color-border);
+  --input:       var(--color-border);
+  --ring:        var(--color-primary);
+  --sidebar:     var(--color-surface);
+  --sidebar-foreground: var(--color-text);
+  --sidebar-primary: var(--color-primary);
+  --sidebar-primary-foreground: var(--color-on-primary);
+  --sidebar-accent: var(--color-primary-light);
+  --sidebar-accent-foreground: var(--color-primary);
+  --sidebar-border: var(--color-border);
+  --sidebar-ring: var(--color-primary);
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --app-inset-left:   var(--rail-width);
+    --app-inset-bottom: 0px;
+  }
+}
+
+/* Les pages qui portent la navigation réservent sa place ; l'admin, non. */
+body:has([data-app-nav]) {
+  padding-bottom: var(--app-inset-bottom);
+  padding-left: var(--app-inset-left);
+}
+
+.app-nav-item:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-md);
+}
+
+/* Les calques Leaflet (z-index 400 à 1000) restent dans la carte :
+   sans ça, la carte passe au-dessus des barres fixes de l'app. */
+.leaflet-container {
+  isolation: isolate;
+}
+
+/* Chiffres alignés : distances, notes, compteurs */
+.tabular {
+  font-family: var(--font-numeric, ui-monospace, monospace);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
 }
 
 @layer base {

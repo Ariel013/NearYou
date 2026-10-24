@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Syne, Epilogue } from "next/font/google";
+import { Syne, Epilogue, Geist_Mono } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
@@ -14,6 +14,14 @@ const epilogue = Epilogue({
   variable: "--font-body",
   subsets: ["latin"],
   weight: ["400", "500", "600"],
+  display: "swap",
+});
+
+// Chiffres : distances, notes, compteurs (classe .tabular)
+const geistMono = Geist_Mono({
+  variable: "--font-numeric",
+  subsets: ["latin"],
+  weight: ["500"],
   display: "swap",
 });
 
@@ -37,9 +45,9 @@ export default function RootLayout({
   return (
     <html
       lang="fr"
-      className={`${syne.variable} ${epilogue.variable} h-full antialiased`}
+      className={`${syne.variable} ${epilogue.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col" style={{ paddingBottom: "64px" }}>
+      <body className="min-h-full flex flex-col">
         {children}
         <Toaster richColors position="top-center" />
       </body>

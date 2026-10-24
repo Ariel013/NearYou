@@ -95,7 +95,7 @@ export function WhatsAppWaiting({
         target="_blank"
         rel="noopener noreferrer"
         className="flex w-full items-center justify-center gap-2 rounded-full py-3.5 font-semibold transition-opacity active:opacity-80"
-        style={{ backgroundColor: "#25D366", color: "white", fontSize: "var(--text-base)" }}
+        style={{ backgroundColor: "#25D366", color: "var(--color-on-primary)", fontSize: "var(--text-base)" }}
       >
         <MessageCircle size={20} />
         Ouvrir WhatsApp

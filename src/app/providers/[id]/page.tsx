@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { Phone, MessageCircle } from "lucide-react";
-import { BottomNav } from "@/components/shared/BottomNav";
+import { AppNav } from "@/components/shared/AppNav";
 import { StarRating } from "@/components/shared/StarRating";
 import { BadgeVerified } from "@/components/shared/BadgeVerified";
 import { buildWaLink, parseWkbPoint } from "@/lib/geo";
@@ -246,11 +246,13 @@ export default async function ProviderPage({
 
       {/* Sticky contact bar */}
       <div
-        className="fixed bottom-16 left-0 right-0 z-40 px-5 py-3"
+        className="fixed right-0 z-40 px-5 py-3"
         style={{
+          left: "var(--app-inset-left)",
+          bottom: "var(--app-inset-bottom)",
           backgroundColor: "var(--color-surface)",
           borderTop: "1px solid var(--color-border)",
-          boxShadow: "0 -4px 16px rgba(0,0,0,0.08)",
+          boxShadow: "var(--shadow-md)",
         }}
       >
         <div className="flex gap-3">
@@ -258,7 +260,7 @@ export default async function ProviderPage({
             <a
               href={`tel:${provider.contact_phone}`}
               className="flex flex-1 items-center justify-center gap-2 rounded-full py-3 font-medium"
-              style={{ backgroundColor: "var(--color-primary)", color: "white", fontSize: "var(--text-sm)" }}
+              style={{ backgroundColor: "var(--color-primary)", color: "var(--color-on-primary)", fontSize: "var(--text-sm)" }}
             >
               <Phone size={16} />
               Appeler
@@ -271,7 +273,7 @@ export default async function ProviderPage({
               target="_blank"
               rel="noopener noreferrer"
               className="flex flex-1 items-center justify-center gap-2 rounded-full py-3 font-medium"
-              style={{ backgroundColor: "#22C55E", color: "white", fontSize: "var(--text-sm)" }}
+              style={{ backgroundColor: "#22C55E", color: "var(--color-on-primary)", fontSize: "var(--text-sm)" }}
             >
               <MessageCircle size={16} />
               WhatsApp
@@ -284,7 +286,7 @@ export default async function ProviderPage({
         </div>
       </div>
 
-      <BottomNav />
+      <AppNav />
     </main>
   );
 }

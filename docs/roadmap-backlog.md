@@ -46,7 +46,29 @@ faire passer le code par le bot WhatsApp comme la revendication.
 **Critères d'acceptation** : un avis posté depuis la prod par un numéro de
 test, relu en base.
 
-## Tâche 3 — Messagerie avec compte léger — à faire (après la tâche 1)
+## Refonte du front — en cours (brief validé le 2026-10-24)
+
+**Contexte** : `PRODUCT.md`. Méthode : skill impeccable (shape avant chaque
+surface), captures à 390 / 768 / 1440 px avant chaque rapport.
+
+| Lot | Contenu | État |
+|---|---|---|
+| 1 | Charte OKLCH (neutres sable), coque responsive : barre du bas / rail desktop | fait, non commité |
+| 2 | Carte MapLibre + OpenFreeMap, style aux couleurs de la charte, bâtiments 3D, repli 2D — **ADR** | à faire |
+| 3 | Explorer : panneau glissant sur téléphone, liste + carte côte à côte sur desktop, état vide | à faire |
+| 4 | Fiche : barre de contact lisible, « Pas encore d'avis », mini-carte, panneau latéral desktop | à faire |
+| 5 | Accueil : recherche d'abord, catégories entières, « près de vous », texte Bénin + Côte d'Ivoire | à faire |
+| 6 | Tableau de bord : contacts de la semaine par type, complétude, avis, aperçu de la fiche | à faire |
+
+## Vérification de numéro — en pause (décision du 2026-10-24)
+
+Bot WhatsApp banni ; toute alternative a un coût (numéro neuf pour l'API
+officielle, téléphone passerelle SMS, SMS sortants). Pistes étudiées : SMS
+entrant via une passerelle Android et une puce existante ; bot Telegram
+(contact partagé = numéro vérifié, gratuit, peu répandu chez les artisans).
+**Conséquence** : revendication impossible, tâche 3 bloquée.
+
+## Tâche 3 — Messagerie avec compte léger — bloquée (vérification de numéro en pause)
 
 **Contexte** : ADR 0001.
 

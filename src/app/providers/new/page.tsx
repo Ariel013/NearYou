@@ -4,7 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { Locate } from "lucide-react";
-import { BottomNav } from "@/components/shared/BottomNav";
+import { AppNav } from "@/components/shared/AppNav";
 import { ProviderForm } from "@/components/forms/ProviderForm";
 import type { ProviderFormValues } from "@/components/forms/ProviderForm";
 import type { ApiResponse } from "@/types";
@@ -100,7 +100,7 @@ function NewProviderPageContent() {
         )}
       </div>
 
-      <BottomNav />
+      <AppNav />
     </main>
   );
 }

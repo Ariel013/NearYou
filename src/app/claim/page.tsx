@@ -3,7 +3,7 @@
 import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
-import { BottomNav } from "@/components/shared/BottomNav";
+import { AppNav } from "@/components/shared/AppNav";
 import { PhoneInput } from "@/components/claim/PhoneInput";
 import { ClaimResult } from "@/components/claim/ClaimResult";
 import { WhatsAppCodeEntry } from "@/components/claim/WhatsAppCodeEntry";
@@ -165,7 +165,7 @@ function ClaimPageContent() {
         )}
       </div>
 
-      <BottomNav />
+      <AppNav />
     </main>
   );
 }

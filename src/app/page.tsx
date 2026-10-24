@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { MapPin } from "lucide-react";
 import { CategoryGrid } from "@/components/search/CategoryGrid";
-import { BottomNav } from "@/components/shared/BottomNav";
+import { AppNav } from "@/components/shared/AppNav";
 import { HeroSection } from "@/components/home/HeroSection";
 import { HowItWorks } from "@/components/home/HowItWorks";
 import { DoubleCTA } from "@/components/home/DoubleCTA";
@@ -88,7 +88,7 @@ export default function HomePage() {
           className="flex items-center justify-between rounded-2xl p-5 transition-shadow hover:shadow-lg active:opacity-90"
           style={{
             background: `linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%)`,
-            color: "white",
+            color: "var(--color-on-primary)",
           }}
         >
           <div>
@@ -165,7 +165,7 @@ export default function HomePage() {
       {/* WhatsApp flottant */}
       <WhatsAppFab phone="22900000000" />
 
-      <BottomNav />
+      <AppNav />
     </main>
   );
 }

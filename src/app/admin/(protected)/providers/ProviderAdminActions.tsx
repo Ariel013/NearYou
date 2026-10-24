@@ -174,7 +174,7 @@ export function ProviderAdminActions({ providerId, isDisabled, initialData }: Pr
           </label>
 
           <Button size="sm" onClick={saveEdit} disabled={isLoading} className="rounded-full text-xs w-full"
-            style={{ backgroundColor: "var(--color-primary)", color: "white" }}>
+            style={{ backgroundColor: "var(--color-primary)", color: "var(--color-on-primary)" }}>
             {isLoading ? "Enregistrement…" : "Enregistrer les modifications"}
           </Button>
         </div>
@@ -190,7 +190,7 @@ export function ProviderAdminActions({ providerId, isDisabled, initialData }: Pr
           <div className="flex gap-2">
             <Button size="sm" onClick={deleteProvider} disabled={isLoading}
               className="rounded-full text-xs"
-              style={{ backgroundColor: "var(--color-error)", color: "white" }}>
+              style={{ backgroundColor: "var(--color-error)", color: "var(--color-on-primary)" }}>
               {isLoading ? "…" : "Oui, supprimer"}
             </Button>
             <Button size="sm" onClick={() => setShowDeleteConfirm(false)}
