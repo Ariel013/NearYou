@@ -32,10 +32,9 @@ Carte des documents : `CLAUDE.md` (règles, carte), `A-FAIRE.md` (hors code),
   passerelle ou SMS). Bloque aussi la messagerie (tâche 3).
 - **En cours** : refonte du front, brief validé le 2026-10-24 (voir
   `PRODUCT.md` et le backlog, « Refonte du front »). Lot 1 commité et fusionné
-  dans `dev` ; lot 2 (cartes MapLibre 3D, ADR 0004) sur `feat/refonte-front`,
-  **non commité**.
-- **Prochaine action** : valider le lot 2, puis lot 3 — explorer (panneau
-  glissant sur téléphone, liste + carte côte à côte sur ordinateur).
+  dans `dev`, lot 2 aussi (cartes MapLibre 3D, ADR 0004) ; lot 3 (explorer)
+  sur `feat/refonte-front`, **non commité**.
+- **Prochaine action** : valider le lot 3, puis lot 4 — la fiche.
 
 ## 📓 Journal des sessions
 
@@ -105,6 +104,15 @@ Carte des documents : `CLAUDE.md` (règles, carte), `A-FAIRE.md` (hors code),
   fiche (au-dessus de la navigation) ; console sans erreur. Non vérifié : le
   tracé d'itinéraire avec une vraie position GPS, le repli sans WebGL.
 
+- Lot 3 : explorer refait. Téléphone : carte plein écran, recherche et
+  catégories flottantes, résultats dans un panneau à trois crans (tiré à la
+  main : vérifié haut, bas, toucher). Ordinateur : panneau de résultats à
+  gauche, aperçu du prestataire à la place de la liste. Rayon en crans (2 à
+  50 km), « Chercher dans cette zone » après un déplacement de la carte,
+  bouton de localisation, état vide avec actions. Les paramètres `lat`/`lng`
+  de l'URL sont enfin lus. Vérifié à 390, 768 et 1440 px. Non vérifié : sur un
+  vrai téléphone tactile (glissés simulés à la souris).
+
 ## 🎓 Leçons apprises
 
 *Une entrée dès qu'une erreur est commise et corrigée. Format : symptôme →
@@ -155,3 +163,10 @@ démontage puis détruite, retirait les classes du conteneur partagé avec la
 seconde.
 Règle : vérifier l'annulation **avant** de créer une ressource asynchrone,
 pas après.
+
+### `git stash` puis `git stash pop` peut désindexer une suppression (2026-10-24)
+Le commit du lot 2 a gardé l'ancien `ProviderMarker.tsx` alors que sa
+suppression avait été indexée : un `stash`/`pop` fait entre-temps l'avait
+remise en suppression non indexée, et le `git add` nominatif ne la citait pas.
+Règle : relire `git status` juste avant le commit et inclure les suppressions
+(`D` en seconde colonne) dans la liste nominative.

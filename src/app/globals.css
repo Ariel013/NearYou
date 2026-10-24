@@ -229,6 +229,147 @@ body:has([data-app-nav]) {
   outline-offset: 2px;
 }
 
+.map-chip--strong {
+  background: var(--color-text);
+  color: var(--color-surface);
+}
+.map-chip:disabled { opacity: 0.7; }
+
+/* Bouton 3D / 2D : sous ce qui flotte en haut de la carte (--map-controls-top) */
+.map-tilt-toggle {
+  position: absolute;
+  right: 12px;
+  top: var(--map-controls-top, 12px);
+}
+.maplibregl-ctrl-top-left {
+  top: calc(var(--map-controls-top, 12px) - 10px);
+}
+
+/* ─── Explorer : carte + résultats ───
+   Téléphone : carte plein écran, recherche flottante, panneau à tirer.
+   Ordinateur : panneau de résultats à gauche, carte à droite. */
+.explore {
+  position: relative;
+  display: grid;
+  height: calc(100dvh - var(--app-inset-bottom));
+  overflow: hidden;
+}
+.explore-map {
+  position: relative;
+  min-height: 0;
+  --explore-sheet-top: 118px;
+  --map-controls-top: 126px;
+}
+.explore-panel {
+  flex-direction: column;
+  min-height: 0;
+  background: var(--color-surface);
+  border-right: 1px solid var(--color-border);
+}
+.explore-topbar {
+  position: absolute;
+  inset: 0 0 auto 0;
+  z-index: 15;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 16px 0;
+  background: linear-gradient(to bottom, oklch(0.975 0.007 80 / 0.92) 60%, oklch(0.975 0.007 80 / 0));
+}
+.explore-map-actions {
+  position: absolute;
+  inset: var(--map-controls-top) 0 auto 0;
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+.explore-map-actions > * { pointer-events: auto; }
+.explore-locate {
+  position: absolute;
+  right: 12px;
+  top: calc(var(--map-controls-top) + 46px);
+  z-index: 10;
+  width: 36px;
+  padding: 0;
+  justify-content: center;
+}
+.explore-sheet {
+  background: var(--color-surface);
+  border-radius: 24px 24px 0 0;
+  box-shadow: 0 -8px 30px oklch(0.30 0.03 60 / 0.12);
+  transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+.explore-sheet[data-dragging="true"] { transition: none; }
+
+@media (max-width: 1023.98px) {
+  /* Pincer suffit pour zoomer : pas de boutons + / − sur la carte plein écran */
+  .explore-map .maplibregl-ctrl-top-left { display: none; }
+}
+@media (min-width: 1024px) {
+  .explore {
+    height: 100dvh;
+    grid-template-columns: minmax(360px, 420px) 1fr;
+  }
+  .explore-map {
+    --map-controls-top: 12px;
+  }
+  .explore-topbar { display: none; }
+}
+
+/* Puces de filtre */
+.chip {
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  white-space: nowrap;
+  transition: background-color var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out);
+}
+.chip[data-floating="true"] { box-shadow: var(--shadow-sm); border-color: transparent; }
+.chip[aria-pressed="true"] {
+  background: var(--color-text);
+  border-color: var(--color-text);
+  color: var(--color-surface);
+}
+.chip:focus-visible, .btn-soft:focus-visible, .provider-row:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Bouton discret */
+.btn-soft {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: var(--radius-full);
+  background: var(--color-surface-sunk);
+  color: var(--color-text);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+.btn-soft--accent {
+  background: var(--color-accent);
+  color: var(--color-text);
+}
+
+/* Ligne de résultat */
+.provider-row {
+  transition: background-color var(--duration-fast) var(--ease-out);
+}
+.provider-row:hover { background: var(--color-surface-sunk); }
+.provider-row[aria-current="true"] { background: var(--color-primary-light); }
+
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
 /* Épingle de prestataire : goutte ambre, sélection en bleu profond.
    MapLibre pose son transform sur .ny-pin : l'agrandissement se fait sur la tête. */
 .ny-pin {
