@@ -49,3 +49,6 @@ next-env.d.ts
 # Outils navigateur
 .playwright-cli/
 .playwright-mcp/
+
+# Copié depuis node_modules avant dev/build
+public/maplibre-gl-worker.mjs

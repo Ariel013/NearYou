@@ -40,7 +40,7 @@ first** (320 → 390 → 768 → 1280 px).
 | Framework | Next.js 16 (App Router), React 19 — lire `node_modules/next/dist/docs/` avant de coder (voir `AGENTS.md`) |
 | Langage | TypeScript strict |
 | Styles / UI | Tailwind CSS v4 + custom properties, composants shadcn/ui |
-| Cartes | Leaflet + react-leaflet, tuiles OpenStreetMap |
+| Cartes | MapLibre GL JS sur tuiles vectorielles OpenFreeMap, restylées à la charte, vue 3D — ADR 0004 |
 | Base | Supabase (PostgreSQL 17 + PostGIS), **client Supabase direct** (`@supabase/ssr`), pas d'ORM |
 | Formulaires | React Hook Form + Zod (validation client **et** serveur) |
 | État client | Zustand |

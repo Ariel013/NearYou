@@ -8,7 +8,7 @@ const MapViewDynamic = dynamic(
   () => import("./MapView").then((m) => m.MapView),
   {
     ssr: false,
-    loading: () => <Skeleton className="h-48 w-full rounded-2xl" />,
+    loading: () => <Skeleton className="h-56 w-full rounded-2xl" />,
   }
 );
 
@@ -44,13 +44,19 @@ export function ProviderDetailMap({ lat, lng, name, userPosition }: ProviderDeta
     cover_photo: null,
   };
 
+  // Vue rapprochée et inclinée sur le quartier ; la page reste défilable
+  // (la carte se manipule à deux doigts).
   return (
     <MapViewDynamic
       center={{ lat, lng }}
       providers={[pinProvider]}
+      selectedProviderId="map-pin"
       userPosition={userPosition}
       showUserMarker={!!userPosition}
-      className="h-48 w-full rounded-2xl overflow-hidden"
+      zoom={16}
+      initialTilt
+      cooperative
+      className="h-56 w-full rounded-2xl overflow-hidden"
     />
   );
 }

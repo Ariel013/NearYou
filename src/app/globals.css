@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@import "maplibre-gl/dist/maplibre-gl.css" layer(components);
 
 @custom-variant dark (&:is(.dark *));
 
@@ -154,12 +155,6 @@ body:has([data-app-nav]) {
   border-radius: var(--radius-md);
 }
 
-/* Les calques Leaflet (z-index 400 à 1000) restent dans la carte :
-   sans ça, la carte passe au-dessus des barres fixes de l'app. */
-.leaflet-container {
-  isolation: isolate;
-}
-
 /* Chiffres alignés : distances, notes, compteurs */
 .tabular {
   font-family: var(--font-numeric, ui-monospace, monospace);
@@ -192,5 +187,161 @@ body:has([data-app-nav]) {
   }
 }
 
-/* Leaflet CSS — importé depuis le package npm (pas de CDN) */
-@import "leaflet/dist/leaflet.css";
+/* ─── Cartes (MapLibre) ─── */
+
+/* La carte reste sous les barres fixes de l'app. */
+.maplibregl-map {
+  isolation: isolate;
+  font-family: var(--font-body, system-ui, sans-serif);
+}
+.maplibregl-ctrl-group {
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-md) !important;
+  overflow: hidden;
+}
+
+.maplibregl-ctrl-attrib {
+  font-size: 11px;
+  background: oklch(0.995 0.003 80 / 0.85) !important;
+}
+
+/* Bouton posé sur la carte (vue 3D / 2D) */
+.map-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  min-height: 36px;
+  padding: 0 0.75rem;
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  box-shadow: var(--shadow-md);
+  transition: background-color var(--duration-fast) var(--ease-out);
+}
+.map-chip[aria-pressed="true"] {
+  background: var(--color-text);
+  color: var(--color-surface);
+}
+.map-chip:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Épingle de prestataire : goutte ambre, sélection en bleu profond.
+   MapLibre pose son transform sur .ny-pin : l'agrandissement se fait sur la tête. */
+.ny-pin {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+.ny-pin__head {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  margin-bottom: 4px;
+  border-radius: 50% 50% 50% 0;
+  rotate: -45deg;
+  background: var(--color-accent);
+  border: 2px solid var(--color-surface);
+  box-shadow: 0 4px 10px oklch(0.30 0.05 60 / 0.30);
+  transition: scale var(--duration-base) var(--ease-out), background-color var(--duration-base) var(--ease-out);
+}
+.ny-pin__initial {
+  rotate: 45deg;
+  font-family: var(--font-display, system-ui, sans-serif);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+.ny-pin:hover .ny-pin__head { scale: 1.08; }
+.ny-pin[data-selected="true"] .ny-pin__head {
+  scale: 1.22;
+  background: var(--color-primary);
+}
+.ny-pin[data-selected="true"] .ny-pin__initial { color: var(--color-on-primary); }
+.ny-pin:focus-visible { outline: none; }
+.ny-pin:focus-visible .ny-pin__head {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
+}
+.ny-pin__label {
+  max-width: 180px;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  background: var(--color-text);
+  color: var(--color-surface);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Position de l'utilisateur : point bleu, halo qui respire */
+.ny-user {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ny-user__dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  border: 3px solid var(--color-surface);
+  box-shadow: 0 0 0 0 oklch(0.505 0.124 246 / 0.35);
+  animation: ny-user-halo 2.4s var(--ease-out) infinite;
+}
+.ny-user__cone {
+  position: absolute;
+  inset: 0;
+  background: conic-gradient(from -25deg, oklch(0.505 0.124 246 / 0.35) 0deg 50deg, transparent 50deg);
+  border-radius: 50%;
+}
+@keyframes ny-user-halo {
+  0%   { box-shadow: 0 0 0 0 oklch(0.505 0.124 246 / 0.35); }
+  100% { box-shadow: 0 0 0 14px oklch(0.505 0.124 246 / 0); }
+}
+
+/* Destination et position à choisir */
+.ny-dest {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  gap: 4px;
+}
+.ny-dest__head {
+  width: 34px;
+  height: 34px;
+  margin-bottom: 5px;
+  border-radius: 50% 50% 50% 0;
+  rotate: -45deg;
+  background: var(--color-primary);
+  border: 3px solid var(--color-surface);
+  box-shadow: 0 4px 12px oklch(0.30 0.05 60 / 0.35);
+}
+.ny-dest__head::after {
+  content: "";
+  display: block;
+  width: 10px;
+  height: 10px;
+  margin: 9px;
+  border-radius: 50%;
+  background: var(--color-surface);
+}
+.ny-dest--draggable { cursor: grab; }
+.ny-dest--draggable:active { cursor: grabbing; }
+
