@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import { CheckCircle, AlertCircle } from "lucide-react";
-import type { Provider } from "@/lib/supabase/types";
+import type { PublicProvider } from "@/types";
 
 interface ClaimResultProps {
   found: boolean;
-  provider?: Provider;
+  provider?: PublicProvider;
   phone: string;
 }
 
@@ -33,7 +33,7 @@ export function ClaimResult({ found, provider, phone }: ClaimResultProps) {
         <Link
           href="/dashboard"
           className="flex w-full items-center justify-center rounded-full py-3 font-medium transition-opacity active:opacity-80"
-          style={{ backgroundColor: "var(--color-primary)", color: "white" }}
+          style={{ backgroundColor: "var(--color-primary)", color: "var(--color-on-primary)" }}
         >
           Accéder à mon tableau de bord
         </Link>
@@ -56,7 +56,7 @@ export function ClaimResult({ found, provider, phone }: ClaimResultProps) {
       <Link
         href={`/providers/new?phone=${encodeURIComponent(phone)}`}
         className="flex w-full items-center justify-center rounded-full py-3 font-medium transition-opacity active:opacity-80"
-        style={{ backgroundColor: "var(--color-primary)", color: "white" }}
+        style={{ backgroundColor: "var(--color-primary)", color: "var(--color-on-primary)" }}
       >
         Créer ma fiche
       </Link>

@@ -1,171 +1,148 @@
 import Link from "next/link";
-import { MapPin } from "lucide-react";
-import { CategoryGrid } from "@/components/search/CategoryGrid";
-import { BottomNav } from "@/components/shared/BottomNav";
-import { HeroSection } from "@/components/home/HeroSection";
-import { HowItWorks } from "@/components/home/HowItWorks";
-import { DoubleCTA } from "@/components/home/DoubleCTA";
+import { MapPin, Plus, Search } from "lucide-react";
+import { AppNav } from "@/components/shared/AppNav";
+import { CategoryPills } from "@/components/search/CategoryGrid";
+import { HomeSearch } from "@/components/home/HomeSearch";
+import { NearbyPreview } from "@/components/home/NearbyPreview";
 import { FaqSection } from "@/components/home/FaqSection";
-import { WhatsAppFab } from "@/components/home/WhatsAppFab";
+import { MediaOnly } from "@/components/shared/MediaOnly";
+
+const STEPS = [
+  { title: "Cherchez", text: "Un métier, un nom, ou ce qui est autour de vous." },
+  { title: "Choisissez", text: "La distance, les avis, la disponibilité : tout est sur la fiche." },
+  { title: "Contactez", text: "Un appel ou un WhatsApp, directement. Sans compte, sans frais." },
+];
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen pb-20" style={{ backgroundColor: "var(--color-bg)" }}>
-
-      {/* Header */}
-      <header
-        className="sticky top-0 z-40 px-5 py-4"
-        style={{
-          backgroundColor: "var(--color-surface)",
-          borderBottom: "1px solid var(--color-border)",
-          boxShadow: "var(--shadow-sm)",
-        }}
-      >
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <MapPin size={22} style={{ color: "var(--color-primary)" }} />
-            <span
-              className="font-bold"
-              style={{
-                fontFamily: "var(--font-display)",
-                fontSize: "var(--text-lg)",
-                color: "var(--color-text)",
-              }}
-            >
-              NearYou
-            </span>
-          </div>
-          <Link
-            href="/providers"
-            className="rounded-full px-4 py-1.5 font-medium transition-colors"
-            style={{
-              border: "1px solid var(--color-primary)",
-              color: "var(--color-primary)",
-              fontSize: "var(--text-sm)",
-            }}
-          >
-            Explorer
-          </Link>
-        </div>
+    <main className="home" style={{ backgroundColor: "var(--color-bg)" }}>
+      {/* Téléphone : la marque (sur ordinateur, elle est dans le rail) */}
+      <header className="flex items-center gap-2 px-5 pt-5 lg:hidden">
+        <span
+          className="flex h-8 w-8 items-center justify-center rounded-lg"
+          style={{ backgroundColor: "var(--color-primary)" }}
+          aria-hidden
+        >
+          <MapPin size={18} style={{ color: "var(--color-on-primary)" }} />
+        </span>
+        <span className="font-bold" style={{ fontFamily: "var(--font-display)", fontSize: "var(--text-lg)" }}>
+          NearYou
+        </span>
       </header>
 
-      {/* Hero — titre animé + search + géoloc */}
-      <HeroSection />
-
-      {/* Divider */}
-      <div className="mx-5 h-px" style={{ backgroundColor: "var(--color-border)" }} />
-
-      {/* Catégories */}
-      <section className="px-5 py-6">
-        <div className="mb-4 flex items-center justify-between">
-          <h2
-            className="font-semibold"
-            style={{
-              fontFamily: "var(--font-display)",
-              fontSize: "var(--text-lg)",
-              color: "var(--color-text)",
-            }}
-          >
-            Catégories
-          </h2>
-          <Link
-            href="/providers"
-            style={{ color: "var(--color-primary)", fontSize: "var(--text-sm)" }}
-          >
-            Voir tout
-          </Link>
-        </div>
-        <CategoryGrid limit={8} />
-      </section>
-
-      {/* Divider */}
-      <div className="mx-5 h-px" style={{ backgroundColor: "var(--color-border)" }} />
-
-      {/* Carte rapide */}
-      <section className="px-5 py-6">
-        <Link
-          href="/providers"
-          className="flex items-center justify-between rounded-2xl p-5 transition-shadow hover:shadow-lg active:opacity-90"
-          style={{
-            background: `linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%)`,
-            color: "white",
-          }}
-        >
-          <div>
-            <p
-              className="font-semibold"
-              style={{ fontFamily: "var(--font-display)", fontSize: "var(--text-lg)" }}
-            >
-              Explorer sur la carte
-            </p>
-            <p style={{ fontSize: "var(--text-sm)", opacity: 0.85, marginTop: "0.25rem" }}>
-              Voir tous les artisans autour de toi
-            </p>
+      <div className="home-layout">
+        {/* ─── Recherche d'abord ─── */}
+        <section className="home-hero">
+          <div className="space-y-6">
+            <div>
+              <h1
+                className="font-bold leading-[1.05] tracking-tight"
+                style={{ fontFamily: "var(--font-display)", fontSize: "var(--text-3xl)" }}
+              >
+                Le bon artisan,
+                <br />
+                <span style={{ color: "var(--color-primary)" }}>à deux pas</span> de chez vous.
+              </h1>
+              <p className="mt-4 max-w-[48ch]" style={{ fontSize: "var(--text-base)", color: "var(--color-text-muted)", lineHeight: 1.6 }}>
+                Plombiers, électriciens, couturières, coursiers… recommandés par vos voisins, à Cotonou,
+                Abidjan et partout où la communauté en ajoute.
+              </p>
+            </div>
+            <HomeSearch />
           </div>
-          <MapPin size={32} style={{ opacity: 0.85 }} />
-        </Link>
-      </section>
 
-      {/* Divider */}
-      <div className="mx-5 h-px" style={{ backgroundColor: "var(--color-border)" }} />
+          {/* Téléphone : l'aperçu vient après la recherche ; ordinateur : à droite */}
+          <MediaOnly on="mobile">
+            <div className="mt-8">
+              <NearbyPreview />
+            </div>
+          </MediaOnly>
+        </section>
 
-      {/* Comment ça marche */}
-      <HowItWorks />
+        <aside className="home-aside hidden lg:block">
+          <MediaOnly on="desktop">
+            <NearbyPreview />
+          </MediaOnly>
+        </aside>
 
-      {/* Divider */}
-      <div className="mx-5 h-px" style={{ backgroundColor: "var(--color-border)" }} />
+        {/* ─── Tous les métiers ─── */}
+        <section className="home-section">
+          <h2 className="section-title">Tous les métiers</h2>
+          <CategoryPills />
+        </section>
 
-      {/* Double CTA — artisan + contributeur */}
-      <DoubleCTA />
+        {/* ─── Comment ça marche ─── */}
+        <section className="home-section">
+          <h2 className="section-title">Comment ça marche</h2>
+          <ol className="grid gap-6 sm:grid-cols-3">
+            {STEPS.map(({ title, text }, i) => (
+              <li key={title} className="flex gap-4 sm:flex-col sm:gap-2">
+                <span
+                  className="tabular flex-shrink-0 pt-0.5"
+                  style={{ fontSize: "var(--text-xl)", color: "var(--color-accent-strong)" }}
+                  aria-hidden
+                >
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <div>
+                  <p className="font-semibold" style={{ fontSize: "var(--text-base)" }}>{title}</p>
+                  <p className="mt-1 max-w-[40ch]" style={{ fontSize: "var(--text-sm)", color: "var(--color-text-muted)", lineHeight: 1.55 }}>
+                    {text}
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </section>
 
-      {/* Divider */}
-      <div className="mx-5 h-px" style={{ backgroundColor: "var(--color-border)" }} />
+        {/* ─── La communauté fait l'annuaire ─── */}
+        <section className="home-section">
+          <div className="home-band">
+            <div>
+              <h2 className="font-bold" style={{ fontFamily: "var(--font-display)", fontSize: "var(--text-xl)" }}>
+                Vous connaissez un bon artisan ?
+              </h2>
+              <p className="mt-2 max-w-[46ch]" style={{ fontSize: "var(--text-sm)", lineHeight: 1.6, color: "var(--color-text-muted)" }}>
+                Ajoutez-le en une minute, sans compte. Vous aidez un voisin à trouver, et lui à travailler.
+              </p>
+              <Link href="/providers/new" className="btn-soft btn-soft--accent mt-4">
+                <Plus size={16} aria-hidden />
+                Ajouter un prestataire
+              </Link>
+            </div>
+            <div className="home-band__divider" aria-hidden />
+            <div>
+              <h2 className="font-bold" style={{ fontFamily: "var(--font-display)", fontSize: "var(--text-xl)" }}>
+                Vous êtes artisan ?
+              </h2>
+              <p className="mt-2 max-w-[46ch]" style={{ fontSize: "var(--text-sm)", lineHeight: 1.6, color: "var(--color-text-muted)" }}>
+                Un client a peut-être déjà créé votre fiche. Cherchez votre nom pour la voir comme vos clients la voient.
+              </p>
+              <Link href="/providers" className="btn-soft mt-4">
+                <Search size={16} aria-hidden />
+                Chercher ma fiche
+              </Link>
+            </div>
+          </div>
+        </section>
 
-      {/* FAQ */}
-      <FaqSection />
+        <section className="home-section">
+          <FaqSection />
+        </section>
 
-      {/* Footer minimal */}
-      <footer
-        className="px-5 py-8 text-center"
-        style={{ borderTop: "1px solid var(--color-border)" }}
-      >
-        <div className="flex items-center justify-center gap-2 mb-2">
-          <MapPin size={18} style={{ color: "var(--color-primary)" }} />
-          <span
-            className="font-bold"
-            style={{ fontFamily: "var(--font-display)", color: "var(--color-text)" }}
-          >
-            NearYou
-          </span>
-        </div>
-        <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-light)" }}>
-          Le bon artisan, à deux pas de chez vous · Côte d&apos;Ivoire
-        </p>
-        <div className="flex justify-center gap-5 mt-4">
-          {[
-            { label: "Accueil", href: "/" },
-            { label: "Explorer", href: "/providers" },
-            { label: "Ajouter", href: "/providers/new" },
-            { label: "FAQ", href: "#" },
-          ].map(({ label, href }) => (
-            <Link
-              key={label}
-              href={href}
-              style={{
-                fontSize: "var(--text-xs)",
-                color: "var(--color-text-muted)",
-              }}
-            >
-              {label}
-            </Link>
-          ))}
-        </div>
-      </footer>
+        <footer className="home-section flex flex-wrap items-center justify-between gap-3 border-t pt-6 pb-2" style={{ borderColor: "var(--color-border)" }}>
+          <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)" }}>
+            NearYou · Bénin et Côte d&apos;Ivoire
+          </p>
+          <nav aria-label="Liens du pied de page" className="flex gap-5" style={{ fontSize: "var(--text-xs)" }}>
+            <Link href="/providers" style={{ color: "var(--color-text-muted)" }}>Explorer</Link>
+            <Link href="/providers/new" style={{ color: "var(--color-text-muted)" }}>Ajouter</Link>
+            <a href="#faq" style={{ color: "var(--color-text-muted)" }}>Questions</a>
+          </nav>
+        </footer>
+      </div>
 
-      {/* WhatsApp flottant */}
-      <WhatsAppFab phone="22900000000" />
-
-      <BottomNav />
+      <AppNav />
     </main>
   );
 }

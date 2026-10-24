@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/server";
 import { z } from "zod";
 import { parseWkbPoint } from "@/lib/geo";
+import { toPublicProvider, toPublicReview } from "@/lib/public-data";
+import { authorizeProviderOwner } from "@/lib/provider-owner";
 import type { ApiResponse, ProviderFull } from "@/types";
 
 export async function GET(
@@ -41,7 +43,6 @@ export async function GET(
       available:        provider.available,
       verified_at:      provider.verified_at,
       claimed_at:       provider.claimed_at,
-      claimed_by_phone: provider.claimed_by_phone,
       avg_rating:       provider.avg_rating,
       review_count:     provider.review_count,
       disabled_at:      provider.disabled_at ?? null,
@@ -53,7 +54,7 @@ export async function GET(
         (pc: { categories: unknown }) => pc.categories
       ),
       photos:   provider.provider_photos,
-      reviews:  provider.reviews,
+      reviews:  provider.reviews.map(toPublicReview),
     };
 
     return NextResponse.json<ApiResponse<ProviderFull>>({
@@ -93,21 +94,9 @@ export async function PATCH(
   }
 
   try {
-    const supabase = await createServiceClient();
-
-    const { data: existing } = await supabase
-      .from("providers")
-      .select("claimed_by_phone")
-      .eq("id", id)
-      .single();
-
-    const authHeader = req.headers.get("x-provider-phone");
-    if (!existing || existing.claimed_by_phone !== authHeader) {
-      return NextResponse.json<ApiResponse<never>>(
-        { data: null, error: "Non autorisé" },
-        { status: 403 }
-      );
-    }
+    const owner = await authorizeProviderOwner(id);
+    if (!owner.ok) return owner.response;
+    const { supabase } = owner;
 
     const { data, error } = await supabase
       .from("providers")
@@ -118,7 +107,7 @@ export async function PATCH(
 
     if (error) throw error;
 
-    return NextResponse.json<ApiResponse<unknown>>({ data, error: null });
+    return NextResponse.json<ApiResponse<unknown>>({ data: toPublicProvider(data), error: null });
   } catch (err) {
     console.error("[providers/[id] PATCH]", err);
     return NextResponse.json<ApiResponse<never>>(

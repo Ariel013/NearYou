@@ -118,7 +118,7 @@ export function ReviewSheet({ providerId, onClose }: ReviewSheetProps) {
             />
             <Button
               className="w-full rounded-full py-3"
-              style={{ backgroundColor: "var(--color-primary)", color: "white" }}
+              style={{ backgroundColor: "var(--color-primary)", color: "var(--color-on-primary)" }}
               onClick={sendOtp}
               disabled={!phoneValid || isLoading}
               aria-label="Envoyer le code de vérification"
@@ -136,7 +136,7 @@ export function ReviewSheet({ providerId, onClose }: ReviewSheetProps) {
             <OtpInput value={otp} onChange={setOtp} disabled={isLoading} />
             <Button
               className="w-full rounded-full py-3"
-              style={{ backgroundColor: "var(--color-primary)", color: "white" }}
+              style={{ backgroundColor: "var(--color-primary)", color: "var(--color-on-primary)" }}
               onClick={verifyOtp}
               disabled={otp.replace(/\s/g, "").length < 6 || isLoading}
               aria-label="Vérifier le code"
@@ -207,7 +207,7 @@ export function ReviewSheet({ providerId, onClose }: ReviewSheetProps) {
 
             <Button
               className="w-full rounded-full py-3"
-              style={{ backgroundColor: "var(--color-primary)", color: "white" }}
+              style={{ backgroundColor: "var(--color-primary)", color: "var(--color-on-primary)" }}
               onClick={submitReview}
               disabled={rating === 0 || isLoading}
               aria-label="Publier l'avis"
@@ -224,7 +224,7 @@ export function ReviewSheet({ providerId, onClose }: ReviewSheetProps) {
             </p>
             <Button
               className="w-full rounded-full py-3"
-              style={{ backgroundColor: "var(--color-primary)", color: "white" }}
+              style={{ backgroundColor: "var(--color-primary)", color: "var(--color-on-primary)" }}
               onClick={() => onClose(true)}
             >
               Fermer

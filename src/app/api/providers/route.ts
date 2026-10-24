@@ -4,6 +4,7 @@ import { z } from "zod";
 import { parseWkbPoint } from "@/lib/geo";
 import { normalizePhoneE164 } from "@/lib/phone";
 import type { ApiResponse, ProviderWithDistance } from "@/types";
+import { toPublicProvider } from "@/lib/public-data";
 
 // ─── GET — Recherche géospatiale ───────────────────────────────────────────
 
@@ -50,7 +51,7 @@ export async function GET(req: NextRequest) {
     let result: ProviderWithDistance[] = (providers ?? []).map((p: RawRow) => {
       const coords = parseWkbPoint(p.location);
       return {
-        ...(p as unknown as ProviderWithDistance),
+        ...(toPublicProvider(p) as unknown as ProviderWithDistance),
         lat: typeof p.lat === "number" ? p.lat : (coords?.lat ?? 0),
         lng: typeof p.lng === "number" ? p.lng : (coords?.lng ?? 0),
         categories: Array.isArray(p.categories) ? p.categories : [],

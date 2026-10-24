@@ -42,3 +42,13 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# claude code — permissions locales
+.claude/settings.local.json
+
+# Outils navigateur
+.playwright-cli/
+.playwright-mcp/
+
+# Copié depuis node_modules avant dev/build
+public/maplibre-gl-worker.mjs

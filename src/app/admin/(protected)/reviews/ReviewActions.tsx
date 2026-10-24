@@ -36,7 +36,7 @@ export function ReviewActions({ reviewId }: { reviewId: string }) {
         className="rounded-full text-xs flex items-center gap-1.5"
         style={{
           backgroundColor: confirmDelete ? "var(--color-error)" : "var(--color-error-light)",
-          color: confirmDelete ? "white" : "var(--color-error)",
+          color: confirmDelete ? "var(--color-on-primary)" : "var(--color-error)",
         }}
         aria-label="Supprimer cet avis"
       >
