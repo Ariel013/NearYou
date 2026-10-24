@@ -143,7 +143,7 @@ export function NavigationView({ target, onClose }: NavigationViewProps) {
   }, []);
 
   useEffect(() => {
-    // La permission boussole a déjà été demandée dans le click handler (NavigationButton / ProviderSheet)
+    // La permission boussole a déjà été demandée dans le click handler (ContactActions / ProviderSheet)
     window.addEventListener("deviceorientationabsolute", handleOrientation as EventListener, true);
     window.addEventListener("deviceorientation", handleOrientation as EventListener, true);
     return () => {

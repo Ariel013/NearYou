@@ -32,9 +32,9 @@ Carte des documents : `CLAUDE.md` (règles, carte), `A-FAIRE.md` (hors code),
   passerelle ou SMS). Bloque aussi la messagerie (tâche 3).
 - **En cours** : refonte du front, brief validé le 2026-10-24 (voir
   `PRODUCT.md` et le backlog, « Refonte du front »). Lot 1 commité et fusionné
-  dans `dev`, lot 2 aussi (cartes MapLibre 3D, ADR 0004) ; lot 3 (explorer)
-  sur `feat/refonte-front`, **non commité**.
-- **Prochaine action** : valider le lot 3, puis lot 4 — la fiche.
+  dans `dev`, lots 2 et 3 aussi ; lot 4 (fiche) sur `feat/refonte-front`,
+  **non commité**.
+- **Prochaine action** : valider le lot 4, puis lot 5 — l'accueil.
 
 ## 📓 Journal des sessions
 
@@ -112,6 +112,16 @@ Carte des documents : `CLAUDE.md` (règles, carte), `A-FAIRE.md` (hors code),
   bouton de localisation, état vide avec actions. Les paramètres `lat`/`lng`
   de l'URL sont enfin lus. Vérifié à 390, 768 et 1440 px. Non vérifié : sur un
   vrai téléphone tactile (glissés simulés à la souris).
+
+- Lot 4 : fiche refaite. Plus de bandeau d'initiales ; identité, repères
+  (adresse, rayon d'intervention, ancienneté), à propos, carte, réalisations,
+  avis avec état vide qui invite au premier avis. Barre de contact du
+  téléphone : boutons à pleine largeur (avant, coupés : le compteur de
+  contacts les enveloppait dans un `span`) ; l'itinéraire est désormais
+  compté aussi depuis la fiche. Ordinateur : deux colonnes, contact et carte
+  à droite qui restent à l'écran. Une seule carte chargée selon l'écran.
+  Vérifié à 390, 768 et 1440 px : aucun bouton tronqué, pas de défilement
+  horizontal.
 
 ## 🎓 Leçons apprises
 
