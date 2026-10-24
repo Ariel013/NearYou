@@ -31,10 +31,11 @@ Carte des documents : `CLAUDE.md` (règles, carte), `A-FAIRE.md` (hors code),
   pause** le 2026-10-24 : toute solution a un coût (numéro neuf, téléphone
   passerelle ou SMS). Bloque aussi la messagerie (tâche 3).
 - **En cours** : refonte du front, brief validé le 2026-10-24 (voir
-  `PRODUCT.md` et le backlog, « Refonte du front »). Lot 1 (fondations) sur
-  `feat/refonte-front`, **non commité**.
-- **Prochaine action** : valider le lot 1, puis lot 2 — carte MapLibre 3D
-  (ADR à écrire avec le code).
+  `PRODUCT.md` et le backlog, « Refonte du front »). Lot 1 commité et fusionné
+  dans `dev` ; lot 2 (cartes MapLibre 3D, ADR 0004) sur `feat/refonte-front`,
+  **non commité**.
+- **Prochaine action** : valider le lot 2, puis lot 3 — explorer (panneau
+  glissant sur téléphone, liste + carte côte à côte sur ordinateur).
 
 ## 📓 Journal des sessions
 
@@ -98,6 +99,12 @@ Carte des documents : `CLAUDE.md` (règles, carte), `A-FAIRE.md` (hors code),
   navigation, pas de défilement horizontal, barre de contact au-dessus de la
   carte. Build et typecheck verts.
 
+- Lot 2 : les quatre cartes passent sur MapLibre + OpenFreeMap restylé
+  (ADR 0004), Leaflet retiré. Vérifié à 390 et 1440 px : explorer, fiche (3D
+  puis 2D au bouton), ajout (épingle déplaçable), itinéraire ouvert depuis la
+  fiche (au-dessus de la navigation) ; console sans erreur. Non vérifié : le
+  tracé d'itinéraire avec une vraie position GPS, le repli sans WebGL.
+
 ## 🎓 Leçons apprises
 
 *Une entrée dès qu'une erreur est commise et corrigée. Format : symptôme →
@@ -133,3 +140,18 @@ arrêter le serveur (PID), supprimer `.next/dev`, relancer.
 `next dev` est passé sur 3001 en silence ; les premières mesures visaient
 l'app d'un autre dépôt sur 3000.
 Règle : lire le port dans la sortie du serveur, ou lancer avec `-p` explicite.
+
+### Une feuille de style de bibliothèque importée hors couche écrase Tailwind (2026-10-24)
+La carte de la fiche avait une hauteur nulle : `absolute inset-0` était
+ignoré sur son conteneur.
+Cause : `maplibre-gl.css` importé sans couche ; ses règles (`position:
+relative`) battent les utilitaires Tailwind v4, qui vivent dans une couche.
+Règle : importer une feuille tierce avec `layer(components)`.
+
+### Une instance créée après un démontage casse sa jumelle (2026-10-24)
+En développement, la carte du formulaire s'affichait en haut de la page.
+Cause : double montage de React ; la première carte, créée après le
+démontage puis détruite, retirait les classes du conteneur partagé avec la
+seconde.
+Règle : vérifier l'annulation **avant** de créer une ressource asynchrone,
+pas après.
