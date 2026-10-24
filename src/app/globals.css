@@ -47,6 +47,7 @@
   --color-primary:       oklch(0.505 0.124 246);
   --color-primary-light: oklch(0.955 0.022 240);
   --color-primary-dark:  oklch(0.400 0.098 246);
+  --color-primary-light-strong: oklch(0.800 0.060 242);
   --color-accent:        oklch(0.785 0.155 72);   /* ambre : signal (contact, proximité) */
   --color-accent-strong: oklch(0.560 0.130 62);   /* ambre lisible en texte sur fond clair */
   --color-accent-light:  oklch(0.962 0.040 86);
@@ -452,6 +453,64 @@ body:has([data-app-nav]) {
   .home-hero { align-self: center; }
   .home-layout > .home-section { grid-column: 1 / -1; margin-top: 88px; }
   .nearby-preview { height: 440px; }
+}
+
+/* ─── Tableau de bord du prestataire ─── */
+.dashboard { min-height: 100dvh; }
+.dashboard-layout {
+  padding: 24px 16px 40px;
+}
+.dashboard-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.dashboard-availability {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 20px;
+  border-radius: 24px;
+  background: var(--color-surface-sunk);
+  transition: background-color var(--duration-base) var(--ease-out);
+}
+.dashboard-availability[data-on="true"] { background: var(--color-success-light); }
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  margin-top: 16px;
+}
+.dashboard-panel {
+  padding: 20px;
+  border-radius: 24px;
+  background: var(--color-surface);
+}
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: var(--radius-full);
+  color: var(--color-text-muted);
+}
+.btn-ghost:hover { background: var(--color-surface-sunk); }
+.btn-ghost:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+@media (min-width: 1024px) {
+  .dashboard-layout {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 48px 40px 64px;
+  }
+  .dashboard-grid { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); align-items: start; }
+  .dashboard-panel { padding: 28px; }
 }
 
 /* Puces de filtre */

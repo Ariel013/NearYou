@@ -3,7 +3,7 @@ import { createServiceClient } from "@/lib/supabase/server";
 import { z } from "zod";
 import { parseWkbPoint } from "@/lib/geo";
 import { toPublicProvider, toPublicReview } from "@/lib/public-data";
-import { getProviderSession } from "@/lib/provider-session";
+import { authorizeProviderOwner } from "@/lib/provider-owner";
 import type { ApiResponse, ProviderFull } from "@/types";
 
 export async function GET(
@@ -94,36 +94,9 @@ export async function PATCH(
   }
 
   try {
-    // Seule autorité : la session serveur émise à la revendication
-    const session = await getProviderSession();
-    if (!session) {
-      return NextResponse.json<ApiResponse<never>>(
-        { data: null, error: "Session expirée, revendiquez à nouveau votre fiche" },
-        { status: 401 }
-      );
-    }
-
-    const supabase = await createServiceClient();
-
-    const { data: existing } = await supabase
-      .from("providers")
-      .select("claimed_by_phone")
-      .eq("id", id)
-      .single();
-
-    // La fiche doit être celle de la session, et toujours revendiquée par ce
-    // numéro (une revendication retirée par l'admin coupe l'accès)
-    if (
-      !existing ||
-      session.providerId !== id ||
-      !existing.claimed_by_phone ||
-      existing.claimed_by_phone !== session.phone
-    ) {
-      return NextResponse.json<ApiResponse<never>>(
-        { data: null, error: "Non autorisé" },
-        { status: 403 }
-      );
-    }
+    const owner = await authorizeProviderOwner(id);
+    if (!owner.ok) return owner.response;
+    const { supabase } = owner;
 
     const { data, error } = await supabase
       .from("providers")
