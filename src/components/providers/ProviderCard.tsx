@@ -1,9 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { motion } from "framer-motion";
-import { MapPin } from "lucide-react";
-import { StarRating } from "@/components/shared/StarRating";
+import { Star } from "lucide-react";
 import { BadgeVerified } from "@/components/shared/BadgeVerified";
 import { formatDistance } from "@/lib/geo";
 import type { ProviderWithDistance } from "@/types";
@@ -11,110 +9,96 @@ import type { ProviderWithDistance } from "@/types";
 interface ProviderCardProps {
   provider: ProviderWithDistance;
   onSelect?: (id: string) => void;
+  isSelected?: boolean;
 }
 
-export function ProviderCard({ provider, onSelect }: ProviderCardProps) {
+/** Ligne de résultat : qui, quoi, à quelle distance, et si c'est sérieux. */
+export function ProviderCard({ provider, onSelect, isSelected = false }: ProviderCardProps) {
   const initials = provider.name
     .split(" ")
     .map((n) => n[0])
     .slice(0, 2)
     .join("")
     .toUpperCase();
+  const category = provider.categories?.[0]?.name;
 
   return (
-    <motion.button
+    <button
+      type="button"
       onClick={() => onSelect?.(provider.id)}
-      className="w-full text-left"
-      whileHover={{ y: -2 }}
-      whileTap={{ scale: 0.98 }}
-      transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
+      aria-current={isSelected ? "true" : undefined}
+      className="provider-row flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left"
     >
-      <article
-        className="flex gap-3 rounded-2xl p-4"
-        style={{
-          backgroundColor: "var(--color-surface)",
-          boxShadow: "var(--shadow-md)",
-        }}
-      >
-        {/* Avatar */}
-        <div className="flex-shrink-0">
-          {provider.cover_photo ? (
-            <Image
-              src={provider.cover_photo.url}
-              alt={provider.name}
-              width={56}
-              height={56}
-              className="rounded-full object-cover"
-              style={{ width: 56, height: 56 }}
-            />
-          ) : (
-            <div
-              className="flex items-center justify-center rounded-full text-white font-semibold"
-              style={{
-                width: 56,
-                height: 56,
-                backgroundColor: "var(--color-primary)",
-                fontSize: "var(--text-base)",
-              }}
-            >
-              {initials}
-            </div>
-          )}
-        </div>
+      <span className="relative flex-shrink-0">
+        {provider.cover_photo ? (
+          <Image
+            src={provider.cover_photo.url}
+            alt=""
+            width={52}
+            height={52}
+            className="rounded-xl object-cover"
+            style={{ width: 52, height: 52 }}
+          />
+        ) : (
+          <span
+            aria-hidden
+            className="flex items-center justify-center rounded-xl font-bold"
+            style={{
+              width: 52,
+              height: 52,
+              backgroundColor: "var(--color-accent-light)",
+              color: "var(--color-accent-strong)",
+              fontFamily: "var(--font-display)",
+              fontSize: "var(--text-base)",
+            }}
+          >
+            {initials}
+          </span>
+        )}
+        <span
+          className="absolute -right-0.5 -bottom-0.5 h-3.5 w-3.5 rounded-full border-2"
+          style={{
+            backgroundColor: provider.available ? "var(--color-success)" : "var(--color-text-light)",
+            borderColor: "var(--color-surface)",
+          }}
+          aria-hidden
+        />
+      </span>
 
-        {/* Info */}
-        <div className="min-w-0 flex-1">
-          <div className="flex items-start justify-between gap-2">
-            <h3
-              className="font-semibold truncate"
-              style={{ fontSize: "var(--text-base)", color: "var(--color-text)" }}
-            >
-              {provider.name}
-            </h3>
-            {provider.claimed_at && <BadgeVerified />}
-          </div>
+      <span className="min-w-0 flex-1">
+        <span className="flex items-center gap-2">
+          <span
+            className="truncate font-semibold"
+            style={{ fontSize: "var(--text-base)", color: "var(--color-text)" }}
+          >
+            {provider.name}
+          </span>
+          {provider.claimed_at && <BadgeVerified />}
+        </span>
+        <span
+          className="mt-0.5 flex items-center gap-1.5"
+          style={{ fontSize: "var(--text-sm)", color: "var(--color-text-muted)" }}
+        >
+          {category && <span className="truncate">{category}</span>}
+          {category && <span aria-hidden>·</span>}
+          <span>{provider.available ? "Disponible" : "Occupé"}</span>
+        </span>
+      </span>
 
-          {provider.categories?.[0] && (
-            <p style={{ fontSize: "var(--text-sm)", color: "var(--color-text-muted)" }}>
-              {provider.categories[0].name}
-            </p>
-          )}
-
-          <div className="mt-1.5 flex flex-wrap items-center gap-3">
-            <StarRating rating={provider.avg_rating} count={provider.review_count} size="sm" />
-
-            <span
-              className="flex items-center gap-0.5"
-              style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)" }}
-            >
-              <MapPin size={11} />
-              {formatDistance(provider.distance_km)}
-            </span>
-
-            {provider.available ? (
-              <span
-                className="rounded-full px-2 py-0.5 text-xs"
-                style={{
-                  backgroundColor: "var(--color-success-light)",
-                  color: "var(--color-success)",
-                }}
-              >
-                Disponible
-              </span>
-            ) : (
-              <span
-                className="rounded-full px-2 py-0.5 text-xs"
-                style={{
-                  backgroundColor: "var(--color-warning-light)",
-                  color: "var(--color-warning)",
-                }}
-              >
-                Occupé
-              </span>
-            )}
-          </div>
-        </div>
-      </article>
-    </motion.button>
+      <span className="flex flex-shrink-0 flex-col items-end gap-1">
+        <span className="tabular" style={{ fontSize: "var(--text-sm)", color: "var(--color-text)" }}>
+          {formatDistance(provider.distance_km)}
+        </span>
+        {provider.review_count > 0 ? (
+          <span className="flex items-center gap-1" style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)" }}>
+            <Star size={12} fill="var(--color-accent)" stroke="none" aria-hidden />
+            <span className="tabular">{provider.avg_rating.toFixed(1)}</span>
+            <span className="sr-only">sur 5, {provider.review_count} avis</span>
+          </span>
+        ) : (
+          <span style={{ fontSize: "var(--text-xs)", color: "var(--color-text-light)" }}>Nouveau</span>
+        )}
+      </span>
+    </button>
   );
 }

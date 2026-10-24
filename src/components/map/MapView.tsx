@@ -29,6 +29,10 @@ interface MapViewProps {
   zoom?: number;
   /** Défilement de page prioritaire (carte insérée dans une page). */
   cooperative?: boolean;
+  /** Appelé quand l'utilisateur a déplacé la carte (pas les mouvements programmés). */
+  onUserMove?: (center: { lat: number; lng: number }) => void;
+  /** Zone masquée par un panneau : les recentrages visent la partie visible. */
+  paddingBottom?: number;
 }
 
 const DEFAULT_LAT = 6.3659;
@@ -46,6 +50,8 @@ export function MapView({
   initialTilt,
   zoom = 13,
   cooperative = false,
+  onUserMove,
+  paddingBottom = 0,
 }: MapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
@@ -55,6 +61,10 @@ export function MapView({
   // Composant chargé côté client seulement (ssr: false) : WebGL se teste au montage.
   const [unavailable, setUnavailable] = useState(() => !webglSupported());
   const [tilted, setTilted] = useState(false);
+  const onUserMoveRef = useRef(onUserMove);
+  useEffect(() => {
+    onUserMoveRef.current = onUserMove;
+  }, [onUserMove]);
 
   // ─── Init carte ──────────────────────────────────────────────────────────
   useEffect(() => {
@@ -79,6 +89,11 @@ export function MapView({
         mapRef.current = map;
         setTilted(tilt);
         map.once("load", () => setMapReady(true));
+        map.on("moveend", (e) => {
+          if (!e.originalEvent) return; // flyTo, easeTo : pas un geste de l'utilisateur
+          const c = map.getCenter();
+          onUserMoveRef.current?.({ lat: c.lat, lng: c.lng });
+        });
       })
       .catch(() => {
         if (!cancelled) setUnavailable(true);
@@ -139,6 +154,15 @@ export function MapView({
       .forEach((h) => h[method]());
   }, [interactive, mapReady]);
 
+  // ─── Partie de la carte cachée par un panneau ────────────────────────────
+  useEffect(() => {
+    if (!mapReady || !mapRef.current) return;
+    mapRef.current.easeTo({
+      padding: { top: 0, left: 0, right: 0, bottom: paddingBottom },
+      duration: prefersReducedMotion() ? 0 : 300,
+    });
+  }, [paddingBottom, mapReady]);
+
   // ─── Recentrage sur le prestataire sélectionné ───────────────────────────
   useEffect(() => {
     const map = mapRef.current;
@@ -171,7 +195,7 @@ export function MapView({
           onClick={toggleTilt}
           aria-pressed={tilted}
           aria-label={tilted ? "Passer en vue à plat" : "Passer en vue 3D"}
-          className="map-chip absolute right-3 top-3 z-10"
+          className="map-chip map-tilt-toggle z-10"
         >
           {tilted ? <Square size={15} /> : <Box size={15} />}
           <span className="tabular">{tilted ? "2D" : "3D"}</span>

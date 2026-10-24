@@ -55,7 +55,7 @@ surface), captures à 390 / 768 / 1440 px avant chaque rapport.
 |---|---|---|
 | 1 | Charte OKLCH (neutres sable), coque responsive : barre du bas / rail desktop | fait (2026-10-24) |
 | 2 | Carte MapLibre + OpenFreeMap, style aux couleurs de la charte, bâtiments 3D, repli — ADR 0004 | fait, non commité |
-| 3 | Explorer : panneau glissant sur téléphone, liste + carte côte à côte sur desktop, état vide | à faire |
+| 3 | Explorer : panneau glissant sur téléphone, liste + carte côte à côte sur desktop, état vide | fait, non commité |
 | 4 | Fiche : barre de contact lisible, « Pas encore d'avis », mini-carte, panneau latéral desktop | à faire |
 | 5 | Accueil : recherche d'abord, catégories entières, « près de vous », texte Bénin + Côte d'Ivoire | à faire |
 | 6 | Tableau de bord : contacts de la semaine par type, complétude, avis, aperçu de la fiche | à faire |
