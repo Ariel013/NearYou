@@ -376,6 +376,84 @@ body:has([data-app-nav]) {
   outline-offset: 2px;
 }
 
+/* ─── Accueil ─── */
+.home { min-height: 100dvh; }
+.home-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  padding: 28px 20px 32px;
+}
+.home-section { margin-top: 56px; }
+.nearby-preview {
+  height: 240px;
+  background: var(--color-surface-sunk);
+  box-shadow: var(--shadow-md);
+}
+.nearby-preview:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 3px;
+}
+.nearby-preview__caption {
+  position: absolute;
+  inset: auto 12px 12px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 12px 12px 16px;
+  border-radius: 18px;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-md);
+}
+.category-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  transition: background-color var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-out);
+}
+.category-pill svg { color: var(--color-accent-strong); }
+.category-pill:hover { border-color: var(--color-accent); background: var(--color-accent-light); }
+.category-pill:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+.home-band {
+  display: grid;
+  gap: 28px;
+  padding: 28px 24px;
+  border-radius: 28px;
+  background: var(--color-surface);
+}
+.home-band__divider { height: 1px; background: var(--color-border); }
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item summary:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+@media (min-width: 640px) {
+  .home-band { grid-template-columns: 1fr 1px 1fr; gap: 32px; padding: 36px; }
+  .home-band__divider { width: 1px; height: auto; }
+}
+@media (min-width: 1024px) {
+  .home-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: 56px;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 72px 40px 48px;
+  }
+  .home-hero { align-self: center; }
+  .home-layout > .home-section { grid-column: 1 / -1; margin-top: 88px; }
+  .nearby-preview { height: 440px; }
+}
+
 /* Puces de filtre */
 .chip {
   min-height: 36px;

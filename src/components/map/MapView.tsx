@@ -33,6 +33,8 @@ interface MapViewProps {
   onUserMove?: (center: { lat: number; lng: number }) => void;
   /** Zone masquée par un panneau : les recentrages visent la partie visible. */
   paddingBottom?: number;
+  /** Faux pour un simple aperçu : ni zoom, ni bouton 3D. */
+  controls?: boolean;
 }
 
 const DEFAULT_LAT = 6.3659;
@@ -52,6 +54,7 @@ export function MapView({
   cooperative = false,
   onUserMove,
   paddingBottom = 0,
+  controls = true,
 }: MapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
@@ -82,6 +85,7 @@ export function MapView({
       zoom,
       tilt,
       cooperative,
+      showZoomControl: controls,
       isCancelled: () => cancelled,
     })
       .then((map) => {
@@ -189,7 +193,7 @@ export function MapView({
   return (
     <div className={`${/\b(absolute|fixed)\b/.test(className ?? "") ? "" : "relative"} ${className ?? ""}`} style={{ minHeight: 200 }}>
       <div ref={containerRef} className="absolute inset-0" aria-label="Carte des prestataires" role="region" />
-      {mapReady && (
+      {mapReady && controls && (
         <button
           type="button"
           onClick={toggleTilt}
