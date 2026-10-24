@@ -29,7 +29,7 @@ function roughKm(a: { lat: number; lng: number }, b: { lat: number; lng: number 
 function ProvidersPageContent() {
   const searchParams = useSearchParams();
   const isDesktop = useMediaQuery(DESKTOP_QUERY);
-  const { position, setPosition, radius, setRadius, activeCategory, setActiveCategory, query } = useSearchStore();
+  const { position, setPosition, setUserPosition, radius, setRadius, activeCategory, setActiveCategory, query } = useSearchStore();
 
   const [selectedProvider, setSelectedProvider] = useState<ProviderWithDistance | null>(null);
   const [navTarget, setNavTarget] = useState<NavTarget | null>(null);
@@ -95,7 +95,7 @@ function ProvidersPageContent() {
         setLocating(false);
         setSelectedProvider(null);
         setMovedTo(null);
-        setPosition({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        setUserPosition({ lat: pos.coords.latitude, lng: pos.coords.longitude });
       },
       () => {
         setLocating(false);
@@ -148,7 +148,7 @@ function ProvidersPageContent() {
                 showBack
               />
             </div>
-          ) : (
+          ) : isDesktop && (
             <>
               <p className="px-2 pb-2" aria-live="polite" style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)" }}>
                 {countLabel}
@@ -161,18 +161,10 @@ function ProvidersPageContent() {
 
       {/* ─── Carte ─── */}
       <div className="explore-map">
-        <MapViewDynamic
-          center={mapCenter}
-          providers={providers}
-          selectedProviderId={selectedProvider?.id}
-          onMarkerClick={setSelectedProvider}
-          onUserMove={handleUserMove}
-          paddingBottom={isDesktop ? 0 : coveredPx}
-          className="absolute inset-0"
-        />
-
-        {/* Téléphone : recherche et catégories flottent sur la carte */}
+        {/* Téléphone : recherche et catégories flottent sur la carte. Placées avant
+            la carte dans le DOM : au clavier, on cherche avant de parcourir les épingles. */}
         <div className="explore-topbar lg:hidden">
+          <h1 className="sr-only">Explorer</h1>
           <SearchBar placeholder="Un métier, un nom…" />
           <CategoryChips active={activeCategory} onChange={setActiveCategory} floating />
         </div>
@@ -195,6 +187,16 @@ function ProvidersPageContent() {
         >
           {locating ? <Loader size={16} className="animate-spin" aria-hidden /> : <LocateFixed size={16} aria-hidden />}
         </button>
+
+        <MapViewDynamic
+          center={mapCenter}
+          providers={providers}
+          selectedProviderId={selectedProvider?.id}
+          onMarkerClick={setSelectedProvider}
+          onUserMove={handleUserMove}
+          paddingBottom={isDesktop ? 0 : coveredPx}
+          className="absolute inset-0"
+        />
 
         {/* Téléphone : résultats dans un panneau à tirer */}
         {!isDesktop && (

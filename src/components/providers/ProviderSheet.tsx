@@ -138,14 +138,16 @@ export function ProviderPreview({ provider, onNavigate, onClose, Title = "h2", s
             <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1" style={{ fontSize: "var(--text-sm)", color: "var(--color-text-muted)" }}>
               {category && <span>{category}</span>}
               <span className="tabular" style={{ color: "var(--color-text)" }}>{formatDistance(provider.distance_km)}</span>
-              <span className="flex items-center gap-1">
-                <span
-                  className="h-2 w-2 rounded-full"
-                  style={{ backgroundColor: provider.available ? "var(--color-success)" : "var(--color-text-light)" }}
-                  aria-hidden
-                />
-                {provider.available ? "Disponible" : "Occupé"}
-              </span>
+              {provider.claimed_at && (
+                <span className="flex items-center gap-1">
+                  <span
+                    className="h-2 w-2 rounded-full"
+                    style={{ backgroundColor: provider.available ? "var(--color-success)" : "var(--color-text-light)" }}
+                    aria-hidden
+                  />
+                  {provider.available ? "Disponible" : "Occupé"}
+                </span>
+              )}
             </p>
             <p className="mt-1 flex items-center gap-1" style={{ fontSize: "var(--text-sm)", color: "var(--color-text-muted)" }}>
               {provider.review_count > 0 ? (

@@ -29,7 +29,7 @@ export function parseWkbPoint(hex: unknown): { lat: number; lng: number } | null
 
 export function formatDistance(km: number): string {
   if (km < 1) return `${Math.round(km * 1000)} m`;
-  return `${km.toFixed(1)} km`;
+  return `${km.toFixed(1).replace(".", ",")} km`;
 }
 
 export function formatPhone(phone: string): string {
@@ -39,6 +39,20 @@ export function formatPhone(phone: string): string {
 export function buildWaLink(phone: string): string {
   const cleaned = phone.replace(/\D/g, "");
   return `https://wa.me/${cleaned}`;
+}
+
+/** Distance à vol d'oiseau en km (haversine). */
+export function distanceKm(a: { lat: number; lng: number }, b: { lat: number; lng: number }): number {
+  const rad = (d: number) => (d * Math.PI) / 180;
+  const dLat = rad(b.lat - a.lat);
+  const dLng = rad(b.lng - a.lng);
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLng / 2) ** 2;
+  return 2 * 6371 * Math.asin(Math.sqrt(h));
+}
+
+/** Le point dans l'appli de cartes du téléphone (Google Maps, ou Plans sur iPhone via le lien universel). */
+export function buildMapsLink(lat: number, lng: number): string {
+  return `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
 }
 
 export function buildOsmDirections(lat: number, lng: number): string {

@@ -82,7 +82,7 @@
       "ambre-ecrit": {
         "role": "secondary",
         "displayName": "Ambre Ecrit",
-        "canonical": "oklch(0.560 0.130 62)",
+        "canonical": "oklch(0.520 0.120 60)",
         "tonalRamp": [
           "oklch(0.15 0.043 62)",
           "oklch(0.27 0.069 62)",
@@ -202,7 +202,7 @@
       "encre-claire": {
         "role": "neutral",
         "displayName": "Encre Claire",
-        "canonical": "oklch(0.640 0.016 70)",
+        "canonical": "oklch(0.530 0.016 70)",
         "tonalRamp": [
           "oklch(0.15 0.005 70)",
           "oklch(0.27 0.009 70)",
@@ -247,7 +247,7 @@
       "vert-whatsapp": {
         "role": "tertiary",
         "displayName": "Vert Whatsapp",
-        "canonical": "oklch(0.600 0.140 152)",
+        "canonical": "oklch(0.530 0.128 152)",
         "tonalRamp": [
           "oklch(0.15 0.047 152)",
           "oklch(0.27 0.075 152)",
@@ -395,7 +395,7 @@
       "refersTo": "chip",
       "description": "Catégorie ou cran de rayon ; sélectionnée en encre.",
       "html": "<div class=\"ds-chips\"><button class=\"ds-chip\" aria-pressed=\"true\">Tout</button><button class=\"ds-chip\" aria-pressed=\"false\">Plomberie</button></div>",
-      "css": ".ds-chips{display:flex;gap:8px}.ds-chip{min-height:36px;padding:0 14px;border-radius:9999px;border:1px solid oklch(.9 .013 76);background:oklch(.995 .003 80);color:oklch(.5 .02 70);font-size:.9rem;font-weight:500}.ds-chip[aria-pressed=true]{background:oklch(.235 .02 250);border-color:oklch(.235 .02 250);color:oklch(.995 .003 80)}.ds-chip:focus-visible{outline:2px solid oklch(.505 .124 246);outline-offset:2px}"
+      "css": ".ds-chips{display:flex;gap:8px}.ds-chip{min-height:44px;padding:0 14px;border-radius:9999px;border:1px solid oklch(.9 .013 76);background:oklch(.995 .003 80);color:oklch(.5 .02 70);font-size:.9rem;font-weight:500}.ds-chip[aria-pressed=true]{background:oklch(.235 .02 250);border-color:oklch(.235 .02 250);color:oklch(.995 .003 80)}.ds-chip:focus-visible{outline:2px solid oklch(.505 .124 246);outline-offset:2px}"
     },
     {
       "name": "Champ de recherche",

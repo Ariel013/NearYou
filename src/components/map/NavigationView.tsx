@@ -7,6 +7,7 @@ import { LngLatBounds, Marker, type GeoJSONSource } from "maplibre-gl";
 import {
   createBrandMap,
   prefersReducedMotion,
+  ROUTE_COLORS,
   webglSupported,
   type MapLibreMap,
 } from "./brand-map";
@@ -55,7 +56,9 @@ export function NavigationView({ target, onClose }: NavigationViewProps) {
   const [userPos, setUserPos] = useState<{ lat: number; lng: number } | null>(null);
   const [route, setRoute] = useState<RouteInfo | null>(null);
   const [heading, setHeading] = useState<number | null>(null);
-  const [gpsError, setGpsError] = useState<string | null>(null);
+  const [gpsError, setGpsError] = useState<string | null>(() =>
+    navigator.geolocation ? null : "Géolocalisation non disponible sur cet appareil."
+  );
   const [routeLoading, setRouteLoading] = useState(false);
   const [arrived, setArrived] = useState(false);
 
@@ -85,14 +88,14 @@ export function NavigationView({ target, onClose }: NavigationViewProps) {
             type: "line",
             source: "route",
             layout: { "line-cap": "round", "line-join": "round" },
-            paint: { "line-color": "#0d4e7a", "line-width": 9, "line-opacity": 0.35 },
+            paint: { "line-color": ROUTE_COLORS.casing, "line-width": 9, "line-opacity": 0.35 },
           });
           map.addLayer({
             id: "route",
             type: "line",
             source: "route",
             layout: { "line-cap": "round", "line-join": "round" },
-            paint: { "line-color": "#1b6ca8", "line-width": 5 },
+            paint: { "line-color": ROUTE_COLORS.line, "line-width": 5 },
           });
           setMapReady(true);
         });
@@ -110,10 +113,7 @@ export function NavigationView({ target, onClose }: NavigationViewProps) {
 
   // ─── GPS temps réel ───────────────────────────────────────────────────────
   useEffect(() => {
-    if (!navigator.geolocation) {
-      setGpsError("Géolocalisation non disponible sur cet appareil.");
-      return;
-    }
+    if (!navigator.geolocation) return;
     watchIdRef.current = navigator.geolocation.watchPosition(
       (pos) => {
         setGpsError(null);
@@ -251,7 +251,7 @@ export function NavigationView({ target, onClose }: NavigationViewProps) {
 
       {/* Handle */}
       <div className="flex justify-center pt-2 pb-1 flex-shrink-0" style={{ backgroundColor: "var(--color-primary)" }}>
-        <div className="h-1 w-10 rounded-full" style={{ backgroundColor: "rgba(255,255,255,0.4)" }} />
+        <div className="h-1 w-10 rounded-full" style={{ backgroundColor: "oklch(0.990 0.004 240 / 0.4)" }} />
       </div>
 
       {/* Barre du haut */}
@@ -266,23 +266,23 @@ export function NavigationView({ target, onClose }: NavigationViewProps) {
       >
         <button
           onClick={onClose}
-          className="rounded-full p-2 flex-shrink-0 transition-opacity active:opacity-70"
-          style={{ backgroundColor: "rgba(255,255,255,0.2)" }}
+          className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full transition-opacity active:opacity-70"
+          style={{ backgroundColor: "oklch(0.990 0.004 240 / 0.2)" }}
           aria-label="Fermer la navigation"
         >
           <X size={20} style={{ color: "var(--color-on-primary)" }} />
         </button>
 
         <div className="min-w-0 flex-1">
-          <p className="font-semibold text-white truncate" style={{ fontFamily: "var(--font-display)", fontSize: "var(--text-base)" }}>
+          <p className="font-semibold truncate" style={{ color: "var(--color-on-primary)", fontFamily: "var(--font-display)", fontSize: "var(--text-base)" }}>
             {target.name}
           </p>
           {route && !arrived && (
-            <p className="text-white/80" style={{ fontSize: "var(--text-sm)" }}>
+            <p className="tabular" style={{ color: "var(--color-on-primary)", opacity: 0.85, fontSize: "var(--text-sm)" }}>
               {fmtDist(route.distanceM)} · {fmtTime(route.durationS)}
             </p>
           )}
-          {arrived && <p className="text-white font-medium" style={{ fontSize: "var(--text-sm)" }}>Vous êtes arrivé !</p>}
+          {arrived && <p className="font-medium" style={{ color: "var(--color-on-primary)", fontSize: "var(--text-sm)" }}>Vous êtes arrivé !</p>}
         </div>
 
         <div className="flex items-center gap-2 flex-shrink-0">
@@ -345,7 +345,7 @@ export function NavigationView({ target, onClose }: NavigationViewProps) {
         ) : route ? (
           <div className="flex items-center justify-between py-1">
             <div>
-              <p className="font-bold" style={{ fontSize: "var(--text-2xl)", color: "var(--color-text)" }}>
+              <p className="tabular font-bold" style={{ fontSize: "var(--text-2xl)", color: "var(--color-text)" }}>
                 {fmtDist(route.distanceM)}
               </p>
               <p style={{ color: "var(--color-text-muted)", fontSize: "var(--text-sm)" }}>
@@ -360,7 +360,7 @@ export function NavigationView({ target, onClose }: NavigationViewProps) {
         ) : (
           <div className="flex items-center justify-center gap-2 py-3" style={{ color: "var(--color-text-muted)" }}>
             <Loader size={16} className="animate-spin" />
-            <span style={{ fontSize: "var(--text-sm)" }}>Calcul de l'itinéraire…</span>
+            <span style={{ fontSize: "var(--text-sm)" }}>Calcul de l&apos;itinéraire…</span>
           </div>
         )}
       </div>

@@ -49,7 +49,7 @@
   --color-primary-dark:  oklch(0.400 0.098 246);
   --color-primary-light-strong: oklch(0.800 0.060 242);
   --color-accent:        oklch(0.785 0.155 72);   /* ambre : signal (contact, proximité) */
-  --color-accent-strong: oklch(0.560 0.130 62);   /* ambre lisible en texte sur fond clair */
+  --color-accent-strong: oklch(0.520 0.120 60);   /* ambre lisible en texte : 5,1:1 sur voile d'ambre */
   --color-accent-light:  oklch(0.962 0.040 86);
 
   /* Neutres sable */
@@ -59,7 +59,7 @@
   --color-border:        oklch(0.900 0.013 76);
   --color-text:          oklch(0.235 0.020 250);
   --color-text-muted:    oklch(0.500 0.020 70);
-  --color-text-light:    oklch(0.640 0.016 70);
+  --color-text-light:    oklch(0.530 0.016 70);   /* 4,5:1 minimum, jusque sur sable creux */
   --color-on-primary:    oklch(0.990 0.004 240);
 
   /* Sémantique */
@@ -69,7 +69,7 @@
   --color-warning-light: oklch(0.960 0.045 85);
   --color-error:         oklch(0.575 0.195 27);
   --color-error-light:   oklch(0.955 0.030 25);
-  --color-whatsapp:      oklch(0.600 0.140 152);  /* vert WhatsApp assombri : texte blanc lisible */
+  --color-whatsapp:      oklch(0.530 0.128 152);  /* vert WhatsApp assombri : texte clair à 4,8:1 */
 
   /* Coque de l'app : où la navigation prend sa place.
      Mobile : barre du bas ; desktop (lg) : rail à gauche. */
@@ -202,6 +202,12 @@ body:has([data-app-nav]) {
   overflow: hidden;
 }
 
+/* Zoom + / − : cibles tactiles de 44 px */
+.maplibregl-ctrl-group button {
+  width: 44px !important;
+  height: 44px !important;
+}
+
 .maplibregl-ctrl-attrib {
   font-size: 11px;
   background: oklch(0.995 0.003 80 / 0.85) !important;
@@ -212,8 +218,8 @@ body:has([data-app-nav]) {
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
-  min-height: 36px;
-  padding: 0 0.75rem;
+  min-height: 44px;
+  padding: 0 1rem;
   border-radius: var(--radius-full);
   background: var(--color-surface);
   color: var(--color-text);
@@ -259,8 +265,8 @@ body:has([data-app-nav]) {
 .explore-map {
   position: relative;
   min-height: 0;
-  --explore-sheet-top: 118px;
-  --map-controls-top: 126px;
+  --explore-sheet-top: 126px;
+  --map-controls-top: 134px;
 }
 .explore-panel {
   flex-direction: column;
@@ -290,9 +296,9 @@ body:has([data-app-nav]) {
 .explore-locate {
   position: absolute;
   right: 12px;
-  top: calc(var(--map-controls-top) + 46px);
+  top: calc(var(--map-controls-top) + 52px);
   z-index: 10;
-  width: 36px;
+  width: 44px;
   padding: 0;
   justify-content: center;
 }
@@ -344,12 +350,35 @@ body:has([data-app-nav]) {
   .provider-page { padding-bottom: 0; }
   .provider-layout {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 380px;
+    grid-template-columns: minmax(0, 1fr) minmax(380px, 0.85fr);
     gap: 48px;
-    max-width: 1180px;
+    max-width: 1280px;
     margin: 0 auto;
     padding: 32px 40px 64px;
   }
+}
+/* Ordinateur : la carte remplit la hauteur de l'écran, la carte de contact y est posée en bas */
+.provider-aside {
+  position: sticky;
+  top: 24px;
+}
+.provider-aside[data-map="true"] {
+  height: calc(100dvh - 48px);
+  min-height: 520px;
+  border-radius: 24px;
+  overflow: hidden;
+  background: var(--color-surface-sunk);
+}
+.provider-aside__card {
+  padding: 20px;
+  border-radius: 24px;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-md);
+}
+.provider-aside[data-map="true"] .provider-aside__card {
+  position: absolute;
+  inset: auto 16px 16px 16px;
+  z-index: 10;
 }
 .section-title {
   margin-bottom: 12px;
@@ -361,10 +390,10 @@ body:has([data-app-nav]) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
   min-height: 48px;
   min-width: 0;
-  padding: 0 12px;
+  padding: 0 8px;
   border-radius: var(--radius-full);
   font-size: var(--text-sm);
   font-weight: 600;
@@ -402,7 +431,7 @@ body:has([data-app-nav]) {
   justify-content: space-between;
   gap: 12px;
   padding: 12px 12px 12px 16px;
-  border-radius: 18px;
+  border-radius: var(--radius-lg);
   background: var(--color-surface);
   box-shadow: var(--shadow-md);
 }
@@ -429,7 +458,7 @@ body:has([data-app-nav]) {
   display: grid;
   gap: 28px;
   padding: 28px 24px;
-  border-radius: 28px;
+  border-radius: 24px;
   background: var(--color-surface);
 }
 .home-band__divider { height: 1px; background: var(--color-border); }
@@ -515,7 +544,7 @@ body:has([data-app-nav]) {
 
 /* Puces de filtre */
 .chip {
-  min-height: 36px;
+  min-height: 44px;
   padding: 0 14px;
   border-radius: var(--radius-full);
   border: 1px solid var(--color-border);
@@ -532,6 +561,12 @@ body:has([data-app-nav]) {
   border-color: var(--color-text);
   color: var(--color-surface);
 }
+/* Champ de recherche : l'anneau se pose sur la pilule entière, pas sur le champ nu */
+.search-field:focus-within {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
 .chip:focus-visible, .btn-soft:focus-visible, .provider-row:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
@@ -542,7 +577,7 @@ body:has([data-app-nav]) {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  min-height: 40px;
+  min-height: 44px;
   padding: 0 16px;
   border-radius: var(--radius-full);
   background: var(--color-surface-sunk);
@@ -667,7 +702,7 @@ body:has([data-app-nav]) {
   rotate: -45deg;
   background: var(--color-primary);
   border: 3px solid var(--color-surface);
-  box-shadow: 0 4px 12px oklch(0.30 0.05 60 / 0.35);
+  box-shadow: var(--shadow-md);
 }
 .ny-dest__head::after {
   content: "";

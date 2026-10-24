@@ -55,6 +55,7 @@ export function ProviderCard({ provider, onSelect, isSelected = false }: Provide
             {initials}
           </span>
         )}
+        {provider.claimed_at && (
         <span
           className="absolute -right-0.5 -bottom-0.5 h-3.5 w-3.5 rounded-full border-2"
           style={{
@@ -63,6 +64,7 @@ export function ProviderCard({ provider, onSelect, isSelected = false }: Provide
           }}
           aria-hidden
         />
+        )}
       </span>
 
       <span className="min-w-0 flex-1">
@@ -73,15 +75,15 @@ export function ProviderCard({ provider, onSelect, isSelected = false }: Provide
           >
             {provider.name}
           </span>
-          {provider.claimed_at && <BadgeVerified />}
+          {provider.claimed_at && <BadgeVerified compact />}
         </span>
         <span
           className="mt-0.5 flex items-center gap-1.5"
           style={{ fontSize: "var(--text-sm)", color: "var(--color-text-muted)" }}
         >
           {category && <span className="truncate">{category}</span>}
-          {category && <span aria-hidden>·</span>}
-          <span>{provider.available ? "Disponible" : "Occupé"}</span>
+          {category && provider.claimed_at && <span aria-hidden>·</span>}
+          {provider.claimed_at && <span>{provider.available ? "Disponible" : "Occupé"}</span>}
         </span>
       </span>
 

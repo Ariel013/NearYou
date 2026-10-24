@@ -149,6 +149,25 @@ Carte des documents : `CLAUDE.md` (règles, carte), `A-FAIRE.md` (hors code),
   simulées (interception réseau) à 390 et 1440 px. Non testé : un vrai
   propriétaire (aucune fiche revendiquée).
 
+### 2026-10-25 — Critique, audit et finitions du front
+
+`/impeccable critique` de la fiche (25/40) et `/impeccable audit` de
+l'explorer (15/20), puis tout le plan de correction validé par Kevin :
+contrastes (WhatsApp 4,8:1, ambre écrit 5,1:1, encre claire ≥ 4,5:1 sur tout
+fond sable, calculés), cibles de 44 px (puces, crans, localisation, poignée,
+retour, zoom), anneau de focus de la recherche, ordre clavier (recherche avant
+la carte), titre de page sur téléphone, liste rendue une seule fois. Fiche :
+carte en colonne entière sur ordinateur avec le contact posé dessus,
+« Ouvrir dans Maps », ligne « distance de vous · quartier », « Y aller »
+libellé, bouton Partager, badge « Numéro vérifié », disponibilité affichée
+seulement sur une fiche revendiquée (« selon le prestataire »), avis vide
+réduit à une ligne. Couleurs du tracé d'itinéraire passées dans la palette de
+la carte. `DESIGN.md` et `DESIGN.json` suivent. Mesuré : build, typecheck,
+lint des fichiers touchés, détecteur impeccable vide, pas de défilement
+horizontal à 390, 768 et 1440 px, aucun bouton visible sous 44 px dans
+l'explorer à 390 px, distance affichée après localisation simulée. Non testé :
+fiche revendiquée (aucune n'existe), vrai téléphone.
+
 ## 🎓 Leçons apprises
 
 *Une entrée dès qu'une erreur est commise et corrigée. Format : symptôme →
@@ -212,3 +231,10 @@ La page du tableau de bord défilait horizontalement sur téléphone (425 px
 pour 390). Cause : une `<table>` ignore la largeur de 1 px de `sr-only`.
 Règle : masquer le conteneur de la table, pas la table ; et mesurer
 `scrollWidth` à chaque largeur, une capture ne le montre pas toujours.
+
+### Une position par défaut n'est pas la position de l'usager (2026-10-25)
+La fiche affichait « 710,1 km de vous » sans que personne se soit localisé.
+Cause : le store initialise `position` sur Cotonou, et la carte la déplace
+aussi (« chercher ici ») ; c'est le centre de la recherche, pas l'usager.
+Règle : un « de vous » ne se calcule que sur une position issue d'une
+géolocalisation réussie (`userPosition`), jamais sur un centre de recherche.
