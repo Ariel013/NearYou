@@ -7,7 +7,7 @@ colors:
   bleu-lagune-voile: "oklch(0.955 0.022 240)"
   bleu-lagune-brume: "oklch(0.800 0.060 242)"
   ambre-epingle: "oklch(0.785 0.155 72)"
-  ambre-ecrit: "oklch(0.560 0.130 62)"
+  ambre-ecrit: "oklch(0.520 0.120 60)"
   ambre-voile: "oklch(0.962 0.040 86)"
   sable-sol: "oklch(0.975 0.007 80)"
   sable-papier: "oklch(0.995 0.003 80)"
@@ -15,10 +15,10 @@ colors:
   sable-trait: "oklch(0.900 0.013 76)"
   encre: "oklch(0.235 0.020 250)"
   encre-douce: "oklch(0.500 0.020 70)"
-  encre-claire: "oklch(0.640 0.016 70)"
+  encre-claire: "oklch(0.530 0.016 70)"
   vert-dispo: "oklch(0.600 0.140 150)"
   vert-dispo-voile: "oklch(0.955 0.045 150)"
-  vert-whatsapp: "oklch(0.600 0.140 152)"
+  vert-whatsapp: "oklch(0.530 0.128 152)"
   rouge-alerte: "oklch(0.575 0.195 27)"
 typography:
   display:
@@ -86,7 +86,7 @@ components:
     backgroundColor: "{colors.sable-creux}"
     textColor: "{colors.encre}"
     rounded: "{rounded.full}"
-    height: "40px"
+    height: "44px"
     padding: "0 16px"
   button-soft-accent:
     backgroundColor: "{colors.ambre-epingle}"
@@ -98,7 +98,7 @@ components:
     backgroundColor: "{colors.sable-papier}"
     textColor: "{colors.encre-douce}"
     rounded: "{rounded.full}"
-    height: "36px"
+    height: "44px"
     padding: "0 14px"
   chip-selected:
     backgroundColor: "{colors.encre}"
@@ -108,7 +108,7 @@ components:
     backgroundColor: "{colors.sable-papier}"
     textColor: "{colors.encre}"
     rounded: "{rounded.full}"
-    height: "36px"
+    height: "44px"
   search-field:
     backgroundColor: "{colors.sable-papier}"
     textColor: "{colors.encre}"
@@ -157,12 +157,12 @@ Sable pour le sol, bleu de lagune pour la marque, ambre pour ce qui signale.
 
 ### Secondary
 - **Ambre épingle** (oklch(0.785 0.155 72)) : épingles des prestataires sur la carte, bouton « Ajouter » de la navigation, bouton d'action pour contribuer. C'est le signal : rare et toujours porteur de sens.
-- **Ambre écrit** (oklch(0.560 0.130 62)) : l'ambre en texte ou en icône sur fond clair (l'ambre épingle n'y est pas lisible).
+- **Ambre écrit** (oklch(0.520 0.120 60)) : l'ambre en texte ou en icône sur fond clair (l'ambre épingle n'y est pas lisible) ; 5,1:1 sur le voile d'ambre.
 - **Voile d'ambre** (oklch(0.962 0.040 86)) : fond du bouton Itinéraire, des initiales d'un prestataire sans photo.
 
 ### Tertiary
 - **Vert disponible** (oklch(0.600 0.140 150)) et son voile (oklch(0.955 0.045 150)) : uniquement l'état « disponible » (point, bandeau du tableau de bord).
-- **Vert WhatsApp** (oklch(0.600 0.140 152)) : uniquement le bouton WhatsApp, assombri pour qu'un texte clair y reste lisible.
+- **Vert WhatsApp** (oklch(0.530 0.128 152)) : uniquement le bouton WhatsApp, assombri pour qu'un texte clair y reste lisible (4,8:1).
 - **Rouge alerte** (oklch(0.575 0.195 27)) : erreurs et suppression, rien d'autre.
 
 ### Neutral
@@ -172,7 +172,7 @@ Sable pour le sol, bleu de lagune pour la marque, ambre pour ce qui signale.
 - **Trait de sable** (oklch(0.900 0.013 76)) : bordures et séparateurs, 1 px.
 - **Encre** (oklch(0.235 0.020 250)) : texte principal, puce sélectionnée, étiquette d'une épingle.
 - **Encre douce** (oklch(0.500 0.020 70)) : texte secondaire (contraste AA sur sable).
-- **Encre claire** (oklch(0.640 0.016 70)) : uniquement le non essentiel (dates, mentions).
+- **Encre claire** (oklch(0.530 0.016 70)) : le non essentiel (dates, mentions). Moins appuyée que l'encre douce, mais toujours à 4,5:1 sur tout fond sable : une date reste lisible au soleil.
 
 ### Named Rules
 **The Sand Floor Rule.** Aucun noir ni blanc pur : tout neutre est teinté sable (chroma 0.003 à 0.02, teinte 70 à 80). Un `#fff` ou un `#000` dans le code est un défaut.
@@ -221,27 +221,32 @@ Des formes pleines, arrondies, faites pour le pouce : tactiles et franches, jama
 
 ### Buttons
 - **Shape :** pilule (9999px), hauteur 48px pour le contact, 40px pour les actions secondaires.
-- **Contact :** trois boutons côte à côte. Appeler en bleu lagune, WhatsApp en vert WhatsApp, tous deux en texte papier ; Itinéraire en voile d'ambre et ambre écrit. Sur téléphone, Itinéraire n'est qu'une icône au bout de la barre ; sur la carte de contact de l'ordinateur, il prend sa propre ligne.
+- **Contact :** trois boutons côte à côte. Appeler en bleu lagune, WhatsApp en vert WhatsApp, tous deux en texte papier ; Itinéraire en voile d'ambre et ambre écrit. Sur téléphone, trois colonnes égales, toutes libellées (« Y aller » pour l'itinéraire) ; sur la carte de contact de l'ordinateur, Itinéraire prend sa propre ligne, suivi d'« Ouvrir dans Maps ».
 - **Discret (`btn-soft`) :** sable creux, encre, pour « Voir la fiche complète », « Chercher ma fiche ».
 - **Discret ambre (`btn-soft--accent`) :** ambre épingle et encre, pour contribuer (« Ajouter un prestataire », « Laisser le premier avis »).
 - **Hover / Focus :** le contact se tasse légèrement à l'appui (scale 0.97) ; focus visible par un anneau bleu lagune de 2px, décalé de 2px.
 
 ### Chips
-- **Filtres (catégories, crans de rayon) :** papier de sable, trait de sable, encre douce, 36px. Sélectionné : fond encre, texte papier. Sur la carte (téléphone), sans bordure mais avec l'ombre « pose ».
+- **Filtres (catégories, crans de rayon) :** papier de sable, trait de sable, encre douce, 44px. Sélectionné : fond encre, texte papier. Sur la carte (téléphone), sans bordure mais avec l'ombre « pose ».
 - **Métiers de l'accueil :** pastilles de 44px avec icône ambre écrit, qui passent à la ligne : aucun nom de métier coupé.
 
 ### Cards / Containers
 - **Panneaux :** papier de sable sur sol de sable, arrondi 24px, padding 20px (28px sur ordinateur), sans ombre.
-- **États vides :** sable creux, arrondi 16px, une phrase qui dit pourquoi c'est vide et une action.
+- **États vides :** sable creux, arrondi 16px, une phrase qui dit pourquoi c'est vide et une action. Un vide attendu (une fiche jeune sans avis) tient en une ligne et un bouton, sans bloc.
 - **Jamais de carte dans une carte.** Les lignes de résultat sont des lignes (survol en sable creux, sélection en voile de lagune), pas des cartes.
 
 ### Inputs / Fields
 - **Recherche :** pilule papier de sable, trait de sable, ombre « pose », loupe à gauche, effacer à droite.
-- **Focus :** anneau bleu lagune.
+- **Focus :** anneau bleu lagune posé sur la pilule entière (`:focus-within`), jamais retiré sans remplaçant.
 
 ### Navigation
 - **Téléphone :** barre du bas de 64px (plus la zone sûre), quatre entrées ; l'actif a une pastille voile de lagune derrière l'icône. « Ajouter » est un rond ambre.
 - **Ordinateur (≥ 1024px) :** rail vertical de 88px à gauche, logo en haut, « Ajouter » en bas. La place est réservée par les variables `--app-inset-left` et `--app-inset-bottom` ; tout élément fixe s'y cale.
+
+### Fiche prestataire
+- **En-tête :** initiale (la même lettre que l'épingle), nom, badge « Numéro vérifié » si revendiquée, métier, puis une ligne « 7,6 km de vous · quartier » (la distance seulement si l'usager s'est localisé). La disponibilité ne s'affiche que sur une fiche revendiquée, « selon le prestataire ».
+- **Ordinateur :** la carte occupe toute la colonne de droite, sur la hauteur de l'écran ; la carte de contact est posée dessus, en bas.
+- **Cibles :** 44px minimum partout, contrôles de la carte compris.
 
 ### Carte et épingles (signature)
 - **Épingle prestataire :** goutte ambre de 32px, initiale en Syne encre ; sélectionnée, elle grossit (1.22) et passe en bleu lagune avec le nom en étiquette encre au-dessus.

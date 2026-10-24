@@ -10,7 +10,7 @@ export function BackButton({ floating = false }: { floating?: boolean }) {
     <button
       type="button"
       onClick={() => (window.history.length > 1 ? router.back() : router.push("/providers"))}
-      className={`flex h-10 w-10 items-center justify-center rounded-full ${floating ? "absolute left-4 top-4 z-10" : ""}`}
+      className={`flex h-11 w-11 items-center justify-center rounded-full ${floating ? "absolute left-4 top-4 z-10" : ""}`}
       style={{ backgroundColor: "var(--color-surface)", boxShadow: floating ? "var(--shadow-md)" : "none" }}
       aria-label="Retour"
     >

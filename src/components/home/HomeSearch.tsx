@@ -10,7 +10,7 @@ import { useSearchStore } from "@/store/useSearchStore";
 /** Recherche de l'accueil : un métier ou un nom, ou directement « autour de moi ». */
 export function HomeSearch() {
   const router = useRouter();
-  const setPosition = useSearchStore((s) => s.setPosition);
+  const setUserPosition = useSearchStore((s) => s.setUserPosition);
   const [locating, setLocating] = useState(false);
 
   function aroundMe() {
@@ -21,7 +21,7 @@ export function HomeSearch() {
     setLocating(true);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        setPosition({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        setUserPosition({ lat: pos.coords.latitude, lng: pos.coords.longitude });
         router.push("/providers");
       },
       () => {

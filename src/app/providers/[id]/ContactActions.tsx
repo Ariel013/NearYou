@@ -36,8 +36,8 @@ export function ContactActions({ providerId, phone, name, location }: ContactAct
 
   return (
     <>
-      {/* Barre du téléphone : itinéraire en icône au bout. Carte de l'ordinateur : sur sa propre ligne. */}
-      <div className={`grid gap-2 lg:grid-cols-2 ${location ? "grid-cols-[1fr_1fr_auto]" : "grid-cols-2"}`}>
+      {/* Barre du téléphone : trois boutons libellés côte à côte. Carte de l'ordinateur : itinéraire sur sa propre ligne. */}
+      <div className={`grid gap-2 lg:grid-cols-2 ${location ? "grid-cols-3" : "grid-cols-2"}`}>
         <a
           href={`tel:${phone}`}
           onClick={() => logContact(providerId, "call")}
@@ -62,12 +62,12 @@ export function ContactActions({ providerId, phone, name, location }: ContactAct
           <button
             type="button"
             onClick={openNavigation}
-            className="contact-btn px-4 lg:col-span-2"
+            className="contact-btn lg:col-span-2"
             style={{ backgroundColor: "var(--color-accent-light)", color: "var(--color-accent-strong)" }}
-            aria-label="Itinéraire"
           >
             <Navigation size={18} aria-hidden />
-            <span className="hidden sm:inline">Itinéraire</span>
+            <span className="lg:hidden">Y aller</span>
+            <span className="hidden lg:inline">Itinéraire</span>
           </button>
         )}
       </div>

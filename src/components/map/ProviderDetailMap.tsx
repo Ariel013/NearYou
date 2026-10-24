@@ -17,9 +17,11 @@ interface ProviderDetailMapProps {
   lng: number;
   name: string;
   userPosition?: { lat: number; lng: number };
+  /** Par défaut une vignette ; l'ordinateur la fait remplir sa colonne. */
+  className?: string;
 }
 
-export function ProviderDetailMap({ lat, lng, name, userPosition }: ProviderDetailMapProps) {
+export function ProviderDetailMap({ lat, lng, name, userPosition, className = "h-56 w-full rounded-2xl overflow-hidden" }: ProviderDetailMapProps) {
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
 
   const pinProvider: ProviderWithDistance = {
@@ -56,7 +58,7 @@ export function ProviderDetailMap({ lat, lng, name, userPosition }: ProviderDeta
       zoom={16}
       initialTilt
       cooperative
-      className="h-56 w-full rounded-2xl overflow-hidden"
+      className={className}
     />
   );
 }
