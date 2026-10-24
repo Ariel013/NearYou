@@ -13,8 +13,6 @@ import type { ProviderWithDistance } from "@/types";
 
 interface NavTarget { name: string; lat: number; lng: number }
 
-const WHATSAPP_GREEN = "#1f9d55";
-
 function ContactButton({ href, target, rel, onClick, tone, icon, label }: {
   href?: string; target?: string; rel?: string; onClick?: () => void;
   tone: "primary" | "whatsapp" | "accent";
@@ -22,7 +20,7 @@ function ContactButton({ href, target, rel, onClick, tone, icon, label }: {
 }) {
   const styles = {
     primary: { backgroundColor: "var(--color-primary)", color: "var(--color-on-primary)" },
-    whatsapp: { backgroundColor: WHATSAPP_GREEN, color: "var(--color-on-primary)" },
+    whatsapp: { backgroundColor: "var(--color-whatsapp)", color: "var(--color-on-primary)" },
     accent: { backgroundColor: "var(--color-accent-light)", color: "var(--color-accent-strong)" },
   }[tone];
   const cls = "flex min-h-[64px] flex-col items-center justify-center gap-1.5 rounded-2xl font-semibold transition-transform active:scale-[0.97]";

@@ -68,6 +68,7 @@
   --color-warning-light: oklch(0.960 0.045 85);
   --color-error:         oklch(0.575 0.195 27);
   --color-error-light:   oklch(0.955 0.030 25);
+  --color-whatsapp:      oklch(0.600 0.140 152);  /* vert WhatsApp assombri : texte blanc lisible */
 
   /* Coque de l'app : où la navigation prend sa place.
      Mobile : barre du bas ; desktop (lg) : rail à gauche. */
@@ -316,6 +317,63 @@ body:has([data-app-nav]) {
     --map-controls-top: 12px;
   }
   .explore-topbar { display: none; }
+}
+
+/* ─── Fiche prestataire ─── */
+.provider-page {
+  min-height: 100dvh;
+  /* place pour la barre de contact fixe sur téléphone */
+  padding-bottom: 96px;
+}
+.provider-layout {
+  padding: 0 20px 24px;
+}
+.provider-contact-bar {
+  position: fixed;
+  left: var(--app-inset-left);
+  right: 0;
+  bottom: var(--app-inset-bottom);
+  z-index: 40;
+  padding: 12px 16px;
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+  box-shadow: 0 -6px 20px oklch(0.30 0.03 60 / 0.08);
+}
+@media (min-width: 1024px) {
+  .provider-page { padding-bottom: 0; }
+  .provider-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 380px;
+    gap: 48px;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 32px 40px 64px;
+  }
+}
+.section-title {
+  margin-bottom: 12px;
+  font-family: var(--font-display, system-ui, sans-serif);
+  font-size: var(--text-lg);
+  font-weight: 700;
+}
+.contact-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  min-width: 0;
+  padding: 0 12px;
+  border-radius: var(--radius-full);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  white-space: nowrap;
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+.contact-btn:active { transform: scale(0.97); }
+.contact-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
 /* Puces de filtre */
