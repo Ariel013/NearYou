@@ -23,8 +23,10 @@ Carte des documents : `CLAUDE.md` (règles, carte), `A-FAIRE.md` (hors code),
 - **Production** : `main` sur Vercel, branchée sur le nouveau projet
   Supabase (vérifié le 2026-10-22). Première exécution du cron de maintien en
   vie **non constatée**.
-- **Branches** : `dev` porte la tâche 1 et l'amorce ; ni `dev` ni `staging`
-  ne sont poussées.
+- **Branches** : `dev`, `staging` et `main` poussées le 2026-10-24 ; `main`
+  (6bad396) porte la tâche 1 et la refonte du front (lots 1 à 6). Le
+  déploiement de production qui en découle n'a **pas** été constaté (on ne
+  sonde pas la prod depuis ici).
 - **Revendication en panne** : les deux numéros du bot WhatsApp (Baileys) ont
   été bannis. Aucune fiche ne peut être revendiquée, et le cas « propriétaire
   modifie sa fiche → 200 » reste non testé. **Vérification de numéro mise en
@@ -32,10 +34,10 @@ Carte des documents : `CLAUDE.md` (règles, carte), `A-FAIRE.md` (hors code),
   passerelle ou SMS). Bloque aussi la messagerie (tâche 3).
 - **En cours** : refonte du front, brief validé le 2026-10-24 (voir
   `PRODUCT.md` et le backlog, « Refonte du front »). Lot 1 commité et fusionné
-  dans `dev`, lots 2 à 5 aussi ; lot 6 (tableau de bord) sur
-  `feat/refonte-front`, **non commité**. Ensuite : pousser `dev` (sur
-  confirmation), recette sur la preview Vercel, puis `staging` et `main`.
-- **Prochaine action** : valider le lot 6.
+  dans `dev`, puis tous les lots jusqu'au 6 ; promus en `staging` et `main`.
+- **Prochaine action** : recette sur un vrai téléphone (carte 3D, panneau
+  à tirer, fiche) ; vérifier que la production a bien redéployé et que
+  `PROVIDER_SESSION_SECRET` y existe.
 
 ## 📓 Journal des sessions
 
