@@ -1,0 +1,487 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-24T21:04:13.642947+00:00",
+  "title": "Design System: NearYou",
+  "extensions": {
+    "colorMeta": {
+      "bleu-lagune": {
+        "role": "primary",
+        "displayName": "Bleu Lagune",
+        "canonical": "oklch(0.505 0.124 246)",
+        "tonalRamp": [
+          "oklch(0.15 0.041 246)",
+          "oklch(0.27 0.066 246)",
+          "oklch(0.39 0.091 246)",
+          "oklch(0.51 0.116 246)",
+          "oklch(0.63 0.107 246)",
+          "oklch(0.75 0.083 246)",
+          "oklch(0.86 0.060 246)",
+          "oklch(0.95 0.041 246)"
+        ]
+      },
+      "bleu-lagune-profond": {
+        "role": "primary",
+        "displayName": "Bleu Lagune Profond",
+        "canonical": "oklch(0.400 0.098 246)",
+        "tonalRamp": [
+          "oklch(0.15 0.033 246)",
+          "oklch(0.27 0.052 246)",
+          "oklch(0.39 0.072 246)",
+          "oklch(0.51 0.091 246)",
+          "oklch(0.63 0.085 246)",
+          "oklch(0.75 0.065 246)",
+          "oklch(0.86 0.047 246)",
+          "oklch(0.95 0.033 246)"
+        ]
+      },
+      "bleu-lagune-voile": {
+        "role": "primary",
+        "displayName": "Bleu Lagune Voile",
+        "canonical": "oklch(0.955 0.022 240)",
+        "tonalRamp": [
+          "oklch(0.15 0.007 240)",
+          "oklch(0.27 0.012 240)",
+          "oklch(0.39 0.016 240)",
+          "oklch(0.51 0.021 240)",
+          "oklch(0.63 0.019 240)",
+          "oklch(0.75 0.015 240)",
+          "oklch(0.86 0.011 240)",
+          "oklch(0.95 0.007 240)"
+        ]
+      },
+      "bleu-lagune-brume": {
+        "role": "primary",
+        "displayName": "Bleu Lagune Brume",
+        "canonical": "oklch(0.800 0.060 242)",
+        "tonalRamp": [
+          "oklch(0.15 0.020 242)",
+          "oklch(0.27 0.032 242)",
+          "oklch(0.39 0.044 242)",
+          "oklch(0.51 0.056 242)",
+          "oklch(0.63 0.052 242)",
+          "oklch(0.75 0.040 242)",
+          "oklch(0.86 0.029 242)",
+          "oklch(0.95 0.020 242)"
+        ]
+      },
+      "ambre-epingle": {
+        "role": "secondary",
+        "displayName": "Ambre Epingle",
+        "canonical": "oklch(0.785 0.155 72)",
+        "tonalRamp": [
+          "oklch(0.15 0.052 72)",
+          "oklch(0.27 0.083 72)",
+          "oklch(0.39 0.114 72)",
+          "oklch(0.51 0.145 72)",
+          "oklch(0.63 0.134 72)",
+          "oklch(0.75 0.103 72)",
+          "oklch(0.86 0.075 72)",
+          "oklch(0.95 0.052 72)"
+        ]
+      },
+      "ambre-ecrit": {
+        "role": "secondary",
+        "displayName": "Ambre Ecrit",
+        "canonical": "oklch(0.560 0.130 62)",
+        "tonalRamp": [
+          "oklch(0.15 0.043 62)",
+          "oklch(0.27 0.069 62)",
+          "oklch(0.39 0.095 62)",
+          "oklch(0.51 0.121 62)",
+          "oklch(0.63 0.113 62)",
+          "oklch(0.75 0.087 62)",
+          "oklch(0.86 0.063 62)",
+          "oklch(0.95 0.043 62)"
+        ]
+      },
+      "ambre-voile": {
+        "role": "secondary",
+        "displayName": "Ambre Voile",
+        "canonical": "oklch(0.962 0.040 86)",
+        "tonalRamp": [
+          "oklch(0.15 0.013 86)",
+          "oklch(0.27 0.021 86)",
+          "oklch(0.39 0.029 86)",
+          "oklch(0.51 0.037 86)",
+          "oklch(0.63 0.035 86)",
+          "oklch(0.75 0.027 86)",
+          "oklch(0.86 0.019 86)",
+          "oklch(0.95 0.013 86)"
+        ]
+      },
+      "sable-sol": {
+        "role": "neutral",
+        "displayName": "Sable Sol",
+        "canonical": "oklch(0.975 0.007 80)",
+        "tonalRamp": [
+          "oklch(0.15 0.003 80)",
+          "oklch(0.27 0.004 80)",
+          "oklch(0.39 0.005 80)",
+          "oklch(0.51 0.007 80)",
+          "oklch(0.63 0.006 80)",
+          "oklch(0.75 0.005 80)",
+          "oklch(0.86 0.003 80)",
+          "oklch(0.95 0.003 80)"
+        ]
+      },
+      "sable-papier": {
+        "role": "neutral",
+        "displayName": "Sable Papier",
+        "canonical": "oklch(0.995 0.003 80)",
+        "tonalRamp": [
+          "oklch(0.15 0.003 80)",
+          "oklch(0.27 0.003 80)",
+          "oklch(0.39 0.003 80)",
+          "oklch(0.51 0.003 80)",
+          "oklch(0.63 0.003 80)",
+          "oklch(0.75 0.003 80)",
+          "oklch(0.86 0.003 80)",
+          "oklch(0.95 0.003 80)"
+        ]
+      },
+      "sable-creux": {
+        "role": "neutral",
+        "displayName": "Sable Creux",
+        "canonical": "oklch(0.950 0.010 78)",
+        "tonalRamp": [
+          "oklch(0.15 0.003 78)",
+          "oklch(0.27 0.005 78)",
+          "oklch(0.39 0.007 78)",
+          "oklch(0.51 0.009 78)",
+          "oklch(0.63 0.009 78)",
+          "oklch(0.75 0.007 78)",
+          "oklch(0.86 0.005 78)",
+          "oklch(0.95 0.003 78)"
+        ]
+      },
+      "sable-trait": {
+        "role": "neutral",
+        "displayName": "Sable Trait",
+        "canonical": "oklch(0.900 0.013 76)",
+        "tonalRamp": [
+          "oklch(0.15 0.004 76)",
+          "oklch(0.27 0.007 76)",
+          "oklch(0.39 0.010 76)",
+          "oklch(0.51 0.012 76)",
+          "oklch(0.63 0.011 76)",
+          "oklch(0.75 0.009 76)",
+          "oklch(0.86 0.006 76)",
+          "oklch(0.95 0.004 76)"
+        ]
+      },
+      "encre": {
+        "role": "neutral",
+        "displayName": "Encre",
+        "canonical": "oklch(0.235 0.020 250)",
+        "tonalRamp": [
+          "oklch(0.15 0.007 250)",
+          "oklch(0.27 0.011 250)",
+          "oklch(0.39 0.015 250)",
+          "oklch(0.51 0.019 250)",
+          "oklch(0.63 0.017 250)",
+          "oklch(0.75 0.013 250)",
+          "oklch(0.86 0.010 250)",
+          "oklch(0.95 0.007 250)"
+        ]
+      },
+      "encre-douce": {
+        "role": "neutral",
+        "displayName": "Encre Douce",
+        "canonical": "oklch(0.500 0.020 70)",
+        "tonalRamp": [
+          "oklch(0.15 0.007 70)",
+          "oklch(0.27 0.011 70)",
+          "oklch(0.39 0.015 70)",
+          "oklch(0.51 0.019 70)",
+          "oklch(0.63 0.017 70)",
+          "oklch(0.75 0.013 70)",
+          "oklch(0.86 0.010 70)",
+          "oklch(0.95 0.007 70)"
+        ]
+      },
+      "encre-claire": {
+        "role": "neutral",
+        "displayName": "Encre Claire",
+        "canonical": "oklch(0.640 0.016 70)",
+        "tonalRamp": [
+          "oklch(0.15 0.005 70)",
+          "oklch(0.27 0.009 70)",
+          "oklch(0.39 0.012 70)",
+          "oklch(0.51 0.015 70)",
+          "oklch(0.63 0.014 70)",
+          "oklch(0.75 0.011 70)",
+          "oklch(0.86 0.008 70)",
+          "oklch(0.95 0.005 70)"
+        ]
+      },
+      "vert-dispo": {
+        "role": "tertiary",
+        "displayName": "Vert Dispo",
+        "canonical": "oklch(0.600 0.140 150)",
+        "tonalRamp": [
+          "oklch(0.15 0.047 150)",
+          "oklch(0.27 0.075 150)",
+          "oklch(0.39 0.103 150)",
+          "oklch(0.51 0.131 150)",
+          "oklch(0.63 0.121 150)",
+          "oklch(0.75 0.093 150)",
+          "oklch(0.86 0.068 150)",
+          "oklch(0.95 0.047 150)"
+        ]
+      },
+      "vert-dispo-voile": {
+        "role": "tertiary",
+        "displayName": "Vert Dispo Voile",
+        "canonical": "oklch(0.955 0.045 150)",
+        "tonalRamp": [
+          "oklch(0.15 0.015 150)",
+          "oklch(0.27 0.024 150)",
+          "oklch(0.39 0.033 150)",
+          "oklch(0.51 0.042 150)",
+          "oklch(0.63 0.039 150)",
+          "oklch(0.75 0.030 150)",
+          "oklch(0.86 0.022 150)",
+          "oklch(0.95 0.015 150)"
+        ]
+      },
+      "vert-whatsapp": {
+        "role": "tertiary",
+        "displayName": "Vert Whatsapp",
+        "canonical": "oklch(0.600 0.140 152)",
+        "tonalRamp": [
+          "oklch(0.15 0.047 152)",
+          "oklch(0.27 0.075 152)",
+          "oklch(0.39 0.103 152)",
+          "oklch(0.51 0.131 152)",
+          "oklch(0.63 0.121 152)",
+          "oklch(0.75 0.093 152)",
+          "oklch(0.86 0.068 152)",
+          "oklch(0.95 0.047 152)"
+        ]
+      },
+      "rouge-alerte": {
+        "role": "tertiary",
+        "displayName": "Rouge Alerte",
+        "canonical": "oklch(0.575 0.195 27)",
+        "tonalRamp": [
+          "oklch(0.15 0.065 27)",
+          "oklch(0.27 0.104 27)",
+          "oklch(0.39 0.143 27)",
+          "oklch(0.51 0.182 27)",
+          "oklch(0.63 0.169 27)",
+          "oklch(0.75 0.130 27)",
+          "oklch(0.86 0.094 27)",
+          "oklch(0.95 0.065 27)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Titre de l'accueil, une fois par écran."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Nom du prestataire, salutation du tableau de bord."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Titres de section."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Texte courant, 65ch max."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Navigation, mentions, légendes."
+      },
+      "numeric": {
+        "displayName": "Numeric",
+        "purpose": "Distances, notes, compteurs (.tabular)."
+      }
+    },
+    "shadows": [
+      {
+        "name": "pose",
+        "value": "0 1px 2px oklch(0.30 0.03 60 / 0.06), 0 1px 3px oklch(0.30 0.03 60 / 0.06)",
+        "purpose": "Puces flottantes, champ de recherche."
+      },
+      {
+        "name": "flotte",
+        "value": "0 4px 16px oklch(0.30 0.03 60 / 0.09)",
+        "purpose": "Boutons sur la carte, carte de contact."
+      },
+      {
+        "name": "panneau",
+        "value": "0 -8px 30px oklch(0.30 0.03 60 / 0.12)",
+        "purpose": "Panneau de résultats qui monte du bas."
+      },
+      {
+        "name": "epingle",
+        "value": "0 4px 10px oklch(0.30 0.05 60 / 0.30)",
+        "purpose": "Épingles sur la carte."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Transitions d'état."
+      },
+      {
+        "name": "sheet",
+        "value": "420ms cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "Crans du panneau de résultats."
+      },
+      {
+        "name": "duration-fast",
+        "value": "150ms",
+        "purpose": "Survol, appui."
+      },
+      {
+        "name": "duration-base",
+        "value": "250ms",
+        "purpose": "Changements d'état."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Bouton Appeler",
+      "kind": "button",
+      "refersTo": "button-contact-call",
+      "description": "Contact principal, barre du téléphone et carte de contact.",
+      "html": "<a class=\"ds-contact ds-contact--call\" href=\"#\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z\"/></svg>Appeler</a>",
+      "css": ".ds-contact{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 16px;border-radius:9999px;font-weight:600;font-size:.9rem;text-decoration:none;transition:transform 150ms cubic-bezier(.16,1,.3,1)}.ds-contact--call{background:var(--color-primary,oklch(.505 .124 246));color:var(--color-on-primary,oklch(.99 .004 240))}.ds-contact:active{transform:scale(.97)}.ds-contact:focus-visible{outline:2px solid oklch(.505 .124 246);outline-offset:2px}"
+    },
+    {
+      "name": "Bouton WhatsApp",
+      "kind": "button",
+      "refersTo": "button-contact-whatsapp",
+      "description": "Écrire sur WhatsApp, à côté d'Appeler.",
+      "html": "<a class=\"ds-contact ds-contact--wa\" href=\"#\">WhatsApp</a>",
+      "css": ".ds-contact{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 16px;border-radius:9999px;font-weight:600;font-size:.9rem;text-decoration:none}.ds-contact--wa{background:oklch(.6 .14 152);color:oklch(.99 .004 240)}.ds-contact--wa:focus-visible{outline:2px solid oklch(.505 .124 246);outline-offset:2px}"
+    },
+    {
+      "name": "Bouton discret",
+      "kind": "button",
+      "refersTo": "button-soft",
+      "description": "Action secondaire : voir la fiche, chercher sa fiche.",
+      "html": "<button class=\"ds-soft\">Voir la fiche complète</button>",
+      "css": ".ds-soft{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 16px;border:0;border-radius:9999px;background:oklch(.95 .01 78);color:oklch(.235 .02 250);font-weight:600;font-size:.9rem}.ds-soft:hover{background:oklch(.92 .012 78)}.ds-soft:focus-visible{outline:2px solid oklch(.505 .124 246);outline-offset:2px}"
+    },
+    {
+      "name": "Bouton contribuer",
+      "kind": "button",
+      "refersTo": "button-soft-accent",
+      "description": "Appel à contribuer, en ambre.",
+      "html": "<button class=\"ds-soft ds-soft--accent\">Ajouter un prestataire</button>",
+      "css": ".ds-soft{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 16px;border:0;border-radius:9999px;font-weight:600;font-size:.9rem}.ds-soft--accent{background:oklch(.785 .155 72);color:oklch(.235 .02 250)}.ds-soft--accent:focus-visible{outline:2px solid oklch(.505 .124 246);outline-offset:2px}"
+    },
+    {
+      "name": "Puce de filtre",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Catégorie ou cran de rayon ; sélectionnée en encre.",
+      "html": "<div class=\"ds-chips\"><button class=\"ds-chip\" aria-pressed=\"true\">Tout</button><button class=\"ds-chip\" aria-pressed=\"false\">Plomberie</button></div>",
+      "css": ".ds-chips{display:flex;gap:8px}.ds-chip{min-height:36px;padding:0 14px;border-radius:9999px;border:1px solid oklch(.9 .013 76);background:oklch(.995 .003 80);color:oklch(.5 .02 70);font-size:.9rem;font-weight:500}.ds-chip[aria-pressed=true]{background:oklch(.235 .02 250);border-color:oklch(.235 .02 250);color:oklch(.995 .003 80)}.ds-chip:focus-visible{outline:2px solid oklch(.505 .124 246);outline-offset:2px}"
+    },
+    {
+      "name": "Champ de recherche",
+      "kind": "input",
+      "refersTo": "search-field",
+      "description": "Recherche d'un métier ou d'un nom.",
+      "html": "<label class=\"ds-search\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"11\" cy=\"11\" r=\"8\"/><path d=\"m21 21-4.3-4.3\"/></svg><input placeholder=\"Un métier, un nom…\"></label>",
+      "css": ".ds-search{display:flex;align-items:center;gap:8px;padding:0 16px;border-radius:9999px;border:1px solid oklch(.9 .013 76);background:oklch(.995 .003 80);color:oklch(.5 .02 70);box-shadow:0 1px 3px oklch(.3 .03 60 / .06)}.ds-search input{flex:1;border:0;background:transparent;padding:12px 0;font-size:1rem;color:oklch(.235 .02 250);outline:none}.ds-search:focus-within{outline:2px solid oklch(.505 .124 246);outline-offset:2px}"
+    },
+    {
+      "name": "Épingle prestataire",
+      "kind": "custom",
+      "refersTo": "map-pin",
+      "description": "Épingle ambre sur la carte ; sélectionnée en bleu lagune avec son nom.",
+      "html": "<div class=\"ds-pins\"><span class=\"ds-pin\"><span>E</span></span><span class=\"ds-pin ds-pin--on\"><span>K</span></span></div>",
+      "css": ".ds-pins{display:flex;gap:32px;padding:16px}.ds-pin{display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50% 50% 50% 0;rotate:-45deg;background:oklch(.785 .155 72);border:2px solid oklch(.995 .003 80);box-shadow:0 4px 10px oklch(.3 .05 60 / .3)}.ds-pin span{rotate:45deg;font-weight:700;font-size:14px;color:oklch(.235 .02 250)}.ds-pin--on{scale:1.22;background:oklch(.505 .124 246)}.ds-pin--on span{color:oklch(.99 .004 240)}"
+    },
+    {
+      "name": "Ligne de résultat",
+      "kind": "card",
+      "refersTo": "provider-row",
+      "description": "Un prestataire dans la liste : qui, quoi, à quelle distance.",
+      "html": "<button class=\"ds-row\"><span class=\"ds-row__av\">ER</span><span class=\"ds-row__txt\"><b>Elsa Rabe</b><small>Informatique · Disponible</small></span><span class=\"ds-row__km\">821 m</span></button>",
+      "css": ".ds-row{display:flex;align-items:center;gap:12px;width:100%;padding:12px;border:0;border-radius:20px;background:oklch(.995 .003 80);text-align:left}.ds-row:hover{background:oklch(.95 .01 78)}.ds-row__av{display:flex;align-items:center;justify-content:center;width:52px;height:52px;border-radius:12px;background:oklch(.962 .04 86);color:oklch(.56 .13 62);font-weight:700}.ds-row__txt{flex:1;display:flex;flex-direction:column;color:oklch(.235 .02 250)}.ds-row__txt small{color:oklch(.5 .02 70)}.ds-row__km{font-family:ui-monospace,monospace;font-variant-numeric:tabular-nums}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Le plan du quartier",
+    "overview": "**Creative North Star: \"Le plan du quartier\"**\n\nNearYou se lit comme un plan qu'on consulte avec un voisin. Le sol est du sable chaud, l'eau est d'un bleu de lagune, et les épingles ambre disent où se trouve quelqu'un qui peut aider. Tout le reste s'efface derrière ces trois couleurs : l'interface est un plan précis, la chaleur vient de ce qu'on y montre.\n\nLe système est **restreint** : des neutres teintés vers le sable, un bleu de marque, un ambre qui signale (une épingle, un appel à contribuer, l'itinéraire). La carte vectorielle est restylée avec cette même palette, elle n'est jamais une tuile OpenStreetMap brute. La densité est celle d'une app de carte : la carte d'abord, les résultats à côté (ordinateur) ou dans un panneau qu'on tire (téléphone), jamais l'écran mobile étiré sur 1440 px.\n\nLa scène qui décide du thème : quelqu'un debout dans une rue de Cotonou, en plein après-midi, sur un Android de milieu de gamme en 3G, qui cherche un plombier maintenant. D'où un thème **clair**, un fort contraste, des cibles tactiles de 44 px et des chiffres lisibles d'un coup d'œil. Le système rejette l'annuaire administratif froid, le SaaS bleu-violet interchangeable, le tableau de bord « gros chiffre, petite étiquette » et les tuiles de carte brutes.",
+    "keyCharacteristics": [
+      "Thème clair sur sable, contraste WCAG AA même en plein soleil.",
+      "La carte est la surface principale ; tout le reste se pose dessus ou à côté.",
+      "Chiffres (distances, notes, compteurs) en police à chasse fixe.",
+      "À plat par défaut ; l'ombre seulement pour ce qui flotte.",
+      "Mobile d'abord, avec une vraie mise en page à partir de 1024 px (rail de navigation à gauche)."
+    ],
+    "rules": [
+      {
+        "name": "The Sand Floor Rule",
+        "body": "Aucun noir ni blanc pur : tout neutre est teinté sable (chroma 0.003 à 0.02, teinte 70 à 80). Un `#fff` ou un `#000` dans le code est un défaut.",
+        "section": "colors"
+      },
+      {
+        "name": "The Amber Signal Rule",
+        "body": "L'ambre marque ce qui mérite d'être trouvé ou fait (une épingle, contribuer, y aller). S'il décore, il ment.",
+        "section": "colors"
+      },
+      {
+        "name": "The Map Is Branded Rule",
+        "body": "Les couleurs de la carte (`src/components/map/brand-map.ts`) sont ces mêmes jetons en hexadécimal ; MapLibre ne lit pas l'OKLCH. Un changement de palette se fait aux deux endroits.",
+        "section": "colors"
+      },
+      {
+        "name": "The Numbers Are Measured Rule",
+        "body": "Toute valeur mesurée (« 821 m », « 4.5 », « 5 km », un compteur) passe en Geist Mono via la classe `.tabular`. Un chiffre en Epilogue au milieu d'une donnée est un oubli.",
+        "section": "typography"
+      },
+      {
+        "name": "The French Spacing Rule",
+        "body": "Espace insécable avant « ? », « : », « ! » dans les titres et la FAQ : un point d'interrogation seul en début de ligne est un défaut.",
+        "section": "typography"
+      },
+      {
+        "name": "The Only Floats Cast Rule",
+        "body": "Une ombre signifie « ceci flotte au-dessus de la carte ou de la page ». Un panneau posé dans le flux n'en a pas ; s'il en a besoin pour se voir, c'est sa teinte qui est mauvaise.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** poser chaque écran pour le téléphone **et** pour l'ordinateur dans le même lot : « chaque écran à sa taille ».",
+      "**Do** donner à chaque absence un message et une action : « Pas encore d'avis » avec « Laisser le premier avis », jamais « 0.0 (0) ».",
+      "**Do** utiliser les jetons (`var(--color-…)`) ; toute couleur nouvelle naît en OKLCH dans `globals.css`.",
+      "**Do** passer les chiffres mesurés en `.tabular`.",
+      "**Do** charger la carte seulement là où elle sert, et une seule fois par écran (`MediaOnly`), avec son repli.",
+      "**Do** vérifier aux largeurs 390, 768 et 1440 px, `scrollWidth` compris."
+    ],
+    "donts": [
+      "**Don't** étirer l'écran mobile sur 1440 px avec la navigation du bas sur ordinateur.",
+      "**Don't** laisser un élément cassé ou en débordement, ni un « 0.0 (0) » à la place d'un état vide, ni une carte blanche.",
+      "**Don't** faire un tableau de bord générique : un grand chiffre, une petite étiquette, des tuiles identiques.",
+      "**Don't** poser des tuiles OpenStreetMap brutes telles quelles.",
+      "**Don't** ressembler à l'annuaire administratif froid (pages jaunes) ni au SaaS bleu-violet interchangeable.",
+      "**Don't** utiliser `#fff`, `#000`, ni une ombre `rgba(0,0,0,…)`.",
+      "**Don't** mettre une bordure latérale colorée de plus de 1px, un texte en dégradé, ou du verre flouté décoratif.",
+      "**Don't** animer une propriété de mise en page (hauteur, largeur) ; ni rebond, ni élastique.",
+      "**Don't** ouvrir une modale quand un panneau ou un affichage sur place suffit."
+    ]
+  }
+}
