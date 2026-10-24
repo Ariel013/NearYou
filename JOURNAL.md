@@ -32,9 +32,10 @@ Carte des documents : `CLAUDE.md` (règles, carte), `A-FAIRE.md` (hors code),
   passerelle ou SMS). Bloque aussi la messagerie (tâche 3).
 - **En cours** : refonte du front, brief validé le 2026-10-24 (voir
   `PRODUCT.md` et le backlog, « Refonte du front »). Lot 1 commité et fusionné
-  dans `dev`, lots 2 et 3 aussi ; lot 4 (fiche) sur `feat/refonte-front`,
+  dans `dev`, lots 2 à 4 aussi ; lot 5 (accueil) sur `feat/refonte-front`,
   **non commité**.
-- **Prochaine action** : valider le lot 4, puis lot 5 — l'accueil.
+- **Prochaine action** : valider le lot 5, puis lot 6 — le tableau de bord
+  du prestataire.
 
 ## 📓 Journal des sessions
 
@@ -122,6 +123,15 @@ Carte des documents : `CLAUDE.md` (règles, carte), `A-FAIRE.md` (hors code),
   à droite qui restent à l'écran. Une seule carte chargée selon l'écran.
   Vérifié à 390, 768 et 1440 px : aucun bouton tronqué, pas de défilement
   horizontal.
+
+- Lot 5 : accueil refait. Titre fixe (fin du mot qui tournait et laissait un
+  trou), recherche et « Autour de moi » d'abord, aperçu de carte réel avec le
+  vrai nombre de prestataires à 10 km, les 15 métiers en pastilles (aucun
+  nom coupé : mesuré), étapes, appel aux contributeurs et aux artisans, FAQ
+  réécrite (vouvoiement, revendication en pause dite franchement, Bénin et
+  Côte d'Ivoire). Retiré : le bouton WhatsApp « support » qui pointait vers
+  un numéro factice (22900000000). Vérifié à 390, 768 et 1440 px ; recherche
+  depuis l'accueil → explorer avec la requête.
 
 ## 🎓 Leçons apprises
 
