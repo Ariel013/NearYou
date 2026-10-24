@@ -80,7 +80,7 @@ export function ReportModal({ providerId, onClose }: ReportModalProps) {
             </p>
             <Button
               className="w-full rounded-full py-3"
-              style={{ backgroundColor: "var(--color-primary)", color: "white" }}
+              style={{ backgroundColor: "var(--color-primary)", color: "var(--color-on-primary)" }}
               onClick={onClose}
             >
               Fermer
@@ -141,7 +141,7 @@ export function ReportModal({ providerId, onClose }: ReportModalProps) {
 
             <Button
               className="w-full rounded-full py-3"
-              style={{ backgroundColor: "var(--color-error)", color: "white" }}
+              style={{ backgroundColor: "var(--color-error)", color: "var(--color-on-primary)" }}
               onClick={submit}
               disabled={!reason || isLoading}
               aria-label="Envoyer le signalement"

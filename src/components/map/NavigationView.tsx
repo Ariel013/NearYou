@@ -1,7 +1,17 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { X, Navigation, MapPin, Loader } from "lucide-react";
+import { LngLatBounds, Marker, type GeoJSONSource } from "maplibre-gl";
+import {
+  createBrandMap,
+  prefersReducedMotion,
+  webglSupported,
+  type MapLibreMap,
+} from "./brand-map";
+import { createDestinationPin, createUserDot, setUserDotHeading } from "./ProviderMarker";
+import { MapUnavailable } from "./MapUnavailable";
 
 interface NavigationTarget {
   name: string;
@@ -30,45 +40,18 @@ function fmtTime(s: number): string {
   return `${Math.floor(min / 60)} h ${min % 60} min`;
 }
 
-/** Marker utilisateur : point bleu + cône directionnel si heading connu */
-function userMarkerHtml(heading: number | null): string {
-  const dot = `<div style="
-    width:20px;height:20px;border-radius:50%;
-    background:#1B6CA8;border:3px solid white;
-    box-shadow:0 0 0 5px rgba(27,108,168,0.25);
-    position:absolute;top:50%;left:50%;
-    transform:translate(-50%,-50%);
-  "></div>`;
-
-  if (heading === null) {
-    return `<div style="width:40px;height:40px;position:relative;">${dot}</div>`;
-  }
-
-  const cone = `<div style="
-    position:absolute;top:-6px;left:50%;
-    transform:translateX(-50%);
-    width:0;height:0;
-    border-left:10px solid transparent;
-    border-right:10px solid transparent;
-    border-bottom:22px solid rgba(27,108,168,0.5);
-  "></div>`;
-
-  return `<div style="width:40px;height:40px;position:relative;transform:rotate(${heading}deg);">
-    ${cone}${dot}
-  </div>`;
-}
-
 export function NavigationView({ target, onClose }: NavigationViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<import("leaflet").Map | null>(null);
-  const userMarkerRef = useRef<import("leaflet").Marker | null>(null);
-  const routePolylineRef = useRef<import("leaflet").Polyline | null>(null);
+  const mapRef = useRef<MapLibreMap | null>(null);
+  const userMarkerRef = useRef<Marker | null>(null);
   const watchIdRef = useRef<number | null>(null);
   const lastFetchKeyRef = useRef("");
   const lastFetchTimeRef = useRef(0);
   const lastHeadingRef = useRef<number | null>(null);
 
   const [mapReady, setMapReady] = useState(false);
+  // Composant chargé côté client seulement (ssr: false) : WebGL se teste au montage.
+  const [mapUnavailable, setMapUnavailable] = useState(() => !webglSupported());
   const [userPos, setUserPos] = useState<{ lat: number; lng: number } | null>(null);
   const [route, setRoute] = useState<RouteInfo | null>(null);
   const [heading, setHeading] = useState<number | null>(null);
@@ -76,47 +59,49 @@ export function NavigationView({ target, onClose }: NavigationViewProps) {
   const [routeLoading, setRouteLoading] = useState(false);
   const [arrived, setArrived] = useState(false);
 
-  // ─── Carte Leaflet ────────────────────────────────────────────────────────
+  // ─── Carte ────────────────────────────────────────────────────────────────
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
-    (async () => {
-      const L = (await import("leaflet")).default;
-      if (!containerRef.current || mapRef.current) return;
-
-      const map = L.map(containerRef.current, {
-        center: [target.lat, target.lng],
-        zoom: 15,
-        zoomControl: false,
+    if (mapUnavailable) return;
+    let cancelled = false;
+    createBrandMap({
+      container: containerRef.current,
+      center: { lat: target.lat, lng: target.lng },
+      zoom: 15,
+      tilt: true,
+      showZoomControl: false,
+      isCancelled: () => cancelled,
+    })
+      .then((map) => {
+        if (!map) return;
+        mapRef.current = map;
+        new Marker({ element: createDestinationPin(target.name), anchor: "bottom" })
+          .setLngLat([target.lng, target.lat])
+          .addTo(map);
+        map.once("load", () => {
+          map.addSource("route", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
+          map.addLayer({
+            id: "route-casing",
+            type: "line",
+            source: "route",
+            layout: { "line-cap": "round", "line-join": "round" },
+            paint: { "line-color": "#0d4e7a", "line-width": 9, "line-opacity": 0.35 },
+          });
+          map.addLayer({
+            id: "route",
+            type: "line",
+            source: "route",
+            layout: { "line-cap": "round", "line-join": "round" },
+            paint: { "line-color": "#1b6ca8", "line-width": 5 },
+          });
+          setMapReady(true);
+        });
+      })
+      .catch(() => {
+        if (!cancelled) setMapUnavailable(true);
       });
-      mapRef.current = map;
-
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: "© OpenStreetMap",
-        maxZoom: 19,
-      }).addTo(map);
-
-      // Marker destination (épingle ambre)
-      const destIcon = L.divIcon({
-        className: "",
-        html: `<div style="
-          width:36px;height:44px;position:relative;display:flex;
-          flex-direction:column;align-items:center;">
-          <div style="
-            width:36px;height:36px;border-radius:50% 50% 50% 0;
-            background:#F5A623;transform:rotate(-45deg);
-            border:3px solid white;box-shadow:0 3px 10px rgba(0,0,0,0.35);
-          "></div>
-        </div>`,
-        iconSize: [36, 44],
-        iconAnchor: [18, 44],
-      });
-      L.marker([target.lat, target.lng], { icon: destIcon })
-        .addTo(map)
-        .bindTooltip(target.name, { permanent: true, direction: "top", offset: [0, -46] });
-
-      setMapReady(true);
-    })();
     return () => {
+      cancelled = true;
       mapRef.current?.remove();
       mapRef.current = null;
     };
@@ -158,7 +143,7 @@ export function NavigationView({ target, onClose }: NavigationViewProps) {
   }, []);
 
   useEffect(() => {
-    // La permission boussole a déjà été demandée dans le click handler (NavigationButton / ProviderSheet)
+    // La permission boussole a déjà été demandée dans le click handler (ContactActions / ProviderSheet)
     window.addEventListener("deviceorientationabsolute", handleOrientation as EventListener, true);
     window.addEventListener("deviceorientation", handleOrientation as EventListener, true);
     return () => {
@@ -170,9 +155,6 @@ export function NavigationView({ target, onClose }: NavigationViewProps) {
   // ─── Calcul itinéraire OSRM ───────────────────────────────────────────────
   const fetchRoute = useCallback(async (from: { lat: number; lng: number }) => {
     setRouteLoading(true);
-    // Supprimer l'ancienne polyline pendant le recalcul
-    routePolylineRef.current?.remove();
-    routePolylineRef.current = null;
     try {
       const url =
         `https://router.project-osrm.org/route/v1/driving/` +
@@ -206,76 +188,64 @@ export function NavigationView({ target, onClose }: NavigationViewProps) {
 
   // ─── Marker utilisateur + suivi carte ────────────────────────────────────
   useEffect(() => {
-    if (!mapReady || !mapRef.current || !userPos) return;
-    (async () => {
-      const L = (await import("leaflet")).default;
-      const map = mapRef.current!;
-      const html = userMarkerHtml(heading);
-      const icon = L.divIcon({ className: "", html, iconSize: [40, 40], iconAnchor: [20, 20] });
-
-      if (userMarkerRef.current) {
-        userMarkerRef.current.setLatLng([userPos.lat, userPos.lng]);
-        userMarkerRef.current.setIcon(icon);
-      } else {
-        userMarkerRef.current = L.marker([userPos.lat, userPos.lng], { icon })
-          .addTo(map)
-          .bindTooltip("Vous", { direction: "top", offset: [0, -22] });
-      }
-
-      map.setView([userPos.lat, userPos.lng], Math.max(map.getZoom(), 15), { animate: true });
-    })();
-  }, [userPos, mapReady, heading]);
+    const map = mapRef.current;
+    if (!mapReady || !map || !userPos) return;
+    if (userMarkerRef.current) {
+      userMarkerRef.current.setLngLat([userPos.lng, userPos.lat]);
+    } else {
+      userMarkerRef.current = new Marker({ element: createUserDot(heading) })
+        .setLngLat([userPos.lng, userPos.lat])
+        .addTo(map);
+    }
+    map.easeTo({
+      center: [userPos.lng, userPos.lat],
+      zoom: Math.max(map.getZoom(), 15),
+      duration: prefersReducedMotion() ? 0 : 500,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userPos, mapReady]);
 
   // Mise à jour du seul heading (sans bouger) — throttlé à 5°
   useEffect(() => {
     if (!mapReady || !userMarkerRef.current || heading === null) return;
     if (lastHeadingRef.current !== null && Math.abs(heading - lastHeadingRef.current) < 5) return;
     lastHeadingRef.current = heading;
-    (async () => {
-      const L = (await import("leaflet")).default;
-      const icon = L.divIcon({ className: "", html: userMarkerHtml(heading), iconSize: [40, 40], iconAnchor: [20, 20] });
-      userMarkerRef.current?.setIcon(icon);
-    })();
+    setUserDotHeading(userMarkerRef.current.getElement(), heading);
   }, [heading, mapReady]);
 
-  // ─── Tracé polyline ───────────────────────────────────────────────────────
+  // ─── Tracé de l'itinéraire ───────────────────────────────────────────────
   useEffect(() => {
-    if (!mapReady || !mapRef.current || !route || !userPos) return;
-    (async () => {
-      const L = (await import("leaflet")).default;
-      const map = mapRef.current!;
+    const map = mapRef.current;
+    if (!mapReady || !map || !route || !userPos) return;
+    const source = map.getSource<GeoJSONSource>("route");
+    source?.setData({
+      type: "Feature",
+      properties: {},
+      geometry: { type: "LineString", coordinates: route.coordinates },
+    });
 
-      routePolylineRef.current?.remove();
-      const latLngs = route.coordinates.map(([lng, lat]) => [lat, lng] as [number, number]);
-      routePolylineRef.current = L.polyline(latLngs, {
-        color: "#1B6CA8",
-        weight: 6,
-        opacity: 0.85,
-        lineCap: "round",
-        lineJoin: "round",
-      }).addTo(map);
-
-      // Première fois : ajuster la vue pour voir tout l'itinéraire
-      if (!arrived) {
-        map.fitBounds(
-          L.latLngBounds([[userPos.lat, userPos.lng], [target.lat, target.lng]]),
-          { padding: [60, 60], maxZoom: 16 }
-        );
-      }
-    })();
+    // Première fois : ajuster la vue pour voir tout l'itinéraire
+    if (!arrived) {
+      map.fitBounds(
+        new LngLatBounds([userPos.lng, userPos.lat], [userPos.lng, userPos.lat]).extend([target.lng, target.lat]),
+        { padding: 60, maxZoom: 16, duration: prefersReducedMotion() ? 0 : 800 }
+      );
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [route, mapReady]);
 
   // ─── UI ──────────────────────────────────────────────────────────────────
-  return (
+  // Rendue dans <body> : ouverte depuis la barre de contact (fixe, z-40), elle
+  // resterait sinon prise sous la navigation de l'app.
+  return createPortal(
     <div
       className="fixed inset-x-0 bottom-0 z-[999] flex flex-col"
       style={{
         height: "80vh",
         borderRadius: "20px 20px 0 0",
         overflow: "hidden",
-        boxShadow: "0 -8px 40px rgba(0,0,0,0.22)",
-        backgroundColor: "#f0f0f0",
+        boxShadow: "var(--shadow-lg)",
+        backgroundColor: "var(--color-surface-sunk)",
       }}
     >
 
@@ -300,7 +270,7 @@ export function NavigationView({ target, onClose }: NavigationViewProps) {
           style={{ backgroundColor: "rgba(255,255,255,0.2)" }}
           aria-label="Fermer la navigation"
         >
-          <X size={20} color="white" />
+          <X size={20} style={{ color: "var(--color-on-primary)" }} />
         </button>
 
         <div className="min-w-0 flex-1">
@@ -317,15 +287,19 @@ export function NavigationView({ target, onClose }: NavigationViewProps) {
 
         <div className="flex items-center gap-2 flex-shrink-0">
           {routeLoading
-            ? <Loader size={20} color="white" className="animate-spin" />
-            : <Navigation size={20} color="white" />
+            ? <Loader size={20} style={{ color: "var(--color-on-primary)" }} className="animate-spin" />
+            : <Navigation size={20} style={{ color: "var(--color-on-primary)" }} />
           }
         </div>
       </div>
 
       {/* Carte */}
       <div className="relative flex-1 min-h-0">
-        <div ref={containerRef} className="absolute inset-0" />
+        {mapUnavailable ? (
+          <MapUnavailable className="absolute inset-0" lat={target.lat} lng={target.lng} />
+        ) : (
+          <div ref={containerRef} className="absolute inset-0" />
+        )}
 
         {gpsError && (
           <div
@@ -353,7 +327,7 @@ export function NavigationView({ target, onClose }: NavigationViewProps) {
         style={{
           backgroundColor: "var(--color-surface)",
           borderTop: "1px solid var(--color-border)",
-          boxShadow: "0 -4px 16px rgba(0,0,0,0.08)",
+          boxShadow: "var(--shadow-md)",
           paddingTop: "16px",
           paddingBottom: "max(env(safe-area-inset-bottom), 16px)",
         }}
@@ -390,6 +364,7 @@ export function NavigationView({ target, onClose }: NavigationViewProps) {
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

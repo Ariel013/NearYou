@@ -1,7 +1,79 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/server";
+import { z } from "zod";
 import { contactEventSchema } from "@/lib/validations";
+import { authorizeProviderOwner } from "@/lib/provider-owner";
 import type { ApiResponse } from "@/types";
+
+const DAYS = 14;
+const MAX_ROWS = 5000;
+const CONTACT_TYPES = ["call", "whatsapp", "itinerary"] as const;
+type ContactType = (typeof CONTACT_TYPES)[number];
+
+export interface ContactDay {
+  /** Jour UTC, AAAA-MM-JJ */
+  date: string;
+  call: number;
+  whatsapp: number;
+  itinerary: number;
+}
+
+export interface ContactStats {
+  /** Les 14 derniers jours, du plus ancien à aujourd'hui */
+  days: ContactDay[];
+}
+
+/**
+ * Mises en contact des 14 derniers jours, par jour et par type. Réservé au
+ * propriétaire de la fiche : ce sont ses chiffres, pas une donnée publique.
+ */
+export async function GET(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  if (!z.string().uuid().safeParse(id).success) {
+    return NextResponse.json<ApiResponse<never>>({ data: null, error: "Fiche inconnue" }, { status: 400 });
+  }
+
+  try {
+    const owner = await authorizeProviderOwner(id);
+    if (!owner.ok) return owner.response;
+
+    const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
+    const since = new Date(today.getTime() - (DAYS - 1) * 86_400_000);
+
+    const { data, error } = await owner.supabase
+      .from("contacts")
+      .select("contact_type, created_at")
+      .eq("provider_id", id)
+      .gte("created_at", since.toISOString())
+      .limit(MAX_ROWS);
+    if (error) throw error;
+
+    const days: ContactDay[] = Array.from({ length: DAYS }, (_, i) => ({
+      date: new Date(since.getTime() + i * 86_400_000).toISOString().slice(0, 10),
+      call: 0,
+      whatsapp: 0,
+      itinerary: 0,
+    }));
+    const byDate = new Map(days.map((d) => [d.date, d]));
+    for (const row of data ?? []) {
+      const day = byDate.get(String(row.created_at).slice(0, 10));
+      const type = row.contact_type as ContactType;
+      if (day && CONTACT_TYPES.includes(type)) day[type] += 1;
+    }
+
+    return NextResponse.json<ApiResponse<ContactStats>>({ data: { days }, error: null });
+  } catch (err) {
+    console.error("[contacts GET]", err);
+    return NextResponse.json<ApiResponse<never>>(
+      { data: null, error: "Statistiques indisponibles" },
+      { status: 500 }
+    );
+  }
+}
 
 export async function POST(
   req: NextRequest,

@@ -7,8 +7,13 @@ export interface ApiResponse<T> {
   error: string | null;
 }
 
-// Provider base sans le champ location (hex WKB non utilisable côté client)
-type ProviderBase = Omit<Provider, "location">;
+// Fiche telle qu'exposée au public : sans location (hex WKB non utilisable
+// côté client) ni claimed_by_phone (donnée personnelle du propriétaire)
+export type PublicProvider = Omit<Provider, "location" | "claimed_by_phone">;
+type ProviderBase = PublicProvider;
+
+// Avis tel qu'exposé au public : sans le numéro de son auteur
+export type PublicReview = Omit<Review, "reviewer_phone">;
 
 export interface ProviderWithDistance extends ProviderBase {
   lat: number;
@@ -24,7 +29,7 @@ export interface ProviderFull extends ProviderBase {
   distance_km?: number;
   categories: Category[];
   photos: ProviderPhoto[];
-  reviews: Review[];
+  reviews: PublicReview[];
   disabled_at: string | null;
 }
 
@@ -39,7 +44,7 @@ export interface SearchFilters {
 
 export interface ClaimResult {
   found: boolean;
-  provider?: Provider;
+  provider?: PublicProvider;
 }
 
 export const MAX_RADIUS_KM = 50;

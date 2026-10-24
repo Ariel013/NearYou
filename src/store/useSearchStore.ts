@@ -11,12 +11,10 @@ interface SearchStore {
   radius: number;
   activeCategory: string | null;
   query: string;
-  viewMode: "map" | "list";
   setPosition: (pos: Position) => void;
   setRadius: (r: number) => void;
   setActiveCategory: (slug: string | null) => void;
   setQuery: (q: string) => void;
-  setViewMode: (mode: "map" | "list") => void;
   resetFilters: () => void;
 }
 
@@ -25,12 +23,10 @@ export const useSearchStore = create<SearchStore>((set) => ({
   radius: DEFAULT_RADIUS_KM,
   activeCategory: null,
   query: "",
-  viewMode: "map",
   setPosition: (pos) => set({ position: pos }),
   setRadius: (radius) => set({ radius }),
   setActiveCategory: (activeCategory) => set({ activeCategory }),
   setQuery: (query) => set({ query }),
-  setViewMode: (viewMode) => set({ viewMode }),
   resetFilters: () =>
     set({ activeCategory: null, query: "", radius: DEFAULT_RADIUS_KM }),
 }));

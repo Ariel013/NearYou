@@ -7,6 +7,6 @@ export const MapViewDynamic = dynamic(
   () => import("./MapView").then((m) => m.MapView),
   {
     ssr: false,
-    loading: () => <Skeleton className="h-[50vh] w-full rounded-2xl" />,
+    loading: () => <Skeleton className="absolute inset-0 rounded-none" />,
   }
 );

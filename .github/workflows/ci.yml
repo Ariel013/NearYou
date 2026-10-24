@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches: [dev, staging, main]
+  pull_request:
+
+jobs:
+  verifier:
+    runs-on: ubuntu-latest
+    env:
+      # Valeurs factices : le build ne contacte pas la base
+      NEXT_PUBLIC_SUPABASE_URL: https://exemple.supabase.co
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: cle-factice
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+      NEXT_PUBLIC_MAP_TILE_URL: https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png
+      NEXT_PUBLIC_DEFAULT_LAT: "6.3659"
+      NEXT_PUBLIC_DEFAULT_LNG: "2.4183"
+      NEXT_PUBLIC_DEFAULT_RADIUS_KM: "5"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Types
+        run: npx tsc --noEmit
+      # Lint à ajouter ici une fois ses 6 erreurs existantes corrigées
+      # (docs/roadmap-backlog.md)
+      - name: Build
+        run: npm run build

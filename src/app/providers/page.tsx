@@ -1,212 +1,238 @@
 "use client";
 
-import { Suspense, useEffect, useMemo } from "react";
-import { Map, List } from "lucide-react";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { BottomNav } from "@/components/shared/BottomNav";
+import { LocateFixed, Loader, RotateCw } from "lucide-react";
+import { toast } from "sonner";
+import { AppNav } from "@/components/shared/AppNav";
 import { SearchBar } from "@/components/search/SearchBar";
 import { ProviderList } from "@/components/providers/ProviderList";
-import { ProviderSheet } from "@/components/providers/ProviderSheet";
+import { ProviderPreview, ProviderSheet } from "@/components/providers/ProviderSheet";
 import { MapViewDynamic } from "@/components/map/MapViewDynamic";
 import { NavigationViewDynamic } from "@/components/map/NavigationViewDynamic";
+import { ExploreSheet, type SheetSnap } from "@/components/explore/ExploreSheet";
+import { CategoryChips, RadiusPicker, RADIUS_OPTIONS } from "@/components/explore/ExploreFilters";
 import { useSearchStore } from "@/store/useSearchStore";
 import { useProviders } from "@/hooks/useProviders";
-import { useState } from "react";
-import type { ProviderWithDistance } from "@/types";
+import { useMediaQuery, DESKTOP_QUERY } from "@/hooks/useMediaQuery";
+import { DEFAULT_LAT, DEFAULT_LNG, type ProviderWithDistance } from "@/types";
 
 interface NavTarget { name: string; lat: number; lng: number }
 
+/** Écart approximatif en km, suffisant pour décider d'un « chercher ici ». */
+function roughKm(a: { lat: number; lng: number }, b: { lat: number; lng: number }) {
+  const dLat = (a.lat - b.lat) * 111;
+  const dLng = (a.lng - b.lng) * 111 * Math.cos((a.lat * Math.PI) / 180);
+  return Math.hypot(dLat, dLng);
+}
+
 function ProvidersPageContent() {
   const searchParams = useSearchParams();
-  const {
-    position,
-    radius,
-    activeCategory,
-    setActiveCategory,
-    viewMode,
-    setViewMode,
-    query,
-  } = useSearchStore();
+  const isDesktop = useMediaQuery(DESKTOP_QUERY);
+  const { position, setPosition, radius, setRadius, activeCategory, setActiveCategory, query } = useSearchStore();
 
   const [selectedProvider, setSelectedProvider] = useState<ProviderWithDistance | null>(null);
   const [navTarget, setNavTarget] = useState<NavTarget | null>(null);
+  const [snap, setSnap] = useState<SheetSnap>("half");
+  const [coveredPx, setCoveredPx] = useState(0);
+  const [movedTo, setMovedTo] = useState<{ lat: number; lng: number } | null>(null);
+  const [locating, setLocating] = useState(false);
 
-  // Sync category from URL param
+  // Paramètres d'URL : catégorie depuis l'accueil, position depuis un lien partagé
   useEffect(() => {
     const cat = searchParams.get("category");
     if (cat) setActiveCategory(cat);
-  }, [searchParams, setActiveCategory]);
+    const lat = Number(searchParams.get("lat"));
+    const lng = Number(searchParams.get("lng"));
+    if (searchParams.has("lat") && searchParams.has("lng") && Number.isFinite(lat) && Number.isFinite(lng)
+      && Math.abs(lat) <= 90 && Math.abs(lng) <= 180) {
+      setPosition({ lat, lng });
+    }
+  }, [searchParams, setActiveCategory, setPosition]);
 
-  const filters = useMemo(() => {
-    if (!position) return null;
-    return {
-      lat: position.lat,
-      lng: position.lng,
-      radius_km: radius,
-      category_slug: activeCategory ?? undefined,
-      q: query || undefined,
-      sort: "distance" as const,
-    };
-  }, [position, radius, activeCategory, query]);
+  const searchCenter = position ?? { lat: DEFAULT_LAT, lng: DEFAULT_LNG };
 
-  const { providers, isLoading } = useProviders(filters);
+  const filters = useMemo(() => ({
+    lat: searchCenter.lat,
+    lng: searchCenter.lng,
+    radius_km: radius,
+    category_slug: activeCategory ?? undefined,
+    q: query || undefined,
+    sort: "distance" as const,
+  }), [searchCenter.lat, searchCenter.lng, radius, activeCategory, query]);
 
-  // Quand un prestataire est sélectionné, centrer la carte sur lui
-  const defaultCenter = position ?? { lat: 6.3659, lng: 2.4183 };
-  const center = selectedProvider &&
-    Number.isFinite(selectedProvider.lat) && Number.isFinite(selectedProvider.lng)
+  const { providers, isLoading, error } = useProviders(filters);
+
+  const mapCenter = selectedProvider && Number.isFinite(selectedProvider.lat) && Number.isFinite(selectedProvider.lng)
     ? { lat: selectedProvider.lat, lng: selectedProvider.lng }
-    : defaultCenter;
+    : searchCenter;
+
+  const selectById = useCallback((id: string) => {
+    const p = providers.find((x) => x.id === id);
+    if (p) setSelectedProvider(p);
+  }, [providers]);
+
+  const handleUserMove = useCallback((c: { lat: number; lng: number }) => {
+    setMovedTo(c);
+  }, []);
+  const showSearchHere = movedTo !== null && roughKm(movedTo, searchCenter) > Math.max(radius * 0.3, 0.5);
+
+  function searchHere() {
+    if (!movedTo) return;
+    setSelectedProvider(null);
+    setPosition(movedTo);
+    setMovedTo(null);
+  }
+
+  function locateMe() {
+    if (!navigator.geolocation) {
+      toast.error("La localisation n'est pas disponible sur cet appareil.");
+      return;
+    }
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setLocating(false);
+        setSelectedProvider(null);
+        setMovedTo(null);
+        setPosition({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+      },
+      () => {
+        setLocating(false);
+        toast.error("Position introuvable. Autorisez la localisation, ou déplacez la carte.");
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  }
+
+  const widen = radius < RADIUS_OPTIONS[RADIUS_OPTIONS.length - 1]
+    ? () => setRadius(RADIUS_OPTIONS[RADIUS_OPTIONS.length - 1])
+    : undefined;
+
+  const countLabel = isLoading
+    ? "Recherche…"
+    : `${providers.length} prestataire${providers.length !== 1 ? "s" : ""} à moins de ${radius} km`;
+
+  const list = (
+    <ProviderList
+      providers={providers}
+      isLoading={isLoading}
+      error={error}
+      onSelect={selectById}
+      selectedId={selectedProvider?.id}
+      radiusKm={radius}
+      onWiden={widen}
+    />
+  );
 
   return (
-    <main className="flex flex-col min-h-screen pb-20" style={{ backgroundColor: "var(--color-bg)" }}>
-      {/* Sticky header with search + toggle */}
-      <div
-        className="sticky top-0 z-40 px-4 py-3 space-y-3"
-        style={{ backgroundColor: "var(--color-surface)", borderBottom: "1px solid var(--color-border)" }}
-      >
-        <SearchBar placeholder="Rechercher un prestataire…" />
+    <main className="explore" style={{ backgroundColor: "var(--color-bg)" }}>
+      {/* ─── Ordinateur : panneau de gauche ─── */}
+      <aside className="explore-panel hidden lg:flex" aria-label="Recherche et résultats">
+        <div className="space-y-3 border-b px-5 pt-5 pb-4" style={{ borderColor: "var(--color-border)" }}>
+          <h1 className="font-bold" style={{ fontFamily: "var(--font-display)", fontSize: "var(--text-xl)" }}>
+            Explorer
+          </h1>
+          <SearchBar placeholder="Un métier, un nom…" />
+          <CategoryChips active={activeCategory} onChange={setActiveCategory} />
+          <RadiusPicker value={radius} onChange={setRadius} />
+        </div>
+        <div className="min-h-0 flex-1 overflow-y-auto px-3 py-3">
+          {isDesktop && selectedProvider ? (
+            <div className="px-2 py-1">
+              <ProviderPreview
+                key={selectedProvider.id}
+                provider={selectedProvider}
+                onClose={() => setSelectedProvider(null)}
+                onNavigate={setNavTarget}
+                showBack
+              />
+            </div>
+          ) : (
+            <>
+              <p className="px-2 pb-2" aria-live="polite" style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)" }}>
+                {countLabel}
+              </p>
+              {list}
+            </>
+          )}
+        </div>
+      </aside>
 
-        {/* View toggle */}
-        <div className="flex items-center justify-between">
-          <div
-            className="flex rounded-full p-1 gap-1"
-            style={{ backgroundColor: "var(--color-border)" }}
-          >
-            {(["list", "map"] as const).map((mode) => (
-              <button
-                key={mode}
-                onClick={() => setViewMode(mode)}
-                className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-all"
-                style={{
-                  backgroundColor: viewMode === mode ? "var(--color-surface)" : "transparent",
-                  color: viewMode === mode ? "var(--color-primary)" : "var(--color-text-muted)",
-                  boxShadow: viewMode === mode ? "var(--shadow-sm)" : "none",
-                  fontSize: "var(--text-xs)",
-                }}
-                aria-pressed={viewMode === mode}
-                aria-label={mode === "map" ? "Vue carte" : "Vue liste"}
-              >
-                {mode === "map" ? <Map size={14} /> : <List size={14} />}
-                {mode === "map" ? "Carte" : "Liste"}
-              </button>
-            ))}
-          </div>
-          <span style={{ color: "var(--color-text-muted)", fontSize: "var(--text-xs)" }}>
-            {isLoading ? "Chargement…" : `${providers.length} prestataire${providers.length !== 1 ? "s" : ""}`}
-          </span>
+      {/* ─── Carte ─── */}
+      <div className="explore-map">
+        <MapViewDynamic
+          center={mapCenter}
+          providers={providers}
+          selectedProviderId={selectedProvider?.id}
+          onMarkerClick={setSelectedProvider}
+          onUserMove={handleUserMove}
+          paddingBottom={isDesktop ? 0 : coveredPx}
+          className="absolute inset-0"
+        />
+
+        {/* Téléphone : recherche et catégories flottent sur la carte */}
+        <div className="explore-topbar lg:hidden">
+          <SearchBar placeholder="Un métier, un nom…" />
+          <CategoryChips active={activeCategory} onChange={setActiveCategory} floating />
         </div>
 
-        {/* Category chips */}
-        <div className="overflow-x-auto pb-1 -mx-4 px-4">
-          <div className="flex gap-2 w-max">
-            <button
-              onClick={() => setActiveCategory(null)}
-              className="rounded-full px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-all"
-              style={{
-                backgroundColor: !activeCategory ? "var(--color-primary)" : "var(--color-surface)",
-                color: !activeCategory ? "white" : "var(--color-text-muted)",
-                border: `1px solid ${!activeCategory ? "var(--color-primary)" : "var(--color-border)"}`,
-              }}
-            >
-              Tous
+        <div className="explore-map-actions">
+          {showSearchHere && (
+            <button type="button" onClick={searchHere} className="map-chip map-chip--strong">
+              <RotateCw size={15} aria-hidden />
+              Chercher dans cette zone
             </button>
-            {[
-              { slug: "menuiserie", name: "Menuiserie" },
-              { slug: "plomberie", name: "Plomberie" },
-              { slug: "electricite", name: "Électricité" },
-              { slug: "menage", name: "Ménage" },
-              { slug: "mecanique", name: "Mécanique" },
-              { slug: "informatique", name: "Informatique" },
-            ].map(({ slug, name }) => (
-              <button
-                key={slug}
-                onClick={() => setActiveCategory(activeCategory === slug ? null : slug)}
-                className="rounded-full px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-all"
-                style={{
-                  backgroundColor: activeCategory === slug ? "var(--color-primary)" : "var(--color-surface)",
-                  color: activeCategory === slug ? "white" : "var(--color-text-muted)",
-                  border: `1px solid ${activeCategory === slug ? "var(--color-primary)" : "var(--color-border)"}`,
-                }}
-              >
-                {name}
-              </button>
-            ))}
-          </div>
+          )}
         </div>
+
+        <button
+          type="button"
+          onClick={locateMe}
+          disabled={locating}
+          aria-label="Me localiser"
+          className="map-chip explore-locate"
+        >
+          {locating ? <Loader size={16} className="animate-spin" aria-hidden /> : <LocateFixed size={16} aria-hidden />}
+        </button>
+
+        {/* Téléphone : résultats dans un panneau à tirer */}
+        {!isDesktop && (
+          <ExploreSheet
+            snap={snap}
+            onSnapChange={setSnap}
+            onCoveredHeight={setCoveredPx}
+            header={
+              <div className="space-y-2 px-4 pb-3">
+                <p className="font-semibold" aria-live="polite" style={{ fontSize: "var(--text-sm)" }}>
+                  {countLabel}
+                </p>
+                <RadiusPicker value={radius} onChange={setRadius} />
+              </div>
+            }
+          >
+            {list}
+          </ExploreSheet>
+        )}
       </div>
 
-      {/* Content */}
-      {viewMode === "map" ? (
-        <div className="relative" style={{ height: "42vh" }}>
-          <MapViewDynamic
-            center={center}
-            providers={providers}
-            selectedProviderId={selectedProvider?.id}
-            onMarkerClick={setSelectedProvider}
-            className="absolute inset-0 w-full h-full"
-            interactive={!selectedProvider}
-          />
-        </div>
-      ) : (
-        <div className="px-4 py-4">
-          <ProviderList
-            providers={providers}
-            isLoading={isLoading}
-            onSelect={(id) => {
-              const p = providers.find((x) => x.id === id);
-              if (p) setSelectedProvider(p);
-            }}
-          />
-        </div>
-      )}
-
-      {/* Radius slider */}
-      <div
-        className="px-5 py-3"
-        style={{
-          backgroundColor: "var(--color-surface)",
-          borderTop: "1px solid var(--color-border)",
-        }}
-      >
-        <div className="flex items-center gap-3">
-          <span style={{ color: "var(--color-text-muted)", fontSize: "var(--text-xs)", whiteSpace: "nowrap" }}>
-            Rayon :
-          </span>
-          <input
-            type="range"
-            min={1}
-            max={20}
-            value={radius}
-            onChange={(e) => useSearchStore.getState().setRadius(Number(e.target.value))}
-            className="flex-1"
-            aria-label="Rayon de recherche en km"
-          />
-          <span style={{ color: "var(--color-text-muted)", fontSize: "var(--text-xs)", whiteSpace: "nowrap" }}>
-            {radius} km
-          </span>
-        </div>
-      </div>
-
-      <ProviderSheet
-        provider={selectedProvider}
-        open={!!selectedProvider}
-        onClose={() => setSelectedProvider(null)}
-        onNavigate={(target) => {
-          setSelectedProvider(null);
-          setNavTarget(target);
-        }}
-      />
-
-      {/* Navigation plein écran — rendu au niveau page pour dépasser le z-index du Sheet */}
-      {navTarget && (
-        <NavigationViewDynamic
-          target={navTarget}
-          onClose={() => setNavTarget(null)}
+      {!isDesktop && (
+        <ProviderSheet
+          provider={selectedProvider}
+          open={!!selectedProvider}
+          onClose={() => setSelectedProvider(null)}
+          onNavigate={(target) => {
+            setSelectedProvider(null);
+            setNavTarget(target);
+          }}
         />
       )}
 
-      <BottomNav />
+      {navTarget && (
+        <NavigationViewDynamic target={navTarget} onClose={() => setNavTarget(null)} />
+      )}
+
+      <AppNav />
     </main>
   );
 }

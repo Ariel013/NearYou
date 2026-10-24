@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/server";
 import { normalizePhoneE164 } from "@/lib/phone";
 import { reviewSchema } from "@/lib/validations";
-import type { ApiResponse } from "@/types";
+import type { ApiResponse, PublicReview } from "@/types";
 import type { Review } from "@/lib/supabase/types";
+import { toPublicReview } from "@/lib/public-data";
 
 export async function GET(
   _req: NextRequest,
@@ -21,7 +22,7 @@ export async function GET(
 
     if (error) throw error;
 
-    return NextResponse.json<ApiResponse<Review[]>>({ data: data ?? [], error: null });
+    return NextResponse.json<ApiResponse<PublicReview[]>>({ data: ((data ?? []) as Review[]).map(toPublicReview), error: null });
   } catch (err) {
     console.error("[reviews GET]", err);
     return NextResponse.json<ApiResponse<never>>(
@@ -96,7 +97,7 @@ export async function POST(
       throw error;
     }
 
-    return NextResponse.json<ApiResponse<Review>>({ data, error: null }, { status: 201 });
+    return NextResponse.json<ApiResponse<PublicReview>>({ data: toPublicReview(data as Review), error: null }, { status: 201 });
   } catch (err) {
     console.error("[reviews POST]", err);
     return NextResponse.json<ApiResponse<never>>(

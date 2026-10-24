@@ -30,6 +30,25 @@ export const CATEGORIES = [
   { slug: "autre", name: "Autre", icon_name: "MoreHorizontal" },
 ];
 
+/** Tous les métiers, en pastilles qui passent à la ligne : aucun nom coupé. */
+export function CategoryPills() {
+  return (
+    <ul className="flex flex-wrap gap-2">
+      {CATEGORIES.map(({ slug, name, icon_name }) => {
+        const Icon = ICON_MAP[icon_name] ?? MoreHorizontal;
+        return (
+          <li key={slug}>
+            <Link href={`/providers?category=${slug}`} className="category-pill">
+              <Icon size={16} aria-hidden />
+              {name}
+            </Link>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
 interface CategoryGridProps {
   limit?: number;
   activeSlug?: string | null;

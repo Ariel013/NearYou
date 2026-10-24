@@ -102,7 +102,7 @@ function CategoryChip({ label, active, onClick }: { label: string; active: boole
       className="rounded-full px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-all"
       style={{
         backgroundColor: active ? "var(--color-primary)" : "var(--color-surface)",
-        color: active ? "white" : "var(--color-text-muted)",
+        color: active ? "var(--color-on-primary)" : "var(--color-text-muted)",
         border: `1px solid ${active ? "var(--color-primary)" : "var(--color-border)"}`,
       }}
     >
