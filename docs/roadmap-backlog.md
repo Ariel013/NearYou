@@ -100,6 +100,7 @@ prod ; le maintien en vie (lecture de `categories` en anon) fonctionne encore.
 ## Plus tard (non ordonné)
 
 - Le comptage public des contacts (`POST /api/providers/[id]/contacts`) n'a ni limite de débit ni validation UUID : n'importe qui peut gonfler les chiffres du tableau de bord (intégrité, pas de fuite). Relevé par la revue du lot 6.
+- Les suggestions d'adresses (`/api/geocode`, `/api/geocode/reverse`, ADR 0005) relaient vers le service public Photon sans limite de débit : un abus se reporterait sur Photon et pourrait faire bloquer notre serveur. À traiter avec la limite de débit ci-dessus.
 
 - OTP SMS (`/api/otp/send`, `/api/otp/verify`) : code à 6 chiffres tiré par
   `Math.random`, aucune limite de tentatives — un code se force en 10⁶ essais

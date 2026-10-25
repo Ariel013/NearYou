@@ -41,6 +41,7 @@ first** (320 → 390 → 768 → 1280 px).
 | Langage | TypeScript strict |
 | Styles / UI | Tailwind CSS v4 + custom properties, composants shadcn/ui |
 | Cartes | MapLibre GL JS sur tuiles vectorielles OpenFreeMap, restylées à la charte, vue 3D — ADR 0004 |
+| Adresses | Suggestions et quartier d'un point par Photon (OpenStreetMap), appelé par `/api/geocode` — ADR 0005 |
 | Base | Supabase (PostgreSQL 17 + PostGIS), **client Supabase direct** (`@supabase/ssr`), pas d'ORM |
 | Formulaires | React Hook Form + Zod (validation client **et** serveur) |
 | État client | Zustand |

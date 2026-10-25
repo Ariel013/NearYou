@@ -180,6 +180,18 @@ sur une vraie localisation. Mesuré en navigateur simulé : autorisée → carte
 centrée sur l'usager avec son point ; refusée → aucun point ; lien partagé →
 recherche sur la position du lien. Build vert. Non testé : vrai téléphone.
 
+### 2026-10-25 — Suggestions d'adresses à la création de fiche
+
+Le champ Adresse propose rues, quartiers et lieux repères du Bénin et de la
+Côte d'Ivoire pendant la frappe (Photon, OpenStreetMap, via notre API : ADR
+0005). Choisir une proposition place l'épingle ; poser l'épingle remplit le
+quartier tant que rien n'a été tapé ; le texte libre reste accepté. Mesuré :
+« fidjross » → Fidjrossé (Cotonou) en tête, l'épingle saute au lieu ; position
+de départ à Cotonou → « Abokicodji-Lagune, Cotonou » prérempli ; requête trop
+courte → 400 ; build vert. Constat : sans tri, Photon mettait le Fidjrossè de
+Dangbo avant celui de Cotonou ; la proximité prime désormais par tranches de
+10 km. Non testé : vrai téléphone (clavier ouvert), panne de Photon.
+
 ## 🎓 Leçons apprises
 
 *Une entrée dès qu'une erreur est commise et corrigée. Format : symptôme →
