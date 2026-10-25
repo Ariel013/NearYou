@@ -29,7 +29,7 @@ function roughKm(a: { lat: number; lng: number }, b: { lat: number; lng: number 
 function ProvidersPageContent() {
   const searchParams = useSearchParams();
   const isDesktop = useMediaQuery(DESKTOP_QUERY);
-  const { position, setPosition, setUserPosition, radius, setRadius, activeCategory, setActiveCategory, query } = useSearchStore();
+  const { position, userPosition, setPosition, setUserPosition, radius, setRadius, activeCategory, setActiveCategory, query } = useSearchStore();
 
   const [selectedProvider, setSelectedProvider] = useState<ProviderWithDistance | null>(null);
   const [navTarget, setNavTarget] = useState<NavTarget | null>(null);
@@ -192,6 +192,7 @@ function ProvidersPageContent() {
           center={mapCenter}
           providers={providers}
           selectedProviderId={selectedProvider?.id}
+          userPosition={userPosition ?? undefined}
           onMarkerClick={setSelectedProvider}
           onUserMove={handleUserMove}
           paddingBottom={isDesktop ? 0 : coveredPx}

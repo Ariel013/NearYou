@@ -168,6 +168,18 @@ horizontal à 390, 768 et 1440 px, aucun bouton visible sous 44 px dans
 l'explorer à 390 px, distance affichée après localisation simulée. Non testé :
 fiche revendiquée (aucune n'existe), vrai téléphone.
 
+### 2026-10-25 — Localisation demandée à l'ouverture
+
+Kevin, ouvrant l'app, se voyait « localisé » à Abidjan sans y être. Cause : le
+point « vous êtes ici » de la carte retombait sur le centre de la recherche,
+c'est-à-dire la ville par défaut. Désormais la position est demandée dès
+l'ouverture, sur n'importe quelle page hors admin, une fois par chargement ;
+elle ne déplace la recherche que si son centre est encore celui par défaut
+(un lien partagé avec une position garde la sienne). Le point n'apparaît que
+sur une vraie localisation. Mesuré en navigateur simulé : autorisée → carte
+centrée sur l'usager avec son point ; refusée → aucun point ; lien partagé →
+recherche sur la position du lien. Build vert. Non testé : vrai téléphone.
+
 ## 🎓 Leçons apprises
 
 *Une entrée dès qu'une erreur est commise et corrigée. Format : symptôme →
@@ -238,3 +250,5 @@ Cause : le store initialise `position` sur Cotonou, et la carte la déplace
 aussi (« chercher ici ») ; c'est le centre de la recherche, pas l'usager.
 Règle : un « de vous » ne se calcule que sur une position issue d'une
 géolocalisation réussie (`userPosition`), jamais sur un centre de recherche.
+Seconde occurrence le même jour : le point « vous êtes ici » de la carte
+retombait lui aussi sur le centre, d'où un usager « à Abidjan ».

@@ -19,6 +19,7 @@ const PREVIEW_RADIUS_KM = 10;
 /** Aperçu vivant : la vraie carte et le vrai nombre de prestataires autour. */
 export function NearbyPreview() {
   const position = useSearchStore((s) => s.position);
+  const userPosition = useSearchStore((s) => s.userPosition);
   const center = position ?? { lat: DEFAULT_LAT, lng: DEFAULT_LNG };
   const filters = useMemo(
     () => ({ lat: center.lat, lng: center.lng, radius_km: PREVIEW_RADIUS_KM, sort: "distance" as const }),
@@ -44,6 +45,7 @@ export function NearbyPreview() {
         <MapViewDynamic
           center={center}
           providers={providers}
+          userPosition={userPosition ?? undefined}
           zoom={13.5}
           initialTilt
           interactive={false}
