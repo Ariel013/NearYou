@@ -11,15 +11,19 @@ interface LocationPickerProps {
   initialLat?: number;
   initialLng?: number;
   onChange: (pos: { lat: number; lng: number }) => void;
+  /** Position imposée de l'extérieur (une adresse choisie) : l'épingle et la carte s'y rendent. */
+  position?: { lat: number; lng: number };
 }
 
 export function LocationPicker({
   initialLat = DEFAULT_LAT,
   initialLng = DEFAULT_LNG,
   onChange,
+  position,
 }: LocationPickerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
+  const markerRef = useRef<Marker | null>(null);
   const [coords, setCoords] = useState({ lat: initialLat, lng: initialLng });
   // Composant chargé côté client seulement (ssr: false) : WebGL se teste au montage.
   const [unavailable, setUnavailable] = useState(() => !webglSupported());
@@ -45,6 +49,7 @@ export function LocationPicker({
         const marker = new Marker({ element, anchor: "bottom", draggable: true })
           .setLngLat([initialLng, initialLat])
           .addTo(map);
+        markerRef.current = marker;
 
         marker.on("dragend", () => {
           const { lat, lng } = marker.getLngLat();
@@ -61,9 +66,24 @@ export function LocationPicker({
       cancelled = true;
       mapRef.current?.remove();
       mapRef.current = null;
+      markerRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Adresse choisie : l'épingle saute au lieu, la carte suit
+  const [shown, setShown] = useState(position);
+  if (position && (position.lat !== shown?.lat || position.lng !== shown?.lng)) {
+    setShown(position);
+    setCoords(position);
+  }
+  useEffect(() => {
+    if (!shown || !markerRef.current || !mapRef.current) return;
+    const current = markerRef.current.getLngLat();
+    if (current.lat === shown.lat && current.lng === shown.lng) return;
+    markerRef.current.setLngLat([shown.lng, shown.lat]);
+    mapRef.current.easeTo({ center: [shown.lng, shown.lat], zoom: Math.max(mapRef.current.getZoom(), 16) });
+  }, [shown]);
 
   return (
     <div>
