@@ -1,10 +1,10 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { MapPin, Star, Radius, CalendarDays } from "lucide-react";
+import { Star, Radius, CalendarDays, ExternalLink } from "lucide-react";
 import { AppNav } from "@/components/shared/AppNav";
 import { BadgeVerified } from "@/components/shared/BadgeVerified";
-import { parseWkbPoint } from "@/lib/geo";
+import { buildMapsLink, parseWkbPoint } from "@/lib/geo";
 import { createServiceClient } from "@/lib/supabase/server";
 import type { ProviderFull, PublicReview } from "@/types";
 import { toPublicReview } from "@/lib/public-data";
@@ -13,6 +13,8 @@ import { ProviderDetailMap } from "@/components/map/ProviderDetailMap";
 import { ContactActions } from "./ContactActions";
 import { ReportButton, ReviewButton } from "./ProviderActions";
 import { MediaOnly } from "@/components/shared/MediaOnly";
+import { ProviderPlace } from "./ProviderPlace";
+import { ShareButton } from "./ShareButton";
 
 async function getProvider(id: string): Promise<ProviderFull | null> {
   try {
@@ -102,11 +104,25 @@ export default async function ProviderPage({
   const cover = provider.photos?.find((p) => p.is_cover) ?? provider.photos?.[0];
   const { lat, lng } = provider;
   const location = Number.isFinite(lat) && Number.isFinite(lng) && !(lat === 0 && lng === 0) ? { lat, lng } : null;
-  const initials = provider.name.split(" ").map((n) => n[0]).slice(0, 2).join("").toUpperCase();
+  // Même lettre que l'épingle de la carte : on reconnaît le prestataire d'un écran à l'autre
+  const initial = provider.name.trim().slice(0, 1).toUpperCase();
   const since = new Date(provider.created_at).toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
   const reviews = provider.reviews ?? [];
+  const category = provider.categories?.[0]?.name ?? null;
   const contact = (
     <ContactActions providerId={provider.id} phone={provider.contact_phone} name={provider.name} location={location} />
+  );
+  const mapsLink = location && (
+    <a
+      href={buildMapsLink(location.lat, location.lng)}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-flex min-h-[44px] items-center gap-1.5 font-medium underline underline-offset-4"
+      style={{ fontSize: "var(--text-sm)", color: "var(--color-primary)" }}
+    >
+      <ExternalLink size={14} aria-hidden />
+      Ouvrir dans Maps
+    </a>
   );
 
   return (
@@ -131,7 +147,7 @@ export default async function ProviderPage({
             <BackButton />
           </div>
 
-          {/* Identité */}
+          {/* Identité : qui, quoi, où et à quelle distance */}
           <header className="flex items-start gap-4">
             <span
               aria-hidden
@@ -143,7 +159,7 @@ export default async function ProviderPage({
                 fontSize: "var(--text-xl)",
               }}
             >
-              {initials}
+              {initial}
             </span>
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
@@ -160,44 +176,43 @@ export default async function ProviderPage({
                   {provider.categories.map((c) => c.name).join(" · ")}
                 </p>
               )}
-              <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1" style={{ fontSize: "var(--text-sm)" }}>
-                <span className="flex items-center gap-1.5">
-                  <span
-                    aria-hidden
-                    className="h-2 w-2 rounded-full"
-                    style={{ backgroundColor: provider.available ? "var(--color-success)" : "var(--color-text-light)" }}
-                  />
-                  {provider.available ? "Disponible" : "Occupé en ce moment"}
-                </span>
-                {provider.review_count > 0 ? (
-                  <a href="#avis" className="flex items-center gap-1.5">
-                    <Star size={14} fill="var(--color-accent)" stroke="none" aria-hidden />
-                    <span className="tabular">{provider.avg_rating.toFixed(1)}</span>
-                    <span style={{ color: "var(--color-text-muted)" }}>· {provider.review_count} avis</span>
-                  </a>
-                ) : (
-                  <span style={{ color: "var(--color-text-muted)" }}>Pas encore d&apos;avis</span>
-                )}
-              </p>
+              <ProviderPlace address={provider.address_label} location={location} />
+              {/* La disponibilité n'a de sens que déclarée par le prestataire lui-même */}
+              {(provider.claimed_at || provider.review_count > 0) && (
+                <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1" style={{ fontSize: "var(--text-sm)" }}>
+                  {provider.claimed_at && (
+                    <span className="flex items-center gap-1.5">
+                      <span
+                        aria-hidden
+                        className="h-2 w-2 rounded-full"
+                        style={{ backgroundColor: provider.available ? "var(--color-success)" : "var(--color-text-light)" }}
+                      />
+                      {provider.available ? "Disponible" : "Occupé en ce moment"}
+                      <span style={{ color: "var(--color-text-muted)" }}>, selon le prestataire</span>
+                    </span>
+                  )}
+                  {provider.review_count > 0 && (
+                    <a href="#avis" className="flex items-center gap-1.5">
+                      <Star size={14} fill="var(--color-accent)" stroke="none" aria-hidden />
+                      <span className="tabular">{provider.avg_rating.toFixed(1)}</span>
+                      <span style={{ color: "var(--color-text-muted)" }}>· {provider.review_count} avis</span>
+                    </a>
+                  )}
+                </p>
+              )}
+              <div className="mt-4">
+                <ShareButton name={provider.name} category={category} />
+              </div>
             </div>
           </header>
 
           {/* Repères */}
           <dl className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-x-8" style={{ fontSize: "var(--text-sm)" }}>
-            {provider.address_label && (
-              <div className="flex items-start gap-2">
-                <MapPin size={16} className="mt-0.5 flex-shrink-0" style={{ color: "var(--color-text-muted)" }} aria-hidden />
-                <div>
-                  <dt className="sr-only">Adresse</dt>
-                  <dd>{provider.address_label}</dd>
-                </div>
-              </div>
-            )}
             <div className="flex items-start gap-2">
               <Radius size={16} className="mt-0.5 flex-shrink-0" style={{ color: "var(--color-text-muted)" }} aria-hidden />
               <div>
                 <dt className="sr-only">Zone d&apos;intervention</dt>
-                <dd>Se déplace jusqu&apos;à <span className="tabular">{provider.zone_radius_km} km</span></dd>
+                <dd>Se déplace jusqu&apos;à {provider.zone_radius_km}&nbsp;km</dd>
               </div>
             </div>
             <div className="flex items-start gap-2">
@@ -218,13 +233,14 @@ export default async function ProviderPage({
             </section>
           )}
 
-          {/* Carte : dans le flux sur téléphone, à droite sur ordinateur */}
+          {/* Carte : dans le flux sur téléphone, colonne entière sur ordinateur */}
           {location && (
             <section className="lg:hidden">
               <h2 className="section-title">Où le trouver</h2>
               <MediaOnly on="mobile">
                 <ProviderDetailMap lat={lat} lng={lng} name={provider.name} />
               </MediaOnly>
+              <div className="mt-1">{mapsLink}</div>
             </section>
           )}
 
@@ -246,45 +262,44 @@ export default async function ProviderPage({
             </section>
           )}
 
-          {/* Avis */}
+          {/* Avis : une ligne tant qu'il n'y en a pas, la liste ensuite */}
           <section id="avis" className="scroll-mt-6">
-            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-              <h2 className="section-title !mb-0">
-                Avis{" "}
-                {provider.review_count > 0 && (
-                  <span className="tabular" style={{ color: "var(--color-text-muted)" }}>{provider.review_count}</span>
-                )}
-              </h2>
-              {reviews.length > 0 && <ReviewButton providerId={provider.id} />}
-            </div>
             {reviews.length ? (
-              <ul>
-                {reviews.slice(0, 8).map((r: PublicReview) => (
-                  <li key={r.id} className="border-b py-4 first:pt-0 last:border-b-0" style={{ borderColor: "var(--color-border)" }}>
-                    <div className="flex items-center justify-between gap-3">
-                      <Stars rating={r.rating} />
-                      <time dateTime={r.created_at} style={{ color: "var(--color-text-light)", fontSize: "var(--text-xs)" }}>
-                        {new Date(r.created_at).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}
-                      </time>
-                    </div>
-                    {r.comment && (
-                      <p className="mt-2 max-w-[65ch]" style={{ fontSize: "var(--text-sm)", lineHeight: 1.6 }}>
-                        {r.comment}
-                      </p>
-                    )}
-                  </li>
-                ))}
-              </ul>
+              <>
+                <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                  <h2 className="section-title !mb-0">
+                    Avis <span className="tabular" style={{ color: "var(--color-text-muted)" }}>{provider.review_count}</span>
+                  </h2>
+                  <ReviewButton providerId={provider.id} />
+                </div>
+                <ul>
+                  {reviews.slice(0, 8).map((r: PublicReview) => (
+                    <li key={r.id} className="border-b py-4 first:pt-0 last:border-b-0" style={{ borderColor: "var(--color-border)" }}>
+                      <div className="flex items-center justify-between gap-3">
+                        <Stars rating={r.rating} />
+                        <time dateTime={r.created_at} style={{ color: "var(--color-text-light)", fontSize: "var(--text-xs)" }}>
+                          {new Date(r.created_at).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}
+                        </time>
+                      </div>
+                      {r.comment && (
+                        <p className="mt-2 max-w-[65ch]" style={{ fontSize: "var(--text-sm)", lineHeight: 1.6 }}>
+                          {r.comment}
+                        </p>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </>
             ) : (
-              <div className="rounded-2xl px-5 py-6" style={{ backgroundColor: "var(--color-surface-sunk)" }}>
-                <p className="font-semibold" style={{ fontSize: "var(--text-base)" }}>Pas encore d&apos;avis</p>
-                <p className="mt-1 max-w-[46ch]" style={{ fontSize: "var(--text-sm)", color: "var(--color-text-muted)" }}>
-                  Vous avez fait appel à {provider.name} ? Votre avis aide vos voisins à choisir.
-                </p>
-                <div className="mt-4">
+              <>
+                <h2 className="section-title">Avis</h2>
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                  <p className="max-w-[46ch]" style={{ fontSize: "var(--text-sm)", color: "var(--color-text-muted)" }}>
+                    Pas encore d&apos;avis. Vous avez fait appel à {provider.name} ?
+                  </p>
                   <ReviewButton providerId={provider.id} first />
                 </div>
-              </div>
+              </>
             )}
           </section>
 
@@ -303,20 +318,21 @@ export default async function ProviderPage({
           </footer>
         </div>
 
-        {/* ─── Ordinateur : contact et carte, qui restent à l'écran ─── */}
+        {/* ─── Ordinateur : la carte occupe la colonne, le contact posé dessus ─── */}
         <aside className="hidden lg:block">
-          <div className="sticky top-6 space-y-4">
-            <div className="rounded-3xl p-5" style={{ backgroundColor: "var(--color-surface)", boxShadow: "var(--shadow-md)" }}>
+          <div className="provider-aside" data-map={!!location}>
+            {location && (
+              <MediaOnly on="desktop">
+                <ProviderDetailMap lat={lat} lng={lng} name={provider.name} className="absolute inset-0" />
+              </MediaOnly>
+            )}
+            <div className="provider-aside__card">
               <p className="mb-3 font-semibold" style={{ fontSize: "var(--text-sm)", color: "var(--color-text-muted)" }}>
                 Contacter {provider.name.split(" ")[0]}
               </p>
               {contact}
+              {mapsLink && <div className="mt-2 flex justify-center">{mapsLink}</div>}
             </div>
-            {location && (
-              <MediaOnly on="desktop">
-                <ProviderDetailMap lat={lat} lng={lng} name={provider.name} />
-              </MediaOnly>
-            )}
           </div>
         </aside>
       </div>

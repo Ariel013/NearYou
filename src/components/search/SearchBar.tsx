@@ -25,7 +25,7 @@ export function SearchBar({ placeholder = "Rechercher un service…" }: SearchBa
     <form
       onSubmit={handleSubmit}
       role="search"
-      className="relative flex items-center"
+      className="search-field relative flex items-center"
       style={{
         backgroundColor: "var(--color-surface)",
         border: "1px solid var(--color-border)",
@@ -44,14 +44,14 @@ export function SearchBar({ placeholder = "Rechercher un service…" }: SearchBa
         onChange={(e) => setQuery(e.target.value)}
         placeholder={placeholder}
         aria-label="Recherche de prestataires"
-        className="w-full bg-transparent py-3 pl-11 pr-10 outline-none"
+        className="w-full bg-transparent py-3 pl-11 pr-12 outline-none"
         style={{ fontSize: "var(--text-base)", color: "var(--color-text)" }}
       />
       {query && (
         <button
           type="button"
           onClick={() => setQuery("")}
-          className="absolute right-4 flex items-center justify-center rounded-full transition-opacity active:opacity-60"
+          className="absolute right-1 flex h-11 w-11 items-center justify-center rounded-full transition-opacity active:opacity-60"
           aria-label="Effacer la recherche"
         >
           <X size={16} style={{ color: "var(--color-text-muted)" }} />

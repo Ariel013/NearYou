@@ -54,7 +54,7 @@ export function RadiusPicker({ value, onChange }: RadiusPickerProps) {
               type="button"
               aria-pressed={on}
               onClick={() => onChange(km)}
-              className="tabular min-h-[32px] min-w-[44px] rounded-full px-2"
+              className="tabular min-h-[44px] min-w-[44px] rounded-full px-2"
               style={{
                 fontSize: "var(--text-xs)",
                 backgroundColor: on ? "var(--color-surface)" : "transparent",

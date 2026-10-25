@@ -23,8 +23,10 @@ Carte des documents : `CLAUDE.md` (règles, carte), `A-FAIRE.md` (hors code),
 - **Production** : `main` sur Vercel, branchée sur le nouveau projet
   Supabase (vérifié le 2026-10-22). Première exécution du cron de maintien en
   vie **non constatée**.
-- **Branches** : `dev` porte la tâche 1 et l'amorce ; ni `dev` ni `staging`
-  ne sont poussées.
+- **Branches** : `dev`, `staging` et `main` poussées le 2026-10-24 ; `main`
+  (6bad396) porte la tâche 1 et la refonte du front (lots 1 à 6). Le
+  déploiement de production qui en découle n'a **pas** été constaté (on ne
+  sonde pas la prod depuis ici).
 - **Revendication en panne** : les deux numéros du bot WhatsApp (Baileys) ont
   été bannis. Aucune fiche ne peut être revendiquée, et le cas « propriétaire
   modifie sa fiche → 200 » reste non testé. **Vérification de numéro mise en
@@ -32,10 +34,10 @@ Carte des documents : `CLAUDE.md` (règles, carte), `A-FAIRE.md` (hors code),
   passerelle ou SMS). Bloque aussi la messagerie (tâche 3).
 - **En cours** : refonte du front, brief validé le 2026-10-24 (voir
   `PRODUCT.md` et le backlog, « Refonte du front »). Lot 1 commité et fusionné
-  dans `dev`, lots 2 à 5 aussi ; lot 6 (tableau de bord) sur
-  `feat/refonte-front`, **non commité**. Ensuite : pousser `dev` (sur
-  confirmation), recette sur la preview Vercel, puis `staging` et `main`.
-- **Prochaine action** : valider le lot 6.
+  dans `dev`, puis tous les lots jusqu'au 6 ; promus en `staging` et `main`.
+- **Prochaine action** : recette sur un vrai téléphone (carte 3D, panneau
+  à tirer, fiche) ; vérifier que la production a bien redéployé et que
+  `PROVIDER_SESSION_SECRET` y existe.
 
 ## 📓 Journal des sessions
 
@@ -147,6 +149,37 @@ Carte des documents : `CLAUDE.md` (règles, carte), `A-FAIRE.md` (hors code),
   simulées (interception réseau) à 390 et 1440 px. Non testé : un vrai
   propriétaire (aucune fiche revendiquée).
 
+### 2026-10-25 — Critique, audit et finitions du front
+
+`/impeccable critique` de la fiche (25/40) et `/impeccable audit` de
+l'explorer (15/20), puis tout le plan de correction validé par Kevin :
+contrastes (WhatsApp 4,8:1, ambre écrit 5,1:1, encre claire ≥ 4,5:1 sur tout
+fond sable, calculés), cibles de 44 px (puces, crans, localisation, poignée,
+retour, zoom), anneau de focus de la recherche, ordre clavier (recherche avant
+la carte), titre de page sur téléphone, liste rendue une seule fois. Fiche :
+carte en colonne entière sur ordinateur avec le contact posé dessus,
+« Ouvrir dans Maps », ligne « distance de vous · quartier », « Y aller »
+libellé, bouton Partager, badge « Numéro vérifié », disponibilité affichée
+seulement sur une fiche revendiquée (« selon le prestataire »), avis vide
+réduit à une ligne. Couleurs du tracé d'itinéraire passées dans la palette de
+la carte. `DESIGN.md` et `DESIGN.json` suivent. Mesuré : build, typecheck,
+lint des fichiers touchés, détecteur impeccable vide, pas de défilement
+horizontal à 390, 768 et 1440 px, aucun bouton visible sous 44 px dans
+l'explorer à 390 px, distance affichée après localisation simulée. Non testé :
+fiche revendiquée (aucune n'existe), vrai téléphone.
+
+### 2026-10-25 — Localisation demandée à l'ouverture
+
+Kevin, ouvrant l'app, se voyait « localisé » à Abidjan sans y être. Cause : le
+point « vous êtes ici » de la carte retombait sur le centre de la recherche,
+c'est-à-dire la ville par défaut. Désormais la position est demandée dès
+l'ouverture, sur n'importe quelle page hors admin, une fois par chargement ;
+elle ne déplace la recherche que si son centre est encore celui par défaut
+(un lien partagé avec une position garde la sienne). Le point n'apparaît que
+sur une vraie localisation. Mesuré en navigateur simulé : autorisée → carte
+centrée sur l'usager avec son point ; refusée → aucun point ; lien partagé →
+recherche sur la position du lien. Build vert. Non testé : vrai téléphone.
+
 ## 🎓 Leçons apprises
 
 *Une entrée dès qu'une erreur est commise et corrigée. Format : symptôme →
@@ -210,3 +243,12 @@ La page du tableau de bord défilait horizontalement sur téléphone (425 px
 pour 390). Cause : une `<table>` ignore la largeur de 1 px de `sr-only`.
 Règle : masquer le conteneur de la table, pas la table ; et mesurer
 `scrollWidth` à chaque largeur, une capture ne le montre pas toujours.
+
+### Une position par défaut n'est pas la position de l'usager (2026-10-25)
+La fiche affichait « 710,1 km de vous » sans que personne se soit localisé.
+Cause : le store initialise `position` sur Cotonou, et la carte la déplace
+aussi (« chercher ici ») ; c'est le centre de la recherche, pas l'usager.
+Règle : un « de vous » ne se calcule que sur une position issue d'une
+géolocalisation réussie (`userPosition`), jamais sur un centre de recherche.
+Seconde occurrence le même jour : le point « vous êtes ici » de la carte
+retombait lui aussi sur le centre, d'où un usager « à Abidjan ».
