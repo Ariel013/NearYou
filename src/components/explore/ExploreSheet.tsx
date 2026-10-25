@@ -8,7 +8,7 @@ import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "re
 
 export type SheetSnap = "peek" | "half" | "full";
 
-const PEEK_PX = 112;
+const PEEK_PX = 136;
 
 interface ExploreSheetProps {
   snap: SheetSnap;
@@ -119,7 +119,7 @@ export function ExploreSheet({ snap, onSnapChange, header, children, onCoveredHe
             }
             onSnapChange(nextSnap);
           }}
-          className="flex w-full justify-center pt-2.5 pb-2"
+          className="flex h-11 w-full items-center justify-center"
           aria-label={snap === "full" ? "Réduire la liste" : "Agrandir la liste"}
         >
           <span className="h-[5px] w-10 rounded-full" style={{ backgroundColor: "var(--color-border)" }} />

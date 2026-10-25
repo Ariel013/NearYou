@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Syne, Epilogue, Geist_Mono } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
+import { AutoLocate } from "@/components/shared/AutoLocate";
 import "./globals.css";
 
 const syne = Syne({
@@ -49,6 +50,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         {children}
+        <AutoLocate />
         <Toaster richColors position="top-center" />
       </body>
     </html>

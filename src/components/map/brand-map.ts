@@ -42,6 +42,9 @@ const PALETTE = {
   halo: "#f7f3ec",
 };
 
+/** Tracé d'itinéraire : bleu lagune et bleu lagune profond, en hexadécimal (MapLibre ne lit pas l'OKLCH). */
+export const ROUTE_COLORS = { line: "#0f69a6", casing: "#084b79" } as const;
+
 // Couches retirées : relief raster des petits zooms (data inutile) et points
 // d'intérêt génériques, qui noieraient les épingles des prestataires.
 const DROPPED_LAYERS = new Set([
