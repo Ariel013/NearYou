@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,6 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CATEGORIES } from "@/components/search/CategoryGrid";
 import { CountryPhoneInput } from "@/components/claim/CountryPhoneInput";
+import { AddressField, suggestionLabel } from "@/components/forms/AddressField";
+import type { ApiResponse } from "@/types";
 import { DEFAULT_LAT, DEFAULT_LNG, DEFAULT_RADIUS_KM } from "@/types";
 
 const LocationPickerDynamic = dynamic(
@@ -45,6 +47,7 @@ export function ProviderForm({ defaultValues, onSubmit, submitLabel = "Enregistr
     register,
     handleSubmit,
     setValue,
+    getValues,
     watch,
     formState: { errors },
   } = useForm<FormValues>({
@@ -63,6 +66,29 @@ export function ProviderForm({ defaultValues, onSubmit, submitLabel = "Enregistr
   const zoneRadius = watch("zone_radius_km") ?? 5;
   const lat = watch("lat");
   const lng = watch("lng");
+  const address = watch("address_label") ?? "";
+  // Position imposée à la carte par une adresse choisie
+  const [pickedPos, setPickedPos] = useState<{ lat: number; lng: number } | undefined>();
+  // Vrai tant que l'adresse vient de nous (quartier deviné) : on peut la remplacer.
+  // Dès que la personne tape, son texte prime.
+  const addressIsAuto = useRef(true);
+
+  async function fillPlaceFrom(pos: { lat: number; lng: number }) {
+    if (!addressIsAuto.current) return;
+    try {
+      const res = await fetch(`/api/geocode/reverse?${new URLSearchParams({ lat: String(pos.lat), lng: String(pos.lng) })}`);
+      const json: ApiResponse<{ label: string | null }> = await res.json();
+      if (json.data?.label && addressIsAuto.current) setValue("address_label", json.data.label);
+    } catch {
+      // Sans quartier deviné, le champ reste vide : il est facultatif
+    }
+  }
+
+  // Le quartier de la position de départ, si rien n'est saisi
+  useEffect(() => {
+    if (!getValues("address_label")) void fillPlaceFrom({ lat: getValues("lat"), lng: getValues("lng") });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function toggleCategory(slug: string) {
     const current = selectedCategories;
@@ -144,10 +170,28 @@ export function ProviderForm({ defaultValues, onSubmit, submitLabel = "Enregistr
         )}
       </div>
 
-      {/* Address */}
+      {/* Adresse : suggestions, ou texte libre */}
       <div className="space-y-1.5">
         <Label htmlFor="address_label">Adresse (facultatif)</Label>
-        <Input id="address_label" {...register("address_label")} placeholder="Quartier Gbèdjromèdji, Cotonou" />
+        <AddressField
+          id="address_label"
+          value={address}
+          near={{ lat, lng }}
+          onType={(v) => {
+            addressIsAuto.current = false;
+            setValue("address_label", v, { shouldValidate: true });
+          }}
+          onPick={(s) => {
+            addressIsAuto.current = false;
+            setValue("address_label", suggestionLabel(s), { shouldValidate: true });
+            setValue("lat", Number(s.lat.toFixed(6)), { shouldValidate: true });
+            setValue("lng", Number(s.lng.toFixed(6)), { shouldValidate: true });
+            setPickedPos({ lat: Number(s.lat.toFixed(6)), lng: Number(s.lng.toFixed(6)) });
+          }}
+        />
+        <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)" }}>
+          Choisir une proposition place aussi l&apos;épingle. Vous pouvez préciser : « derrière la pharmacie ».
+        </p>
       </div>
 
       {/* Location picker */}
@@ -156,9 +200,11 @@ export function ProviderForm({ defaultValues, onSubmit, submitLabel = "Enregistr
         <LocationPickerDynamic
           initialLat={lat}
           initialLng={lng}
+          position={pickedPos}
           onChange={({ lat: newLat, lng: newLng }) => {
             setValue("lat", newLat, { shouldValidate: true });
             setValue("lng", newLng, { shouldValidate: true });
+            void fillPlaceFrom({ lat: newLat, lng: newLng });
           }}
         />
       </div>
