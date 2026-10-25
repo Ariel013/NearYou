@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { ProviderWithDistance } from "@/types";
+import { useSearchStore } from "@/store/useSearchStore";
 
 const MapViewDynamic = dynamic(
   () => import("./MapView").then((m) => m.MapView),
@@ -22,7 +23,9 @@ interface ProviderDetailMapProps {
 }
 
 export function ProviderDetailMap({ lat, lng, name, userPosition, className = "h-56 w-full rounded-2xl overflow-hidden" }: ProviderDetailMapProps) {
+  const storedUser = useSearchStore((s) => s.userPosition);
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  const user = userPosition ?? storedUser ?? undefined;
 
   const pinProvider: ProviderWithDistance = {
     id: "map-pin",
@@ -53,8 +56,8 @@ export function ProviderDetailMap({ lat, lng, name, userPosition, className = "h
       center={{ lat, lng }}
       providers={[pinProvider]}
       selectedProviderId="map-pin"
-      userPosition={userPosition}
-      showUserMarker={!!userPosition}
+      userPosition={user}
+      showUserMarker={!!user}
       zoom={16}
       initialTilt
       cooperative

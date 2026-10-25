@@ -116,8 +116,8 @@ export function MapView({
     if (!mapReady || !mapRef.current) return;
     userMarkerRef.current?.remove();
     userMarkerRef.current = null;
-    if (!showUserMarker) return;
-    const pos = userPosition ?? center;
+    if (!showUserMarker || !userPosition) return;
+    const pos = userPosition;
     if (!Number.isFinite(pos.lat) || !Number.isFinite(pos.lng)) return;
     userMarkerRef.current = new Marker({ element: createUserDot() })
       .setLngLat([pos.lng, pos.lat])
